@@ -1,5 +1,5 @@
-tool
-extends Reference
+@tool
+extends RefCounted
 class_name CSVLoader
 
 static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionary:
@@ -7,25 +7,24 @@ static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionar
 	var f_cell:String = conf.get_value("csv","f_cell","keys")
 	var delimiter:String = conf.get_value("csv","delimiter",",")
 
-	var f := File.new()
-	var err := f.open(filepath, File.READ)
+	var file := FileAccess.open(filepath, FileAccess.READ)
 
-	if err != OK:
-		return {"TMERROR":"Can't open file: {0}, code {1}".format([filepath, err])}
+	if file.get_open_error() != Error.OK:
+		return {"TMERROR":"Can't open file: {0}, code {1}".format([filepath, file.get_open_error()])}
 	
-	var first_row := f.get_csv_line(delimiter)
+	var first_row := file.get_csv_line(delimiter)
 
 	if first_row[0] != f_cell:
 		return {"TMERROR":"Translation file is missing the `id` (f_cell) column"}
 	
-	var languages := PoolStringArray()
+	var languages := PackedStringArray()
 	for i in range(1, len(first_row)):
 		languages.append(first_row[i])
 	
 	var ids := []
 	var rows := []
-	while not f.eof_reached():
-		var row := f.get_csv_line(delimiter)
+	while not file.eof_reached():
+		var row := file.get_csv_line(delimiter)
 		if len(row) < 1 or row[0].strip_edges() == "":
 			#print_debug("Found an empty row")
 			continue
@@ -33,11 +32,11 @@ static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionar
 			#print_debug("Found row smaller than header, resizing")
 			row.resize(len(first_row))
 		ids.append(row[0])
-		var trans = PoolStringArray()
+		var trans = PackedStringArray()
 		for i in range(1, len(row)):
 			trans.append(row[i])
 		rows.append(trans)
-	f.close()
+	file.close()
 	
 	var translations := {}
 	for i in len(ids):
@@ -49,7 +48,7 @@ static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionar
 	## si el archivo contiene solo los idiomas pero no tiene traducciones,
 	## retornar solo la lista de idiomas
 	if (
-		languages.size() > 0 and translations.empty() == true
+		languages.size() > 0 and translations.is_empty() == true
 	):
 		return {"EMPTYTRANSLATIONS":languages}
 	
@@ -64,20 +63,19 @@ static func save_csv_translation(
 	var delimiter:String = conf.get_value("csv","delimiter",",")
 	
 	## encabezados del csv, la primera fila
-	var f = File.new()
-	var err = f.open(filepath, File.WRITE)
+	var file = FileAccess.open(filepath, FileAccess.WRITE)
 	var csv_headers : Array = [f_cell]
 	csv_headers.append_array(langs)
 
-	if err != OK:
+	if file.get_open_error() != Error.OK:
 		OS.alert(
-			"Can't open file: {0}, code {1}".format([filepath, err]),
+			"Can't open file: {0}, code {1}".format([filepath, file.get_open_error()]),
 			"Translation Manager - Error"
 		)
-		return err
+		return file.get_open_error()
 	
 	## insertar primera fila, con los encabezados
-	f.store_csv_line(csv_headers, delimiter)
+	file.store_csv_line(csv_headers, delimiter)
 	
 	## recorrer fila de datos
 	for str_key in data.keys():
@@ -87,7 +85,7 @@ static func save_csv_translation(
 		var row_data : Array = [str_key]
 		row_data.append_array(str_translations)
 		## recorrer columna de datos
-		f.store_csv_line(row_data, delimiter)
+		file.store_csv_line(row_data, delimiter)
 
-	return OK
+	return Error.OK
 

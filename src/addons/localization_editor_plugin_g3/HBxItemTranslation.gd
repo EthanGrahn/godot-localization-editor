@@ -1,4 +1,4 @@
-tool
+@tool
 extends HBoxContainer
 
 signal deepl_open_link_requested(NodeName)
@@ -9,9 +9,9 @@ signal need_revision_check_pressed(StringKey, pressed)
 
 var focus_on_ready : bool
 
-var key_str : String = "ItemTranslation" setget _key_str_txt_changed
-var orig_txt : String = "Original Text" setget _orig_txt_changed
-var trans_txt : String = "Text Translated" setget update_trans_txt
+var key_str : String = "ItemTranslation": set = _key_str_txt_changed
+var orig_txt : String = "Original Text": set = _orig_txt_changed
+var trans_txt : String = "Text Translated": set = update_trans_txt
 
 var need_revision : bool = false
 var annotations : String ## no está siendo usado con relevancia...
@@ -21,12 +21,12 @@ var _is_ready_for_emit_signals : bool
 
 func _ready() -> void:
 	
-	$VBxString1/HBoxContainer/CheckBoxRevision.pressed = need_revision
+	$VBxString1/HBoxContainer/CheckBoxRevision.button_pressed = need_revision
 	
 	name = key_str
 
 	_on_CheckBoxRevision_toggled(
-		$VBxString1/HBoxContainer/CheckBoxRevision.pressed
+		$VBxString1/HBoxContainer/CheckBoxRevision.button_pressed
 	)
 
 	_on_LineEditTranslation_text_changed(trans_txt)
@@ -35,7 +35,7 @@ func _ready() -> void:
 	
 	if focus_on_ready == true:
 		focus_line_edit()
-		get_node("%LineEditTranslation").caret_position = get_node("%LineEditTranslation").text.length()
+		get_node("%LineEditTranslation").caret_column = get_node("%LineEditTranslation").text.length()
 
 func hide_deepl_button(val:bool) -> void:
 	get_node("%BtnTranslateDeepL").visible = val
@@ -44,13 +44,13 @@ func focus_line_edit() -> void:
 	get_node("%LineEditTranslation").grab_focus()
 
 func has_translation() -> bool:
-	return ! get_node("%LineEditTranslation").text.strip_edges().empty()
+	return ! get_node("%LineEditTranslation").text.strip_edges().is_empty()
 
 ## la variable orig_txt ha cambiado
 func _orig_txt_changed(txt:String) -> void:
 	orig_txt = txt
 	
-	if orig_txt.empty() == true:
+	if orig_txt.is_empty() == true:
 		orig_txt = "EMPTY TEXT"
 	
 	get_node("%LblOriginalTxt").text = orig_txt
@@ -72,7 +72,7 @@ func update_trans_txt(txt:String) -> void:
 #		#get_node("%LblOriginalTxt").visible = true
 #		get_node("%BtnTranslate").visible = true
 	
-	_on_LineEditTranslation_text_changed(trans_txt)
+	_on_LineEditTranslation_text_changed(trans_txt, false)
 
 func _key_str_txt_changed(txt:String) -> void:
 	key_str = txt
@@ -96,11 +96,11 @@ func _on_LineEditTranslation_focus_entered() -> void:
 func _on_LineEditTranslation_focus_exited() -> void:
 	pass
 
-func _on_LineEditTranslation_text_changed(new_text: String) -> void:
+func _on_LineEditTranslation_text_changed(new_text: String, update_trans_txt: bool = true) -> void:
 	
 	new_text = new_text.strip_edges()
 	
-	if new_text.empty() == true:
+	if new_text.is_empty() == true:
 		get_node("%LineEditTranslation").modulate = Color("ce5f5f")
 		#has_translation = false
 	else:
@@ -110,7 +110,8 @@ func _on_LineEditTranslation_text_changed(new_text: String) -> void:
 	if _is_ready_for_emit_signals == true:
 		emit_signal("text_updated", name, key_str, get_node("%LineEditTranslation").text)
 
-	trans_txt = new_text
+	if update_trans_txt:
+		trans_txt = new_text
 
 func _on_BtnEdit_pressed() -> void:
 	emit_signal("edit_requested", name)
@@ -126,7 +127,7 @@ func _on_BtnTranslateDeepL_pressed() -> void:
 
 
 func _on_ButtonCopyKey_pressed() -> void:
-	OS.set_clipboard(key_str)
+	DisplayServer.clipboard_set(key_str)
 
 ## se presionó enter en el campo de texto
 ## mandar focus al siguiente lineedit de traduccion
@@ -136,4 +137,4 @@ func _on_LineEditTranslation_text_entered(_new_text: String) -> void:
 	if next_node.name == "LineEditTranslation":
 		next_node.grab_focus()
 	## mandar posicion cursor al final
-	next_node.caret_position = next_node.text.length()
+	next_node.caret_column = next_node.text.length()

@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 const ADDONS_PATH = "res://addons/"
@@ -11,15 +11,15 @@ var plugin_config = ConfigFile.new()
 var refresher
 
 func _enter_tree():
-	refresher = preload("plugin_refresher.tscn").instance()
+	refresher = preload("plugin_refresher.tscn").instantiate()
 	add_control_to_container(CONTAINER_TOOLBAR, refresher)
 
 	# Watch whether any plugin is changed, added or removed on the filesystem
 	var efs = get_editor_interface().get_resource_filesystem()
-	efs.connect("filesystem_changed", self, "_on_filesystem_changed")
+	efs.connect("filesystem_changed", Callable(self, "_on_filesystem_changed"))
 
-	refresher.connect("request_refresh_plugin", self, "_on_request_refresh_plugin")
-	refresher.connect("confirm_refresh_plugin", self, "_on_confirm_refresh_plugin")
+	refresher.connect("request_refresh_plugin", Callable(self, "_on_request_refresh_plugin"))
+	refresher.connect("confirm_refresh_plugin", Callable(self, "_on_confirm_refresh_plugin"))
 
 	_reload_plugins_list()
 	_load_settings()
@@ -35,9 +35,9 @@ func _reload_plugins_list():
 	var plugins = {}
 	var origins = {}
 
-	var dir = Directory.new()
+	var dir = DirAccess.new()
 	dir.open(ADDONS_PATH)
-	dir.list_dir_begin(true, true)
+	dir.list_dir_begin() # TODOConverter3To4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 	var file = dir.get_next()
 	while file:
 		var addon_dir = ADDONS_PATH.plus_file(file)
@@ -70,7 +70,7 @@ func _reload_plugins_list():
 func _load_settings():
 	var path = get_config_path()
 
-	var fs = Directory.new()
+	var fs = DirAccess.new()
 	if not fs.file_exists(path):
 		# Create new if running for the first time
 		var config = ConfigFile.new()
@@ -107,7 +107,7 @@ func get_recent_plugin():
 
 
 func _on_request_refresh_plugin(p_name):
-	assert(not p_name.empty())
+	assert(not p_name.is_empty())
 
 	var disabled = not get_editor_interface().is_plugin_enabled(p_name)
 	if disabled:

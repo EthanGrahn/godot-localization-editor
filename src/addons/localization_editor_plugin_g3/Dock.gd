@@ -1,4 +1,4 @@
-tool
+@tool
 extends Control
 
 signal scan_files_requested
@@ -53,9 +53,9 @@ func _ready() -> void:
 		i += 1
 	
 	## conectar señales
-	get_node("%MenuFile").get_popup().connect("id_pressed", self, "_on_FileMenu_id_pressed")
-	get_node("%MenuEdit").get_popup().connect("id_pressed", self, "_on_EditMenu_id_pressed")
-	get_node("%MenuHelp").get_popup().connect("id_pressed", self, "_on_HelpMenu_id_pressed")
+	get_node("%MenuFile").get_popup().connect("id_pressed", Callable(self, "_on_FileMenu_id_pressed"))
+	get_node("%MenuEdit").get_popup().connect("id_pressed", Callable(self, "_on_EditMenu_id_pressed"))
+	get_node("%MenuHelp").get_popup().connect("id_pressed", Callable(self, "_on_HelpMenu_id_pressed"))
 
 	_on_CloseAll()
 	
@@ -69,27 +69,29 @@ func _ready() -> void:
 		_self_data_folder_path = OS.get_executable_path().get_base_dir()
 	
 	## crear directorio self data en caso de no existir
-	var Dir := Directory.new()
+	var Dir := DirAccess.open("./")
 	if Dir.dir_exists(_self_data_folder_path) == false:
 		Dir.make_dir(_self_data_folder_path)
 
-	Conf.load(_self_data_folder_path+"/translation_manager_conf.ini")
+	var config_file = _self_data_folder_path+"/translation_manager_conf.ini"
+	if Dir.file_exists(config_file):
+		Conf.load(_self_data_folder_path+"/translation_manager_conf.ini")
 	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
 	
 	if Engine.is_editor_hint() == false:
-		OS.window_maximized = Conf.get_value("main","maximized", false)
+		get_window().mode = Window.MODE_MAXIMIZED if (Conf.get_value("main","maximized", false)) else Window.MODE_WINDOWED
 	
 	get_node("%TxtSettingFCell").text = Conf.get_value("csv","f_cell","keys")
 	get_node("%TxtSettingDelimiter").text = Conf.get_value("csv","delimiter",",")
-	get_node("%CheckBoxSettingReopenFile").pressed = Conf.get_value("main","reopen_last_file",false)
-	get_node("%CheckBoxSettingHideDeepLButton").pressed = Conf.get_value("main","hide_deepl_button",false)
+	get_node("%CheckBoxSettingReopenFile").button_pressed = Conf.get_value("main","reopen_last_file",false)
+	get_node("%CheckBoxSettingHideDeepLButton").button_pressed = Conf.get_value("main","hide_deepl_button",false)
 
 	load_recent_files_list()
 
 	## reabrir el ultimo archivo
-	if get_node("%CheckBoxSettingReopenFile").pressed == true:
+	if get_node("%CheckBoxSettingReopenFile").button_pressed == true:
 		var recent_files:Array = Conf.get_value("main","recent_files",[])
-		if recent_files.empty() == false:
+		if recent_files.is_empty() == false:
 			if Dir.file_exists(
 				recent_files[0]
 			) == true:
@@ -103,14 +105,14 @@ func load_recent_files_list() -> void:
 		n.queue_free()
 	
 	for rl in recent_list:
-		var Btn := LinkBtnFile.instance()
+		var Btn := LinkBtnFile.instantiate()
 		Btn.f_path = rl
-		Btn.connect("opened", self, "_OnRecentFile_opened")
-		Btn.connect("removed", self, "_OnRecentFile_removed")
+		Btn.connect("opened", Callable(self, "_OnRecentFile_opened"))
+		Btn.connect("removed", Callable(self, "_OnRecentFile_removed"))
 		get_node("%VBxRecentFiles").add_child(Btn)
 	
 	## mostrar mensaje si lista esta vacia
-	get_node("%LblNoRecentFiles").visible = recent_list.empty()
+	get_node("%LblNoRecentFiles").visible = recent_list.is_empty()
 
 func _OnRecentFile_opened(f_path:String) -> void:
 	_on_FileDialog_files_selected([f_path])
@@ -133,13 +135,13 @@ func get_plugin_info(val:String) -> String:
 
 func start_search() -> void:
 	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
-	var hide_translated:bool = get_node("%CheckBoxHideCompleted").pressed
-	var hide_no_need_rev:bool = get_node("%CheckBoxHideNoNeedRev").pressed
+	var hide_translated:bool = get_node("%CheckBoxHideCompleted").button_pressed
+	var hide_no_need_rev:bool = get_node("%CheckBoxHideNoNeedRev").button_pressed
 	
 	for tp in get_node("%VBxTranslations").get_children():
 		tp.visible = true
 		## busqueda por texto
-		if searchtxt.empty()== false:
+		if searchtxt.is_empty()== false:
 			if (
 				(get_node("%CheckBoxSearchKeyID").pressed and searchtxt in tp.key_str.to_lower())
 				or (get_node("%CheckBoxSearchRefText").pressed and searchtxt in tp.orig_txt.to_lower())
@@ -159,11 +161,11 @@ func start_search() -> void:
 func clear_search() -> void:
 	get_node("%BtnClearSearch").disabled = true
 	get_node("%LineEditSearchBox").text = ""
-	get_node("%CheckBoxSearchKeyID").pressed = true
-	get_node("%CheckBoxSearchRefText").pressed = true
-	get_node("%CheckBoxSearchTransText").pressed = true
-	get_node("%CheckBoxHideCompleted").pressed = false
-	get_node("%CheckBoxHideNoNeedRev").pressed = false
+	get_node("%CheckBoxSearchKeyID").button_pressed = true
+	get_node("%CheckBoxSearchRefText").button_pressed = true
+	get_node("%CheckBoxSearchTransText").button_pressed = true
+	get_node("%CheckBoxHideCompleted").button_pressed = false
+	get_node("%CheckBoxHideNoNeedRev").button_pressed = false
 
 func alert(txt:String,title:String="Alert!") -> void:
 	get_node("%WindowDialogAlert").window_title = title
@@ -174,17 +176,17 @@ func add_translation_panel(
 	strkey:String, ref_txt:String, trans_txt:String, focus_lineedit:bool=false
 ) -> void:
 	
-	var TransInstance = TranslationItem.instance()
+	var TransInstance = TranslationItem.instantiate()
 	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
 	var TransConf := ConfigFile.new()
 	
 	TransConf.load(extra_data_path)
 
-	TransInstance.connect("deepl_open_link_requested", self, "_on_deepl_open_link_requested")
-	TransInstance.connect("translate_requested", self, "_on_Translation_translate_requested")
-	TransInstance.connect("text_updated", self, "_on_Translation_text_updated")
-	TransInstance.connect("edit_requested", self, "_on_Translation_edit_requested")
-	TransInstance.connect("need_revision_check_pressed", self, "_on_Translation_need_revision_check_pressed")
+	TransInstance.connect("deepl_open_link_requested", Callable(self, "_on_deepl_open_link_requested"))
+	TransInstance.connect("translate_requested", Callable(self, "_on_Translation_translate_requested"))
+	TransInstance.connect("text_updated", Callable(self, "_on_Translation_text_updated"))
+	TransInstance.connect("edit_requested", Callable(self, "_on_Translation_edit_requested"))
+	TransInstance.connect("need_revision_check_pressed", Callable(self, "_on_Translation_need_revision_check_pressed"))
 
 	TransInstance.focus_on_ready = focus_lineedit
 
@@ -265,7 +267,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 func _on_HelpMenu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			_on_LinkHowToUse_pressed()
+			OS.shell_open("https://ko-fi.com/Post/How-to-use-Localization-Editor-V7V7GF7GH")
 		2:
 			## creditos
 			get_node("%WindowDialogCredits").popup_centered()
@@ -294,9 +296,9 @@ func _on_Popup_about_to_show() -> void:
 func _on_Popup_hide() -> void:
 	get_node("%PopupBG").visible = false
 
-func _on_FileDialog_files_selected(paths: PoolStringArray) -> void:
+func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
 	
-	var Dir = Directory.new()
+	var Dir = DirAccess.open("./")
 	
 	get_node("%OpenedFilesList").clear()
 
@@ -304,7 +306,7 @@ func _on_FileDialog_files_selected(paths: PoolStringArray) -> void:
 	for p in paths:
 		## si algunos de los archivos no existe eliminar de la lista de paths TODO mejorar o asegurarse que funcione bien
 		if Dir.file_exists(p) == false:
-			paths.remove(i)
+			paths.remove_at(i)
 		else:
 			get_node("%OpenedFilesList").add_item(
 				p.get_file(), i
@@ -315,7 +317,7 @@ func _on_FileDialog_files_selected(paths: PoolStringArray) -> void:
 			var recent_list:Array = Conf.get_value("main","recent_files",[])
 			if recent_list.has(p) == false:
 				if recent_list.size() >= recent_limit:
-					recent_list.remove(recent_list.size()-1)
+					recent_list.remove_at(recent_list.size()-1)
 				recent_list.append(p)
 			## el path ya estaba en lista
 			## eliminarlo y colocarlo en la parte superior del array
@@ -443,12 +445,11 @@ func _on_deepl_open_link_requested(TransNodeName:String) -> void:
 		to_lang = to_lang.split("_")[0]
 	
 	var url:String = "https://deepl.com/translator#%s/%s/%s" % [
-		from_lang.http_escape(),
-		to_lang.http_escape(),
-		TranslationObj.orig_txt.http_escape(),
+		from_lang.uri_encode(),
+		to_lang.uri_encode(),
+		TranslationObj.orig_txt.uri_encode(),
 	]
 	OS.shell_open(url)
-	print(url)
 
 
 ## se solicitó traduccion
@@ -466,10 +467,10 @@ func _on_Translation_edit_requested(TransNodeName:String) -> void:
 	
 	var TranslationObj = get_node("%VBxTranslations").get_node(TransNodeName)
 	
-	get_node("%CTCheckEditKey").pressed = false
+	get_node("%CTCheckEditKey").button_pressed = false
 	_on_CTCheckEditKey_toggled(false)
-	get_node("%CTCheckEnableOriginalTxt").pressed = false
-	get_node("%TxtOriginalTxt").readonly = true
+	get_node("%CTCheckEnableOriginalTxt").button_pressed = false
+	get_node("%TxtOriginalTxt").editable = false
 	
 	## setear datos
 	
@@ -559,7 +560,7 @@ func _on_CTBtnSaveKey_pressed() -> void:
 	
 	## si el campo del strkey esta checkeado
 	## renombrar el keystr a uno nuevo
-	if get_node("%CTCheckEditKey").pressed == true:
+	if get_node("%CTCheckEditKey").button_pressed == true:
 		
 		if get_node("%CTLineEdit").text in _translations.keys():
 			OS.alert("The String Key [%s] is already in use"%[get_node("%CTLineEdit").text])
@@ -585,7 +586,7 @@ func _on_CTBtnSaveKey_pressed() -> void:
 		## setear el nuevo keystr al panel de la traduccion
 		TranslationObj.key_str = get_node("%CTLineEdit").text
 		##
-		if conf_values.empty() == false:
+		if conf_values.is_empty() == false:
 			for c in conf_values:
 				TransConf.set_value(
 					get_node("%CTLineEdit").text,#seccion
@@ -593,7 +594,7 @@ func _on_CTBtnSaveKey_pressed() -> void:
 				)
 	
 	## si el check del texto original está checkeado
-	if get_node("%CTCheckEnableOriginalTxt").pressed == true:
+	if get_node("%CTCheckEnableOriginalTxt").button_pressed == true:
 		## guadar en el panel
 		TranslationObj.orig_txt = get_node("%TxtOriginalTxt").text
 		## guardar en el diccionario
@@ -622,7 +623,7 @@ func _on_CTBtnSaveKey_pressed() -> void:
 	get_node("%DialogEditTranslation").hide()
 
 func _on_CTCheckEnableOriginalTxt_toggled(button_pressed: bool) -> void:
-	get_node("%TxtOriginalTxt").readonly = ! button_pressed
+	get_node("%TxtOriginalTxt").editable = button_pressed
 
 ## escribir datos al csv
 func _on_BtnSaveFile_pressed() -> void:
@@ -690,22 +691,10 @@ func _on_CheckBoxSettingHideDeepLButton_toggled(button_pressed: bool) -> void:
 	Conf.set_value("main", "hide_deepl_button", button_pressed)
 
 
-func _on_LinkHowToUse_pressed() -> void:
-	##enviar a post de kofi
-	OS.shell_open("https://ko-fi.com/Post/How-to-use-Localization-Editor-V7V7GF7GH")
-func _on_LinkButtonItchio_pressed() -> void:
-	OS.shell_open("https://dannygaray60.itch.io/localization-editor")
-func _on_LinkButtonTwitter_pressed() -> void:
-	OS.shell_open("https://twitter.com/dannygaray60")
-func _on_LinkButtonGithub_pressed() -> void:
-	OS.shell_open("https://github.com/dannygaray60/localization-editor-g3")
-func _on_LinkButtonKofi_pressed() -> void:
-	OS.shell_open("https://ko-fi.com/dannygaray60")
-
 ## se presiono en añadir traduccion
 func _on_BtnAddTranslation_pressed() -> void:
 	
-	get_node("%CheckBoxNewSTRKeyUppercase").pressed = Conf.get_value("main", "uppercase_on_input", true)
+	get_node("%CheckBoxNewSTRKeyUppercase").button_pressed = Conf.get_value("main", "uppercase_on_input", true)
 	
 	get_node("%LineEditKeyStrNewTransItem").text = ""
 	get_node("%LineEditRefTxtNewTransItem").placeholder_text = "[%s] Text here..." % [get_selected_lang("ref")]
@@ -787,18 +776,17 @@ func _on_BtnNewFileCreate_pressed() -> void:
 	var f_cell : String = Conf.get_value("csv","f_cell","keys")
 	var delim : String = Conf.get_value("csv","delimiter",",")
 	
-	var F = File.new()
 	var namefile : String = get_node("%LineEditNewFileName").text.strip_edges()
 	var filepath : String = get_node("%LineEditNewFilePath").text
 	var langs_txt : String = get_node("%TextEditNewFileLangsAdded").text.replace(" ","")
 	var headers_list : Array = langs_txt.split(delim, false)
 	
-	if filepath.empty() == true:
+	if filepath.is_empty() == true:
 		OS.alert("Please add a file path.")
 		return
 	
-	if namefile.empty() == true:
-		namefile = str(OS.get_ticks_usec())
+	if namefile.is_empty() == true:
+		namefile = str(Time.get_ticks_usec())
 	
 	if headers_list.size() == 0:
 		headers_list.append("en")
@@ -806,13 +794,13 @@ func _on_BtnNewFileCreate_pressed() -> void:
 	## añadir el fcell
 	headers_list.push_front(f_cell)
 	
-	var err = F.open(
-		"%s/%s.csv" % [filepath,namefile], File.WRITE
+	var out_file = FileAccess.open(
+		"%s/%s.csv" % [filepath,namefile], FileAccess.WRITE
 	)
 	
-	if err == OK:
-		F.store_csv_line(headers_list,delim)
-		F.close()
+	if out_file.get_open_error() == Error.OK:
+		out_file.store_csv_line(headers_list,delim)
+		out_file.close()
 		## archivo guardado, abrir
 		_on_FileDialog_files_selected([
 			"%s/%s.csv" % [filepath,namefile]
@@ -825,8 +813,8 @@ func _on_BtnNewFileCreate_pressed() -> void:
 		
 		get_node("%WindowDialogCreateFile").hide()
 	else:
-		OS.alert("Error creating file. Error #"+str(err))
-		F.close()
+		OS.alert("Error creating file. Error #"+str(out_file.get_open_error()))
+		out_file.close()
 
 ## en el panel de añadir traduccion cualquiera de los lineedit se ha modificado
 func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
@@ -835,8 +823,8 @@ func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
 	var transtxt:String = get_node("%LineEditTransTxtNewTransItem").text.strip_edges()
 	
 	if (
-		strkey.empty() == true 
-		or reftxt.empty() == true 
+		strkey.is_empty() == true 
+		or reftxt.is_empty() == true 
 	):
 		get_node("%BtnAddTransItem").disabled = true
 	else:
@@ -880,8 +868,8 @@ func _on_BtnAddTransItem_pressed() -> void:
 	
 	get_node("%WindowDialogAddTranslationItem").hide()
 	
-	yield(get_tree(), "idle_frame")
-	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_focus_owner())
+	await get_tree().idle_frame
+	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
 
 func _on_BtnRemoveLang_pressed() -> void:
 	
@@ -915,10 +903,10 @@ func _on_BtnRemoveLang_pressed() -> void:
 
 ## el campo de strkey en el popup de nueva traduccion cambió
 func _on_LineEditKeyStrNewTransItem_text_changed(new_text: String) -> void:
-	if get_node("%CheckBoxNewSTRKeyUppercase").pressed == true:
+	if get_node("%CheckBoxNewSTRKeyUppercase").button_pressed == true:
 		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_upper().replace(" ","_")
 	
-	get_node("%LineEditKeyStrNewTransItem").caret_position = get_node("%LineEditKeyStrNewTransItem").text.length()
+	get_node("%LineEditKeyStrNewTransItem").caret_column = get_node("%LineEditKeyStrNewTransItem").text.length()
 
 
 func _on_CheckBoxNewSTRKeyUppercase_toggled(button_pressed: bool) -> void:
@@ -929,20 +917,20 @@ func _on_CheckBoxNewSTRKeyUppercase_toggled(button_pressed: bool) -> void:
 		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_upper().replace(" ","_")
 	else:
 		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_lower().replace(" ","_")
-	get_node("%LineEditKeyStrNewTransItem").caret_position = get_node("%LineEditKeyStrNewTransItem").text.length()
+	get_node("%LineEditKeyStrNewTransItem").caret_column = get_node("%LineEditKeyStrNewTransItem").text.length()
 
 
 func _on_CheckBoxHideCompleted_pressed() -> void:
-	if get_node("%CheckBoxHideCompleted").pressed == true:
+	if get_node("%CheckBoxHideCompleted").button_pressed == true:
 		get_node("%BtnClearSearch").disabled = false
 	start_search()
 func _on_CheckBoxShowNeedRev_pressed() -> void:
-	if get_node("%CheckBoxHideNoNeedRev").pressed == true:
+	if get_node("%CheckBoxHideNoNeedRev").button_pressed == true:
 		get_node("%BtnClearSearch").disabled = false
 	start_search()
 
 func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
-	get_node("%BtnClearSearch").disabled = new_text.strip_edges().empty()
+	get_node("%BtnClearSearch").disabled = new_text.strip_edges().is_empty()
 	start_search()
 
 ## se presiono algun check de la barra de busqueda
@@ -950,17 +938,17 @@ func _on_CheckBoxSearch_pressed() -> void:
 	
 	## al menos de uno de los checks debe estar presionado
 	if (
-		get_node("%CheckBoxSearchKeyID").pressed == false
-		and get_node("%CheckBoxSearchRefText").pressed == false
-		and get_node("%CheckBoxSearchTransText").pressed == false
+		get_node("%CheckBoxSearchKeyID").button_pressed == false
+		and get_node("%CheckBoxSearchRefText").button_pressed == false
+		and get_node("%CheckBoxSearchTransText").button_pressed == false
 	):
-		get_node("%CheckBoxSearchKeyID").pressed = true
+		get_node("%CheckBoxSearchKeyID").button_pressed = true
 	
 	## si al menos de uno de los checks está desactivado
 	if (
-		get_node("%CheckBoxSearchKeyID").pressed == false
-		or get_node("%CheckBoxSearchRefText").pressed == false
-		or get_node("%CheckBoxSearchTransText").pressed == false
+		get_node("%CheckBoxSearchKeyID").button_pressed == false
+		or get_node("%CheckBoxSearchRefText").button_pressed == false
+		or get_node("%CheckBoxSearchTransText").button_pressed == false
 	):
 		get_node("%BtnClearSearch").disabled = false
 	
@@ -971,19 +959,9 @@ func _on_BtnClearSearch_pressed() -> void:
 	start_search()
 
 
-
-func _on_BtnWow_mouse_entered() -> void:
-	get_node("%TextureRectGodette").texture = GodetteWowTexture
-func _on_BtnWow_mouse_exited() -> void:
-	get_node("%TextureRectGodette").texture = GodetteTexture
-func _on_BtnWow_pressed() -> void:
-	_on_LinkButtonKofi_pressed()
-
-
-
 func _on_Dock_resized() -> void:
 	if Engine.is_editor_hint() == false:
-		Conf.set_value("main","maximized",OS.window_maximized)
+		Conf.set_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
 		Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
 		
 
@@ -1002,6 +980,3 @@ func _on_BtnCloseFile_pressed() -> void:
 		get_node("%OpenedFilesList").select(0)
 		_on_OpenedFilesList_item_selected(0)
 
-
-func _on_BtnOpenDeepL_pressed() -> void:
-	OS.shell_open("https://www.deepl.com/translator")
