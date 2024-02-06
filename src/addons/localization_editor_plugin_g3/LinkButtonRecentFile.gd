@@ -1,4 +1,4 @@
-tool
+@tool
 extends HBoxContainer
 
 signal opened(f_path)
@@ -11,7 +11,7 @@ func _ready() -> void:
 		f_path.get_file()
 	]
 	
-	$Lnk.hint_tooltip = "%s/%s" % [
+	$Lnk.tooltip_text = "%s/%s" % [
 		f_path.get_base_dir(),
 		f_path.get_file()
 	] 

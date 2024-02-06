@@ -6,29 +6,20 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
-
-_global_script_classes=[ {
-"base": "Reference",
-"class": "CSVLoader",
-"language": "GDScript",
-"path": "res://addons/localization_editor_plugin_g3/csv_loader.gd"
-} ]
-_global_script_class_icons={
-"CSVLoader": ""
-}
+config_version=5
 
 [application]
 
 config/name="Localization Editor"
 run/main_scene="res://Main.tscn"
+config/features=PackedStringArray("4.1")
+boot_splash/bg_color=Color(0.12549, 0.145098, 0.192157, 1)
 boot_splash/show_image=false
-boot_splash/bg_color=Color( 0.12549, 0.145098, 0.192157, 1 )
 config/icon="res://icon.png"
 
 [audio]
 
-default_bus_layout=""
+buses/default_bus_layout=""
 
 [display]
 
@@ -36,7 +27,7 @@ window/energy_saving/keep_screen_on=false
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/godot-plugin-refresher/plugin.cfg", "res://addons/localization_editor_plugin_g3/plugin.cfg" )
+enabled=PackedStringArray("res://addons/localization_editor_plugin_g3/plugin.cfg")
 
 [gui]
 
@@ -50,4 +41,3 @@ common/enable_pause_aware_picking=true
 
 quality/driver/driver_name="GLES2"
 vram_compression/import_etc=true
-vram_compression/import_etc2=false
