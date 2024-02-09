@@ -1,7 +1,6 @@
 @tool
 extends HBoxContainer
 
-signal deepl_open_link_requested(NodeName)
 signal translate_requested(NodeName, base_text)
 signal text_updated(NodeName,key_str,txt)
 signal edit_requested(NodeName)
@@ -36,9 +35,6 @@ func _ready() -> void:
 	if focus_on_ready == true:
 		focus_line_edit()
 		get_node("%LineEditTranslation").caret_column = get_node("%LineEditTranslation").text.length()
-
-func hide_deepl_button(val:bool) -> void:
-	get_node("%BtnTranslateDeepL").visible = val
 
 func focus_line_edit() -> void:
 	get_node("%LineEditTranslation").grab_focus()
@@ -120,11 +116,6 @@ func _on_BtnTranslate_pressed() -> void:
 	trans_txt = "Translating: [%s] please wait..." % [orig_txt]
 	get_node("%LineEditTranslation").text = trans_txt
 	emit_signal("translate_requested", name, orig_txt)
-
-
-func _on_BtnTranslateDeepL_pressed() -> void:
-	emit_signal("deepl_open_link_requested", name)
-
 
 func _on_ButtonCopyKey_pressed() -> void:
 	DisplayServer.clipboard_set(key_str)

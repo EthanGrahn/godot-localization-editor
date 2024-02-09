@@ -84,7 +84,6 @@ func _ready() -> void:
 	get_node("%TxtSettingFCell").text = Conf.get_value("csv","f_cell","keys")
 	get_node("%TxtSettingDelimiter").text = Conf.get_value("csv","delimiter",",")
 	get_node("%CheckBoxSettingReopenFile").button_pressed = Conf.get_value("main","reopen_last_file",false)
-	get_node("%CheckBoxSettingHideDeepLButton").button_pressed = Conf.get_value("main","hide_deepl_button",false)
 
 	load_recent_files_list()
 
@@ -180,9 +179,9 @@ func add_translation_panel(
 	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
 	var TransConf := ConfigFile.new()
 	
+	print(extra_data_path)
 	TransConf.load(extra_data_path)
 
-	TransInstance.connect("deepl_open_link_requested", Callable(self, "_on_deepl_open_link_requested"))
 	TransInstance.connect("translate_requested", Callable(self, "_on_Translation_translate_requested"))
 	TransInstance.connect("text_updated", Callable(self, "_on_Translation_text_updated"))
 	TransInstance.connect("edit_requested", Callable(self, "_on_Translation_edit_requested"))
@@ -196,10 +195,6 @@ func add_translation_panel(
 	TransInstance.trans_txt = trans_txt
 	TransInstance.need_revision = TransConf.get_value(strkey, "need_rev", false)
 	TransInstance.annotations = TransConf.get_value(strkey, "annotations", "")
-	
-	TransInstance.hide_deepl_button(
-		Conf.get_value("main", "hide_deepl_button", false)
-	)
 
 	get_node("%VBxTranslations").call_deferred("add_child", TransInstance)
 
@@ -430,27 +425,6 @@ func _on_LangItemList_item_selected(_index: int) -> void:
 			_translations[t_key][selected_lang_ref],
 			_translations[t_key][selected_lang_trans]
 		)
-
-# request to open web translation
-func _on_deepl_open_link_requested(TransNodeName:String) -> void:
-	var TranslationObj = get_node("%VBxTranslations").get_node(TransNodeName)
-	
-	var from_lang:String = get_selected_lang("ref")
-	var to_lang:String = get_selected_lang("trans")
-	
-	# going from "en_US" to just "en"
-	if "_" in from_lang:
-		from_lang = from_lang.split("_")[0]
-	if "_" in to_lang:
-		to_lang = to_lang.split("_")[0]
-	
-	var url:String = "https://deepl.com/translator#%s/%s/%s" % [
-		from_lang.uri_encode(),
-		to_lang.uri_encode(),
-		TranslationObj.orig_txt.uri_encode(),
-	]
-	OS.shell_open(url)
-
 
 # translation requested
 func _on_Translation_translate_requested(TransNodeName:String, text_to_trans:String) -> void:
@@ -686,9 +660,6 @@ func _on_ApiTranslate_text_translated(
 # changed the checkbox to reopen last open file
 func _on_CheckBoxSettingReopenFile_toggled(button_pressed: bool) -> void:
 	Conf.set_value("main", "reopen_last_file", button_pressed)
-func _on_CheckBoxSettingHideDeepLButton_toggled(button_pressed: bool) -> void:
-	Conf.set_value("main", "hide_deepl_button", button_pressed)
-
 
 # pressed add translation
 func _on_BtnAddTranslation_pressed() -> void:
