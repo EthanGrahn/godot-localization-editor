@@ -14,9 +14,8 @@ var orig_txt : String = "Original Text": set = _orig_txt_changed
 var trans_txt : String = "Text Translated": set = update_trans_txt
 
 var need_revision : bool = false
-var annotations : String ## no está siendo usado con relevancia...
 
-## flag para evitar emitir señales apenas el objeto se añade al tree
+# flag to avoid emitting signal as soon as the object is added to the tree
 var _is_ready_for_emit_signals : bool
 
 func _ready() -> void:
@@ -46,7 +45,7 @@ func focus_line_edit() -> void:
 func has_translation() -> bool:
 	return ! get_node("%LineEditTranslation").text.strip_edges().is_empty()
 
-## la variable orig_txt ha cambiado
+# the orig_txt variable has changed
 func _orig_txt_changed(txt:String) -> void:
 	orig_txt = txt
 	
@@ -54,8 +53,8 @@ func _orig_txt_changed(txt:String) -> void:
 		orig_txt = "EMPTY TEXT"
 	
 	get_node("%LblOriginalTxt").text = orig_txt
-	## desactivado ya que puede confundir con el contenido de traduccion los puntos suspensivos
-	## recortar texto largo (funciona?)
+	# disabled as it may confuse the ellipsis with translation content
+	# trim large amount of text (not working)
 #	if orig_txt.length() > 10:
 #		get_node("%LblOriginalTxt").text.erase(0,10)
 #		get_node("%LblOriginalTxt").text = get_node("%LblOriginalTxt").text + "..." 
@@ -63,8 +62,8 @@ func _orig_txt_changed(txt:String) -> void:
 func update_trans_txt(txt:String) -> void:
 	trans_txt = txt
 	get_node("%LineEditTranslation").text = trans_txt
-	## ocultar texto original si es lo mismo que la traduccion
-	## ocuyltar tambien el boton translate
+	# hide original text if it is the same as the translation
+	# also hide the translate button
 #	if trans_txt == orig_txt:
 #		#get_node("%LblOriginalTxt").visible = false
 #		get_node("%BtnTranslate").visible = false
@@ -102,10 +101,10 @@ func _on_LineEditTranslation_text_changed(new_text: String, update_trans_txt: bo
 	
 	if new_text.is_empty() == true:
 		get_node("%LineEditTranslation").modulate = Color("ce5f5f")
-		#has_translation = false
+		# has_translation = false
 	else:
 		get_node("%LineEditTranslation").modulate = Color("ffffff")
-		#has_translation = true
+		# has_translation = true
 	
 	if _is_ready_for_emit_signals == true:
 		emit_signal("text_updated", name, key_str, get_node("%LineEditTranslation").text)
@@ -129,12 +128,12 @@ func _on_BtnTranslateDeepL_pressed() -> void:
 func _on_ButtonCopyKey_pressed() -> void:
 	DisplayServer.clipboard_set(key_str)
 
-## se presionó enter en el campo de texto
-## mandar focus al siguiente lineedit de traduccion
+# enter was pressed in the text field
+# send focus to the following translation line edit
 func _on_LineEditTranslation_text_entered(_new_text: String) -> void:
 	var next_node:Control = get_node("%LineEditTranslation").find_next_valid_focus()
 	
 	if next_node.name == "LineEditTranslation":
 		next_node.grab_focus()
-	## mandar posicion cursor al final
+	# set cursor position to the end
 	next_node.caret_column = next_node.text.length()

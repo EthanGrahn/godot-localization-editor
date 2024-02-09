@@ -21,7 +21,7 @@ var _selected_translation_panel : String
 var _current_file : String
 var _current_path : String
 
-## carpeta en donde se guardan datos internos del addon, como guardar anotaciones de los keystr
+# folder where internal data of the addon is saved, such as keystr annotations
 var _self_data_folder_path : String = "res://addons/localization_editor_plugin_g3"
 
 func _ready() -> void:
@@ -52,14 +52,14 @@ func _ready() -> void:
 		)
 		i += 1
 	
-	## conectar señales
+	# conectar señales
 	get_node("%MenuFile").get_popup().connect("id_pressed", Callable(self, "_on_FileMenu_id_pressed"))
 	get_node("%MenuEdit").get_popup().connect("id_pressed", Callable(self, "_on_EditMenu_id_pressed"))
 	get_node("%MenuHelp").get_popup().connect("id_pressed", Callable(self, "_on_HelpMenu_id_pressed"))
 
 	_on_CloseAll()
 	
-	## si se ejecuta en editor, solo se accederá al res://
+	# if running in editor, only use res://
 	if Engine.is_editor_hint() == true:
 		get_node("%FileDialog").access = FileDialog.ACCESS_RESOURCES
 		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_RESOURCES
@@ -68,7 +68,7 @@ func _ready() -> void:
 		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_FILESYSTEM
 		_self_data_folder_path = OS.get_executable_path().get_base_dir()
 	
-	## crear directorio self data en caso de no existir
+	# create self data directory if it doesn't exist
 	var Dir := DirAccess.open("./")
 	if Dir.dir_exists(_self_data_folder_path) == false:
 		Dir.make_dir(_self_data_folder_path)
@@ -88,7 +88,7 @@ func _ready() -> void:
 
 	load_recent_files_list()
 
-	## reabrir el ultimo archivo
+	# reopen the last file
 	if get_node("%CheckBoxSettingReopenFile").button_pressed == true:
 		var recent_files:Array = Conf.get_value("main","recent_files",[])
 		if recent_files.is_empty() == false:
@@ -98,7 +98,7 @@ func _ready() -> void:
 				_on_FileDialog_files_selected([recent_files[0]])
 
 func load_recent_files_list() -> void:
-	## mostrar archivos recientes
+	# show recent files
 	var recent_list:Array = Conf.get_value("main","recent_files",[])
 	
 	for n in get_node("%VBxRecentFiles").get_children():
@@ -111,7 +111,7 @@ func load_recent_files_list() -> void:
 		Btn.connect("removed", Callable(self, "_OnRecentFile_removed"))
 		get_node("%VBxRecentFiles").add_child(Btn)
 	
-	## mostrar mensaje si lista esta vacia
+	# show message if list is empty
 	get_node("%LblNoRecentFiles").visible = recent_list.is_empty()
 
 func _OnRecentFile_opened(f_path:String) -> void:
@@ -140,7 +140,7 @@ func start_search() -> void:
 	
 	for tp in get_node("%VBxTranslations").get_children():
 		tp.visible = true
-		## busqueda por texto
+		# text search
 		if searchtxt.is_empty()== false:
 			if (
 				(get_node("%CheckBoxSearchKeyID").pressed and searchtxt in tp.key_str.to_lower())
@@ -151,10 +151,10 @@ func start_search() -> void:
 			else:
 				tp.visible = false
 		
-		## ocultar los que no tienen traduccion
+		# hide those that do not have a translation
 		if hide_translated and tp.has_translation() == true:
 			tp.visible = false
-		## ocultar los que no necesitan revision
+		# hide those that do not need revision
 		if hide_no_need_rev and tp.need_revision == false:
 			tp.visible = false
 
@@ -207,7 +207,7 @@ func add_translation_panel(
 func get_opened_file() -> String:
 	return _current_path + "/" + _current_file
 
-## obtener lista de lenguages disponibles
+# get list of available languages
 func get_langs() -> Array:
 	var langs_list:Array
 	var available_langs_count:int = get_node("%RefLangItemList").get_item_count()
@@ -219,7 +219,7 @@ func get_langs() -> Array:
 		i += 1
 	return langs_list
 
-## obtener el lenguaje seleccionado (ref o trans)
+# get the selected language (ref or trans)
 func get_selected_lang(mode:String="ref") -> String:
 	var nod : String = "%RefLangItemList"
 	if mode != "ref":
@@ -246,11 +246,11 @@ func _on_FileMenu_id_pressed(id:int) -> void:
 func _on_EditMenu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			## add new lang
+			# add new language
 			if get_node("%ControlNoOpenedFiles").visible == false:
 				get_node("%WindowDialogAddNewLang").popup_centered()
 		2:
-			## delete lang
+			# delete language
 			if get_node("%ControlNoOpenedFiles").visible == false and _langs.size() > 0:
 				
 				get_node("%OptionButtonLangsToRemoveList").clear()
@@ -261,7 +261,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 				
 				get_node("%WindowDialogRemoveLang").popup_centered()
 		3:
-			## abrir ajustes del programa
+			# open program settings
 			get_node("%Preferences").popup_centered()
 
 func _on_HelpMenu_id_pressed(id:int) -> void:
@@ -269,7 +269,7 @@ func _on_HelpMenu_id_pressed(id:int) -> void:
 		1:
 			OS.shell_open("https://ko-fi.com/Post/How-to-use-Localization-Editor-V7V7GF7GH")
 		2:
-			## creditos
+			# credits
 			get_node("%WindowDialogCredits").popup_centered()
 
 func _on_FilesLoaded() -> void:
@@ -277,12 +277,11 @@ func _on_FilesLoaded() -> void:
 
 func _on_CloseAll() -> void:
 	load_recent_files_list()
-	## limpiar busqueda
 	clear_search()
-	## seteo inicial
+	# initial settings
 	_set_visible_content(false)
 	_on_Popup_hide()
-	## limpiar campos
+	# clean fields
 	_current_file = ""
 	_current_path = ""
 	get_node("%OpenedFilesList").clear()
@@ -290,7 +289,7 @@ func _on_CloseAll() -> void:
 	_translations = {}
 	_langs = []
 	
-## Se muestra u oculta un popup
+# Show or hide a popup
 func _on_Popup_about_to_show() -> void:
 	get_node("%PopupBG").visible = true
 func _on_Popup_hide() -> void:
@@ -304,7 +303,8 @@ func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
 
 	var i : int = 0
 	for p in paths:
-		## si algunos de los archivos no existe eliminar de la lista de paths TODO mejorar o asegurarse que funcione bien
+		# if some of the files do not exist, remove from the list of paths
+		# TODO: improve or make sure it works
 		if Dir.file_exists(p) == false:
 			paths.remove_at(i)
 		else:
@@ -312,15 +312,15 @@ func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
 				p.get_file(), i
 			)
 			
-			## añadir path a lista de archivos recientes
+			# add path to recent files list
 			var recent_limit:int = 10
 			var recent_list:Array = Conf.get_value("main","recent_files",[])
 			if recent_list.has(p) == false:
 				if recent_list.size() >= recent_limit:
 					recent_list.remove_at(recent_list.size()-1)
 				recent_list.append(p)
-			## el path ya estaba en lista
-			## eliminarlo y colocarlo en la parte superior del array
+			# the path was already listed
+			# delete it and place it at the top of the array
 			else:
 				recent_list.erase(p)
 				recent_list.push_front(p)
@@ -336,20 +336,20 @@ func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
 	
 	_current_path = paths[0].get_base_dir()
 
-	## mostrar el path del archivo
+	# show the path of the file
 	get_node("%LblOpenedPath").text = "[%s]" % [_current_path]
 	
-	## enviar señal de primer item seleccionado ya que no se activa por default
+	# send signal of first selected item since it is not activated by default
 	_on_OpenedFilesList_item_selected(0)
 	
 	clear_search()
 
-## se seleccionó un archivo de la lista
+# a file was selected from the list
 func _on_OpenedFilesList_item_selected(index: int) -> void:
 	_current_file = get_node("%OpenedFilesList").get_item_text(index)
 
-	## diccionario con keys de los textos, y adentro de cada uno otro dict con keys de lenguajes
-	## ej: {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
+	# dict with text keys mapped to a dict containing translations
+	# e.g. {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
 	_translations = CSVLoader.load_csv_translation(get_opened_file(), Conf)
 
 	if _translations.size() == 1 and _translations.keys().has("TMERROR"):
@@ -363,26 +363,26 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 #		)
 		return
 
-	## no hay nada que mostrar
+	# there is nothing to show
 	if _translations.size() == 0 and _langs.size() == 0:
 		_on_CloseAll()
 		return
 	
 	if _translations.size() > 0:
-		## si hay un error de que solo contiene la lista de idiomas, vaciar dict de traducciones
-		## en adelante solo _langs se usará en el resto de la func
+		# if it only contains the list of languages, set variables to empty
+		# from now on only _langs will be used in the rest of the func
 		if _translations.size() == 1 and _translations.keys().has("EMPTYTRANSLATIONS"):
 			_langs = _translations["EMPTYTRANSLATIONS"]
 			_translations = {}
 		else:
-			## obtener array de los idiomas del archivo a partir de los keys del primer item del diccionario
+			# get array of languages parsed from the file
 			_langs = _translations[_translations.keys()[0]].keys()
 	
-	## limpiar listas de langs
+	# clean lists
 	get_node("%RefLangItemList").clear()
 	get_node("%TransLangItemList").clear()
 
-	## añadir los idiomas que contiene el archivo
+	# add languages from the file
 	var i : int = 0
 	for l in _langs:
 		get_node("%RefLangItemList").add_item(
@@ -393,22 +393,22 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 		)
 		i += 1
 
-	## si hay seleccionado ambos idiomas iguales, pero hay mas de un idioma
-	## seleccionar el siguient idioma en translangitemlist
+	# if both languages are the same, but there is more than one language
+	# select the following language in TransLangItemList
 	if (
 		(get_node("%RefLangItemList").get_selected_id() == get_node("%TransLangItemList").get_selected_id())
 		and _langs.size() > 1
 	):
 		get_node("%TransLangItemList").select(1)
 
-	## cargar traducciones
+	# upload translations
 	_on_LangItemList_item_selected(0)
 
 	_on_FilesLoaded()
 
-## se cambiado el idioma seleccionado en los itemlist
-## esto hace perder cualquier cambio no gaurdado
-## cargar paneles de traduccion
+# changed the language selected in the item list
+# this loses any unsaved change
+# load translation panels
 func _on_LangItemList_item_selected(_index: int) -> void:
 	
 	clear_search()
@@ -417,11 +417,11 @@ func _on_LangItemList_item_selected(_index: int) -> void:
 	
 	_selected_translation_panel = ""
 	
-	## limpiar lista de traducciones en pantalla
+	# clear list of on-screan translations
 	for t in get_node("%VBxTranslations").get_children():
 		t.queue_free()
 
-	## añadir paneles de traduccion
+	# add translation panels
 	var selected_lang_ref : String = get_selected_lang("ref")
 	var selected_lang_trans : String = get_selected_lang("trans")
 	for t_key in _translations:
@@ -431,14 +431,14 @@ func _on_LangItemList_item_selected(_index: int) -> void:
 			_translations[t_key][selected_lang_trans]
 		)
 
-## se solicito abrir web traduccion
+# request to open web translation
 func _on_deepl_open_link_requested(TransNodeName:String) -> void:
 	var TranslationObj = get_node("%VBxTranslations").get_node(TransNodeName)
 	
 	var from_lang:String = get_selected_lang("ref")
 	var to_lang:String = get_selected_lang("trans")
 	
-	## pasar de "en_US" a solo "es"
+	# going from "en_US" to just "en"
 	if "_" in from_lang:
 		from_lang = from_lang.split("_")[0]
 	if "_" in to_lang:
@@ -452,7 +452,7 @@ func _on_deepl_open_link_requested(TransNodeName:String) -> void:
 	OS.shell_open(url)
 
 
-## se solicitó traduccion
+# translation requested
 func _on_Translation_translate_requested(TransNodeName:String, text_to_trans:String) -> void:
 	$ApiTranslate.translate(
 		get_selected_lang("ref"),
@@ -460,7 +460,7 @@ func _on_Translation_translate_requested(TransNodeName:String, text_to_trans:Str
 		text_to_trans, TransNodeName
 	)
 
-## se clickó boton editar de la traduccion seleccionada
+# pressed edit button for the selected translation
 func _on_Translation_edit_requested(TransNodeName:String) -> void:
 	
 	_selected_translation_panel = TransNodeName
@@ -472,8 +472,7 @@ func _on_Translation_edit_requested(TransNodeName:String) -> void:
 	get_node("%CTCheckEnableOriginalTxt").button_pressed = false
 	get_node("%TxtOriginalTxt").editable = false
 	
-	## setear datos
-	
+	# set data
 	get_node("%LblOriginalTxt").text = "[%s] Original Text" % [get_selected_lang("ref").capitalize()]
 	get_node("%LblTranslation").text = "[%s] Translation" % [get_selected_lang("trans").capitalize()]
 	
@@ -482,10 +481,10 @@ func _on_Translation_edit_requested(TransNodeName:String) -> void:
 	get_node("%TxtTranslation").text = TranslationObj.trans_txt
 	get_node("%TxtAnnotations").text = TranslationObj.annotations
 	
-	## ocultar panel de texto de referencia si se edita el mismo idioma
+	# hide reference text panel if editing the same language
 	if get_selected_lang("ref") == get_selected_lang("trans"):
 		get_node("%VBxRefText").visible = false
-		## tambien ocultar barra de diferencia
+		# also hide difference bar
 		get_node("%DifferenceBar").visible = false
 	else:
 		get_node("%VBxRefText").visible = true
@@ -497,18 +496,18 @@ func _on_Translation_edit_requested(TransNodeName:String) -> void:
 	
 	#get_node("%TxtTranslation").grab_focus()
 
-## se editó el line edit de la traduccion seleccionada
+# the line edit of the selected translation has been edited
 func _on_Translation_text_updated(NodeName:String, keystr:String, txt:String) -> void:
 	_translations[keystr][get_selected_lang("trans")] = txt
-	## mostrar signo de no haber guardado cambios
+	# show indicator of not having saved changes
 	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
 		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
 
-	## si esta editando la traduccion del mismo idioma...
+	# if you're editing the translation from the same language
 	if get_selected_lang("ref") == get_selected_lang("trans"):
 		get_node("%VBxTranslations").get_node(NodeName).orig_txt = txt
 
-## se clickeó check de revision
+# pressed needs revision checkbox
 func _on_Translation_need_revision_check_pressed(key:String,pressed:bool) -> void:
 	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
 	var TransConf = ConfigFile.new()
@@ -516,14 +515,14 @@ func _on_Translation_need_revision_check_pressed(key:String,pressed:bool) -> voi
 	TransConf.set_value(key, "need_rev", pressed)
 	TransConf.save(extra_data_path)
 
-## habilitar edicion o eliminacion de stringkey y toda su traduccion
+# enable editing or deletion of StringKey and all its translations
 func _on_CTCheckEditKey_toggled(button_pressed: bool) -> void:
 	get_node("%CTLineEdit").editable = button_pressed
 	#get_node("%CTBtnDeleteKey").disabled = ! button_pressed
 	get_node("%CTBtnDeleteKey").visible = button_pressed
 
 
-## eliminar traduccion en base al string key desde el popup edit
+# delete translation based on the string key from the edit popup
 func _on_CTBtnDeleteKey_pressed() -> void:
 	var TranslationObj = get_node("%VBxTranslations").get_node(_selected_translation_panel)
 	
@@ -531,18 +530,18 @@ func _on_CTBtnDeleteKey_pressed() -> void:
 	var TransConf = ConfigFile.new()
 	TransConf.load(extra_data_path)
 	
-	## eliminar en diccionario
+	# delete from dictionary
 	_translations.erase(TranslationObj.key_str)
 	
-	## eliminar en configuracion
+	# delete from configuration
 	if TransConf.has_section(TranslationObj.key_str):
 		TransConf.erase_section(TranslationObj.key_str)
 		TransConf.save(extra_data_path)
 	
-	## eliminar panel
+	# delete panel
 	TranslationObj.queue_free()
 	
-	## mostrar indicacion que hay cambios sin guardar
+	# show indicator that there are unsaved changes
 	#get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
 	
 	_selected_translation_panel = ""
@@ -550,7 +549,7 @@ func _on_CTBtnDeleteKey_pressed() -> void:
 
 	_on_BtnSaveFile_pressed()
 
-## guardar datos del string key desde el popup edit
+# save string key data from the edit popup
 func _on_CTBtnSaveKey_pressed() -> void:
 	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
 	var TransConf = ConfigFile.new()
@@ -558,8 +557,8 @@ func _on_CTBtnSaveKey_pressed() -> void:
 	
 	var TranslationObj = get_node("%VBxTranslations").get_node(_selected_translation_panel)
 	
-	## si el campo del strkey esta checkeado
-	## renombrar el keystr a uno nuevo
+	# if the strkey field is checked
+	# rename the keystr to a new one
 	if get_node("%CTCheckEditKey").button_pressed == true:
 		
 		if get_node("%CTLineEdit").text in _translations.keys():
@@ -567,57 +566,57 @@ func _on_CTBtnSaveKey_pressed() -> void:
 			return
 		
 		var conf_values : Array
-		## crear una nueva entrada con el nuevo key, copiando los valores del anterior
+		# create a new entry with the new key, copying the values of the previous one
 		_translations[get_node("%CTLineEdit").text] = _translations[TranslationObj.key_str]
-		##
+		
 		if TransConf.has_section(TranslationObj.key_str):
 			for c in TransConf.get_section_keys(TranslationObj.key_str):
-				## guardar [confkey,value]
+				# save [confkey,value]
 				conf_values.append(
 					[c, TransConf.get_value(TranslationObj.key_str,c)]
 				)
 		
-		## borrar el antiguo
+		# erase the old
 		_translations.erase(TranslationObj.key_str)
-		##
+		
 		if TransConf.has_section(TranslationObj.key_str):
 			TransConf.erase_section(TranslationObj.key_str)
 		
-		## setear el nuevo keystr al panel de la traduccion
+		# set the new keystr to the translation panel
 		TranslationObj.key_str = get_node("%CTLineEdit").text
-		##
+		
 		if conf_values.is_empty() == false:
 			for c in conf_values:
 				TransConf.set_value(
-					get_node("%CTLineEdit").text,#seccion
+					get_node("%CTLineEdit").text, # section
 					c[0],c[1]
 				)
 	
-	## si el check del texto original está checkeado
+	# if the original text check is checked
 	if get_node("%CTCheckEnableOriginalTxt").button_pressed == true:
-		## guadar en el panel
+		# store the panel text
 		TranslationObj.orig_txt = get_node("%TxtOriginalTxt").text
-		## guardar en el diccionario
+		# save it in the dictionary
 		_translations[TranslationObj.key_str][get_selected_lang("ref")] = TranslationObj.orig_txt
 	
-	## guardar texto traducido en el panel
+	# save translated text to the dashboard
 	TranslationObj.trans_txt = get_node("%TxtTranslation").text
-	## y guardar en el diccionario
+	# and save to the dictionary
 	_translations[TranslationObj.key_str][get_selected_lang("trans")] = TranslationObj.trans_txt
 	
-	## si se edita el mismo idioma, guardar tambien la variable de texto orig
+	# if the same language is edited, save the orig_txt variable as well
 	if get_selected_lang("ref") == get_selected_lang("trans"):
-		## guadar en el panel
+		# store the panel text
 		TranslationObj.orig_txt = TranslationObj.trans_txt
-		## guardar en el diccionario
+		# save it in the dictionary
 		_translations[TranslationObj.key_str][get_selected_lang("ref")] = TranslationObj.orig_txt
 	
-	## guardar anotaciones
+	# save annotations
 	TranslationObj.annotations = get_node("%TxtAnnotations").text
 	TransConf.set_value(TranslationObj.key_str, "annotations", TranslationObj.annotations)
 	TransConf.save(extra_data_path)
 	
-	## enviar señal de boton guardar todo
+	# send save all button signal
 	get_node("%BtnSaveFile").emit_signal("pressed")
 	
 	get_node("%DialogEditTranslation").hide()
@@ -625,7 +624,7 @@ func _on_CTBtnSaveKey_pressed() -> void:
 func _on_CTCheckEnableOriginalTxt_toggled(button_pressed: bool) -> void:
 	get_node("%TxtOriginalTxt").editable = button_pressed
 
-## escribir datos al csv
+# writing data to the csv
 func _on_BtnSaveFile_pressed() -> void:
 	var err = CSVLoader.save_csv_translation(
 		get_opened_file(),
@@ -637,35 +636,35 @@ func _on_BtnSaveFile_pressed() -> void:
 
 	emit_signal("scan_files_requested")
 
-## cuando se cierra la ventana de preferencias
+# when the preferences window closes
 func _on_Preferences_popup_hide() -> void:
 	Conf.set_value("csv", "f_cell", get_node("%TxtSettingFCell").text)
 	Conf.set_value("csv", "delimiter", get_node("%TxtSettingDelimiter").text)
 	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
 
-## el texto ha cambiado en cualquiera de los paneles de texto
-## del panel Edit translation
+# the text has changed in any of the text panels
+# on the edit translation panel
 func _on_TextEditPanel_text_changed() -> void:
-	## obtener tamaño de los textos, sin contar espacios, tabulaciones, saltos de linea
+	# obtain text size, not counting spaces, tabs, or line breaks
 	var orig_size:int = get_node("%TxtOriginalTxt").text.strip_edges().strip_escapes().length()
 	var trans_size:int = get_node("%TxtTranslation").text.strip_edges().strip_escapes().length()
 	var diff:int = 0
 	var diff_percent:float = 0
 	
-	## hay total diferencia si...
-	##si la traduccion es mayor al texto original
-	## o si los campos estan vacios
+	# the total difference if...
+	# if the translation is larger than the original text
+	# or if the fields are empty
 	if trans_size > orig_size or trans_size == 0 or orig_size == 0:
 		diff_percent = 100
 	else:
-		## diferencia en la cantidad de caracteres
+		# difference in the number of characters
 		diff = abs(orig_size-trans_size)
-		## convertir a porcentaje
+		# convert to percentage
 		diff_percent = (float(diff)/float(orig_size)) * 100.0
 
 	get_node("%DifferenceBar").value = diff_percent
 	
-	## mostrar colores en la barra
+	# show colors in the bar
 #	if diff_percent < 20:
 #		get_node("%DifferenceBar").tint_progress = Color.white
 #	elif diff_percent < 50:
@@ -675,7 +674,7 @@ func _on_TextEditPanel_text_changed() -> void:
 #	else:
 #		get_node("%DifferenceBar").tint_progress = Color.red
 
-## se ha recibido una traduccion
+# a translation has been received
 func _on_ApiTranslate_text_translated(
 	id, _from_lang, _to_lang, _original_text, translated_text
 ) -> void:
@@ -684,14 +683,14 @@ func _on_ApiTranslate_text_translated(
 		TransObj.update_trans_txt(translated_text)
 		TransObj._on_LineEditTranslation_text_changed(translated_text)
 
-## se cambio el check de reabrir ultimo archivo abierto
+# changed the checkbox to reopen last open file
 func _on_CheckBoxSettingReopenFile_toggled(button_pressed: bool) -> void:
 	Conf.set_value("main", "reopen_last_file", button_pressed)
 func _on_CheckBoxSettingHideDeepLButton_toggled(button_pressed: bool) -> void:
 	Conf.set_value("main", "hide_deepl_button", button_pressed)
 
 
-## se presiono en añadir traduccion
+# pressed add translation
 func _on_BtnAddTranslation_pressed() -> void:
 	
 	get_node("%CheckBoxNewSTRKeyUppercase").button_pressed = Conf.get_value("main", "uppercase_on_input", true)
@@ -711,10 +710,10 @@ func _on_BtnAddTranslation_pressed() -> void:
 	else:
 		get_node("%LineEditTransTxtNewTransItem").visible = true
 
-## aparece el panel de nuevos lenguajes
+# the new languages panel appears
 func _on_WindowDialogAddNewLang_about_to_show() -> void:
 	pass # Replace with function body.
-## añadir nuevo lenguaje seleccionado
+# add new selected language
 func _on_BtnAddNewLang_pressed() -> void:
 	var lang_to_add:String = get_node("%OptionButtonAvailableLangsList").get_item_text(
 		get_node("%OptionButtonAvailableLangsList").selected
@@ -727,8 +726,8 @@ func _on_BtnAddNewLang_pressed() -> void:
 
 	_langs.append(lang_to_add)
 
-	## recorrer cada item (las strkeys)
-	##si la entrada no tiene el idioma, agregarlo
+	# looping each item (the strkeys)
+	# if the entry doesn't have the language, add it
 	for t_entry in _translations:
 		if _translations[t_entry].keys().has(lang_to_add) == false:
 			_translations[t_entry][lang_to_add] = ""
@@ -791,7 +790,7 @@ func _on_BtnNewFileCreate_pressed() -> void:
 	if headers_list.size() == 0:
 		headers_list.append("en")
 	
-	## añadir el fcell
+	# add the fcell
 	headers_list.push_front(f_cell)
 	
 	var out_file = FileAccess.open(
@@ -801,12 +800,12 @@ func _on_BtnNewFileCreate_pressed() -> void:
 	if out_file.get_open_error() == Error.OK:
 		out_file.store_csv_line(headers_list,delim)
 		out_file.close()
-		## archivo guardado, abrir
+		# saved file open
 		_on_FileDialog_files_selected([
 			"%s/%s.csv" % [filepath,namefile]
 		])
 		
-		## limpiar datos
+		# clean data
 		get_node("%LineEditNewFileName").text = ""
 		get_node("%LineEditNewFilePath").text = ""
 		get_node("%TextEditNewFileLangsAdded").text = ""
@@ -816,7 +815,7 @@ func _on_BtnNewFileCreate_pressed() -> void:
 		OS.alert("Error creating file. Error #"+str(out_file.get_open_error()))
 		out_file.close()
 
-## en el panel de añadir traduccion cualquiera de los lineedit se ha modificado
+# in the add translation pane any of the LineEdit has been modified
 func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
 	var strkey:String = get_node("%LineEditKeyStrNewTransItem").text.strip_edges()
 	var reftxt:String = get_node("%LineEditRefTxtNewTransItem").text.strip_edges()
@@ -830,7 +829,7 @@ func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
 	else:
 		get_node("%BtnAddTransItem").disabled = false
 
-## se clicko en añadir traduccion en el panel de nueva traduccion
+# clocked add translation in the new translation panel
 func _on_BtnAddTransItem_pressed() -> void:
 	var ref_lang:String = get_selected_lang("ref")
 	var trans_lang:String = get_selected_lang("trans")
@@ -855,14 +854,14 @@ func _on_BtnAddTransItem_pressed() -> void:
 		else:
 			_translations[strkey][l] = ""
 	
-	## si los idiomas son iguales, copiar ref a trans
+	# if the languages are the same, copy ref to trans
 	if ref_lang == trans_lang:
 		transtxt = reftxt
 	
-	## añadir panel
+	# add dashboard
 	add_translation_panel(strkey, reftxt, transtxt, true)
 	
-	## mostrar signo de no haber guardado cambios
+	# show indicator of not having saved changes
 	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
 		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
 	
@@ -901,7 +900,7 @@ func _on_BtnRemoveLang_pressed() -> void:
 	
 	get_node("%WindowDialogRemoveLang").hide()
 
-## el campo de strkey en el popup de nueva traduccion cambió
+# the strkey field in the new translation popup changed
 func _on_LineEditKeyStrNewTransItem_text_changed(new_text: String) -> void:
 	if get_node("%CheckBoxNewSTRKeyUppercase").button_pressed == true:
 		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_upper().replace(" ","_")
@@ -933,10 +932,10 @@ func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
 	get_node("%BtnClearSearch").disabled = new_text.strip_edges().is_empty()
 	start_search()
 
-## se presiono algun check de la barra de busqueda
+# pressed any checkbox from the search bar
 func _on_CheckBoxSearch_pressed() -> void:
 	
-	## al menos de uno de los checks debe estar presionado
+	# at least one of the checks must be pressed
 	if (
 		get_node("%CheckBoxSearchKeyID").button_pressed == false
 		and get_node("%CheckBoxSearchRefText").button_pressed == false
@@ -944,7 +943,7 @@ func _on_CheckBoxSearch_pressed() -> void:
 	):
 		get_node("%CheckBoxSearchKeyID").button_pressed = true
 	
-	## si al menos de uno de los checks está desactivado
+	# if at least one of the checks is disabled
 	if (
 		get_node("%CheckBoxSearchKeyID").button_pressed == false
 		or get_node("%CheckBoxSearchRefText").button_pressed == false
@@ -965,17 +964,17 @@ func _on_Dock_resized() -> void:
 		Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
 		
 
-## cerrar archivo abierto
+# close opened file
 func _on_BtnCloseFile_pressed() -> void:
 	
 	get_node("%OpenedFilesList").remove_item(
 		get_node("%OpenedFilesList").selected
 	)
 
-	## si no hay mas archivos, cerrar todo
+	# if there are no more files, close everything
 	if get_node("%OpenedFilesList").get_item_count() == 0:
 		_on_CloseAll()
-	## seleccionar el 1ro
+	# select the first
 	else:
 		get_node("%OpenedFilesList").select(0)
 		_on_OpenedFilesList_item_selected(0)

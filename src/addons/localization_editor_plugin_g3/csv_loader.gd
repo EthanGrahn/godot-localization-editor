@@ -45,14 +45,14 @@ static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionar
 			t[languages[language_index]] = rows[i][language_index]
 		translations[ids[i]] = t
 
-	## si el archivo contiene solo los idiomas pero no tiene traducciones,
-	## retornar solo la lista de idiomas
+	# if the file contains only the languages but has no translations,
+	# return only the list of languages
 	if (
 		languages.size() > 0 and translations.is_empty() == true
 	):
 		return {"EMPTYTRANSLATIONS":languages}
 	
-	## retornara diccionario o vacio si no hay idiomas ni traducciones
+	# will return dictionary or empty if there are no languages or translations
 	return translations
 
 static func save_csv_translation(
@@ -62,7 +62,7 @@ static func save_csv_translation(
 	var f_cell:String = conf.get_value("csv","f_cell","keys")
 	var delimiter:String = conf.get_value("csv","delimiter",",")
 	
-	## encabezados del csv, la primera fila
+	# csv headers are the first row
 	var file = FileAccess.open(filepath, FileAccess.WRITE)
 	var csv_headers : Array = [f_cell]
 	csv_headers.append_array(langs)
@@ -74,17 +74,17 @@ static func save_csv_translation(
 		)
 		return file.get_open_error()
 	
-	## insertar primera fila, con los encabezados
+	# insert headers as first row
 	file.store_csv_line(csv_headers, delimiter)
 	
-	## recorrer fila de datos
+	# scan data row
 	for str_key in data.keys():
-		## obtener array con las traducciones del strkey [en,es,etc]
+		# get array with strkey translations [en,es,etc.]
 		var str_translations : Array = data[str_key].values()
-		## rowdata tendra el strkey y luego los demas textos que serian las traducciones
+		# rowdata will have the strkey and then the other texts that would be the translations
 		var row_data : Array = [str_key]
 		row_data.append_array(str_translations)
-		## recorrer columna de datos
+		# scan data column
 		file.store_csv_line(row_data, delimiter)
 
 	return Error.OK
