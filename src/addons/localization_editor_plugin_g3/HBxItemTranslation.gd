@@ -14,6 +14,7 @@ var orig_txt : String = "Original Text": set = _orig_txt_changed
 var trans_txt : String = "Text Translated": set = update_trans_txt
 
 var need_revision : bool = false
+var annotations : String = ""
 
 # flag to avoid emitting signal as soon as the object is added to the tree
 var _is_ready_for_emit_signals : bool
