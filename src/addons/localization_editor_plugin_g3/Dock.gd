@@ -3,9 +3,6 @@ extends Control
 
 signal scan_files_requested
 
-const GodetteTexture = preload("res://addons/localization_editor_plugin_g3/godette.png")
-const GodetteWowTexture = preload("res://addons/localization_editor_plugin_g3/godette_wow.png")
-
 const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButtonRecentFile.tscn")
 const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxItemTranslation.tscn")
 
