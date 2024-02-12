@@ -56,14 +56,15 @@ func _ready() -> void:
 
 	_on_CloseAll()
 	
-	# if running in editor, only use res://
-	if Engine.is_editor_hint() == true:
-		get_node("%FileDialog").access = FileDialog.ACCESS_RESOURCES
-		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_RESOURCES
-	else:
+	
+	# if running standalone, allow full filesystem
+	if OS.has_feature("release"):
 		get_node("%FileDialog").access = FileDialog.ACCESS_FILESYSTEM
 		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_FILESYSTEM
 		_self_data_folder_path = OS.get_executable_path().get_base_dir()
+	else: # if running in editor, only use res://
+		get_node("%FileDialog").access = FileDialog.ACCESS_RESOURCES
+		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_RESOURCES
 	
 	# create self data directory if it doesn't exist
 	var Dir := DirAccess.open("./")
