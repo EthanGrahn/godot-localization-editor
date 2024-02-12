@@ -9,6 +9,7 @@ const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxI
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
 var Conf := ConfigFile.new()
+var _is_config_initialized := false
 
 var _translations : Dictionary
 var _langs : Array
@@ -19,7 +20,7 @@ var _current_file : String
 var _current_path : String
 
 # folder where internal data of the addon is saved, such as keystr annotations
-var _self_data_folder_path : String = "res://addons/localization_editor_plugin_g3"
+var _settings_file : String = "user://settings.ini"
 
 func _ready() -> void:
 	
@@ -64,19 +65,11 @@ func _ready() -> void:
 	else: # if running standalone, allow full filesystem
 		get_node("%FileDialog").access = FileDialog.ACCESS_FILESYSTEM
 		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_FILESYSTEM
-		
-	if OS.has_feature("release"):
-		_self_data_folder_path = OS.get_executable_path().get_base_dir()
-	
-	# create self data directory if it doesn't exist
-	var Dir := DirAccess.open("./")
-	if Dir.dir_exists(_self_data_folder_path) == false:
-		Dir.make_dir(_self_data_folder_path)
 
-	var config_file = _self_data_folder_path+"/translation_manager_conf.ini"
-	if Dir.file_exists(config_file):
-		Conf.load(_self_data_folder_path+"/translation_manager_conf.ini")
-	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
+	if FileAccess.file_exists(_settings_file):
+		Conf.load(_settings_file)
+	_save_settings_config(true)
+	_is_config_initialized = true
 	
 	if Engine.is_editor_hint() == false:
 		get_window().mode = Window.MODE_MAXIMIZED if (Conf.get_value("main","maximized", false)) else Window.MODE_WINDOWED
@@ -91,10 +84,13 @@ func _ready() -> void:
 	if get_node("%CheckBoxSettingReopenFile").button_pressed == true:
 		var recent_files:Array = Conf.get_value("main","recent_files",[])
 		if recent_files.is_empty() == false:
-			if Dir.file_exists(
-				recent_files[0]
-			) == true:
+			if FileAccess.file_exists(recent_files[0]):
 				_on_FileDialog_files_selected([recent_files[0]])
+
+func _save_settings_config(_is_init_step := false) -> void:
+	if not _is_config_initialized and not _is_init_step:
+		return
+	Conf.save(_settings_file)
 
 func load_recent_files_list() -> void:
 	# show recent files
@@ -122,7 +118,7 @@ func _OnRecentFile_removed(NodeName:String,f_path:String) -> void:
 	recent_list.erase(f_path)
 	Conf.get_value("main", "recent_files", recent_list)
 	
-	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
+	_save_settings_config()
 
 	get_node("%VBxRecentFiles").get_node(NodeName).queue_free()
 
@@ -290,16 +286,13 @@ func _on_Popup_hide() -> void:
 	get_node("%PopupBG").visible = false
 
 func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
-	
-	var Dir = DirAccess.open("./")
-	
 	get_node("%OpenedFilesList").clear()
 
 	var i : int = 0
 	for p in paths:
 		# if some of the files do not exist, remove from the list of paths
 		# TODO: improve or make sure it works
-		if Dir.file_exists(p) == false:
+		if FileAccess.file_exists(p) == false:
 			paths.remove_at(i)
 		else:
 			get_node("%OpenedFilesList").add_item(
@@ -318,11 +311,12 @@ func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
 			else:
 				recent_list.erase(p)
 				recent_list.push_front(p)
+			
 			Conf.set_value("main","recent_files", recent_list)
 			
 		i += 1
 	
-	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
+	_save_settings_config()
 
 	if paths.size() == 0:
 		_set_visible_content(false)
@@ -613,7 +607,7 @@ func _on_BtnSaveFile_pressed() -> void:
 func _on_Preferences_popup_hide() -> void:
 	Conf.set_value("csv", "f_cell", get_node("%TxtSettingFCell").text)
 	Conf.set_value("csv", "delimiter", get_node("%TxtSettingDelimiter").text)
-	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
+	_save_settings_config()
 
 # the text has changed in any of the text panels
 # on the edit translation panel
@@ -880,7 +874,7 @@ func _on_LineEditKeyStrNewTransItem_text_changed(new_text: String) -> void:
 
 func _on_CheckBoxNewSTRKeyUppercase_toggled(button_pressed: bool) -> void:
 	Conf.set_value("main", "uppercase_on_input", button_pressed)
-	Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
+	_save_settings_config()
 	
 	if button_pressed == true:
 		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_upper().replace(" ","_")
@@ -931,7 +925,7 @@ func _on_BtnClearSearch_pressed() -> void:
 func _on_Dock_resized() -> void:
 	if Engine.is_editor_hint() == false:
 		Conf.set_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
-		Conf.save(_self_data_folder_path+"/translation_manager_conf.ini")
+		_save_settings_config()
 		
 
 # close opened file
