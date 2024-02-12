@@ -179,7 +179,6 @@ func add_translation_panel(
 	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
 	var TransConf := ConfigFile.new()
 	
-	print(extra_data_path)
 	TransConf.load(extra_data_path)
 
 	TransInstance.connect("translate_requested", Callable(self, "_on_Translation_translate_requested"))
