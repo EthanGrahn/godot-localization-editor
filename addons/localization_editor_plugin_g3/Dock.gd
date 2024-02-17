@@ -31,11 +31,7 @@ func _ready() -> void:
 		Engine.get_version_info()["status"],
 	]
 	
-	get_node("%LblTextBottom").text = "%s v%s - %s" % [
-		get_plugin_info("name"),
-		get_plugin_info("version"),
-		get_plugin_info("author")
-	]
+	get_node("%LblTextBottom").text = "v%s" % get_plugin_info("version")
 	
 	get_node("%LblCreditTitle").text = get_plugin_info("name")
 	get_node("%LblCreditDescription").text = get_plugin_info("description")

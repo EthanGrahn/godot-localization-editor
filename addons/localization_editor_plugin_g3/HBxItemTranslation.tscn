@@ -1,10 +1,10 @@
 [gd_scene load_steps=10 format=3 uid="uid://b0crqylwpgb5l"]
 
-[ext_resource type="Texture2D" uid="uid://bwqpacm82nfrv" path="res://addons/localization_editor_plugin_g3/icons/icon-exclamation.svg" id="1"]
 [ext_resource type="FontFile" path="res://addons/localization_editor_plugin_g3/multilang_font.tres" id="2"]
+[ext_resource type="Texture2D" uid="uid://bn4dmdsqjekhw" path="res://addons/localization_editor_plugin_g3/icons/language.png" id="2_cexq5"]
 [ext_resource type="Script" path="res://addons/localization_editor_plugin_g3/HBxItemTranslation.gd" id="3"]
-[ext_resource type="Texture2D" uid="uid://hjp0nxqti23x" path="res://addons/localization_editor_plugin_g3/icons/icon-language.svg" id="4"]
-[ext_resource type="Texture2D" uid="uid://bu8tsk3gpoyge" path="res://addons/localization_editor_plugin_g3/icons/google-translate-svgrepo-com.svg" id="5"]
+[ext_resource type="Texture2D" uid="uid://0dlyt1tavfpe" path="res://addons/localization_editor_plugin_g3/icons/exclamation.png" id="3_a1mr7"]
+[ext_resource type="Texture2D" uid="uid://d4jl1sewekqpb" path="res://addons/localization_editor_plugin_g3/icons/google-translate.png" id="5_8e8ep"]
 
 [sub_resource type="StyleBoxEmpty" id="4"]
 
@@ -27,22 +27,33 @@ size_flags_vertical = 4
 focus_mode = 0
 mouse_default_cursor_shape = 2
 
-[node name="IconNormal" type="TextureRect" parent="ButtonCopyKey"]
-custom_minimum_size = Vector2(25, 0)
-layout_mode = 0
+[node name="MarginContainer" type="MarginContainer" parent="ButtonCopyKey"]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-texture = ExtResource("4")
-stretch_mode = 4
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
 
-[node name="IconAlert" type="TextureRect" parent="ButtonCopyKey"]
-visible = false
+[node name="IconNormal" type="TextureRect" parent="ButtonCopyKey/MarginContainer"]
 custom_minimum_size = Vector2(25, 0)
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-texture = ExtResource("1")
-stretch_mode = 4
+layout_mode = 2
+texture = ExtResource("2_cexq5")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="IconAlert" type="TextureRect" parent="ButtonCopyKey/MarginContainer"]
+visible = false
+self_modulate = Color(1, 0.352941, 0.47451, 1)
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+texture = ExtResource("3_a1mr7")
+expand_mode = 3
+stretch_mode = 5
 
 [node name="VBxString1" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -90,10 +101,12 @@ clip_text = true
 
 [node name="BtnTranslate" type="Button" parent="VBxString1/HBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 focus_mode = 0
-text = " Translate"
-icon = ExtResource("5")
+text = "Translate"
+icon = ExtResource("5_8e8ep")
+expand_icon = true
 
 [node name="CheckBoxRevision" type="CheckBox" parent="VBxString1/HBoxContainer"]
 unique_name_in_owner = true
