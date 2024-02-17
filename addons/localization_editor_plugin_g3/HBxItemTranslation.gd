@@ -77,11 +77,11 @@ func _key_str_txt_changed(txt:String) -> void:
 func _on_CheckBoxRevision_toggled(button_pressed: bool) -> void:
 	need_revision = button_pressed
 	if need_revision == true:
-		$ButtonCopyKey/IconNormal.visible = false
-		$ButtonCopyKey/IconAlert.visible = true
+		$ButtonCopyKey/MarginContainer/IconNormal.visible = false
+		$ButtonCopyKey/MarginContainer/IconAlert.visible = true
 	else:
-		$ButtonCopyKey/IconNormal.visible = true
-		$ButtonCopyKey/IconAlert.visible = false
+		$ButtonCopyKey/MarginContainer/IconNormal.visible = true
+		$ButtonCopyKey/MarginContainer/IconAlert.visible = false
 	
 	if _is_ready_for_emit_signals == true:
 		emit_signal("need_revision_check_pressed", key_str, need_revision)
