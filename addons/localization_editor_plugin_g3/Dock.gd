@@ -160,8 +160,8 @@ func clear_search() -> void:
 	get_node("%CheckBoxHideNoNeedRev").button_pressed = false
 
 func alert(txt:String,title:String="Alert!") -> void:
-	get_node("%WindowDialogAlert").window_title = title
-	get_node("%WindowDialogAlert").get_node("Label").text = txt
+	get_node("%WindowDialogAlert").title = title
+	get_node("%WindowDialogAlert").get_node("MarginContainer/VBoxContainer/Label").text = txt
 	get_node("%WindowDialogAlert").popup_centered()
 
 func add_translation_panel(
