@@ -3,6 +3,7 @@ extends Control
 
 signal scan_files_requested
 
+const _data_file_name: String = ".gle-data"
 const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButtonRecentFile.tscn")
 const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxItemTranslation.tscn")
 
@@ -168,7 +169,7 @@ func add_translation_panel(
 ) -> void:
 	
 	var TransInstance = TranslationItem.instantiate()
-	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
+	var extra_data_path : String = _current_path + "/" + _data_file_name
 	var TransConf := ConfigFile.new()
 	
 	TransConf.load(extra_data_path)
@@ -472,7 +473,7 @@ func _on_Translation_text_updated(NodeName:String, keystr:String, txt:String) ->
 
 # pressed needs revision checkbox
 func _on_Translation_need_revision_check_pressed(key:String,pressed:bool) -> void:
-	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
+	var extra_data_path : String = _current_path + "/" + _data_file_name
 	var TransConf = ConfigFile.new()
 	TransConf.load(extra_data_path)
 	TransConf.set_value(key, "need_rev", pressed)
@@ -489,7 +490,7 @@ func _on_CTCheckEditKey_toggled(button_pressed: bool) -> void:
 func _on_CTBtnDeleteKey_pressed() -> void:
 	var TranslationObj = get_node("%VBxTranslations").get_node(_selected_translation_panel)
 	
-	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
+	var extra_data_path : String = _current_path + "/" + _data_file_name
 	var TransConf = ConfigFile.new()
 	TransConf.load(extra_data_path)
 	
@@ -514,7 +515,7 @@ func _on_CTBtnDeleteKey_pressed() -> void:
 
 # save string key data from the edit popup
 func _on_CTBtnSaveKey_pressed() -> void:
-	var extra_data_path : String = _current_path+"/translation_manager_extra_data.ini"
+	var extra_data_path : String = _current_path + "/" + _data_file_name
 	var TransConf = ConfigFile.new()
 	TransConf.load(extra_data_path)
 	
