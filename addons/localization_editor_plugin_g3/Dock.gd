@@ -252,7 +252,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 func _on_HelpMenu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			OS.shell_open("https://ko-fi.com/Post/How-to-use-Localization-Editor-V7V7GF7GH")
+			OS.shell_open("https://github.com/EthanGrahn/godot-localization-editor?tab=readme-ov-file#usage-guide")
 		2:
 			# credits
 			get_node("%WindowDialogCredits").popup_centered()
