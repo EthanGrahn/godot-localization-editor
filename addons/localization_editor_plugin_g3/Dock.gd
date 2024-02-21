@@ -7,6 +7,8 @@ const _data_file_name: String = ".gle-data"
 const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButtonRecentFile.tscn")
 const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxItemTranslation.tscn")
 
+@export var _preferences_window: Popup
+
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
 var Conf := ConfigFile.new()
@@ -246,8 +248,8 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 				get_node("%WindowDialogRemoveLang").popup_centered()
 		3:
 			# open program settings
-			get_node("%Preferences").set_defaults(Conf)
-			get_node("%Preferences").popup_centered()
+			_preferences_window.set_defaults(Conf)
+			_preferences_window.popup_centered()
 
 func _on_HelpMenu_id_pressed(id:int) -> void:
 	match id:
