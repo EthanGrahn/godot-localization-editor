@@ -37,15 +37,16 @@ func _ready() -> void:
 	get_node("%LblCreditTitle").text = get_plugin_info("name")
 	get_node("%LblCreditDescription").text = get_plugin_info("description")
 
-	var i : int = 0
-	for l in Locales.LOCALES:
-		get_node("%OptionButtonAvailableLangsList").add_item(
-			"%s, %s" % [l["name"], l["code"]], i
-		)
-		get_node("%OptionButtonLangsNewFile").add_item(
-			"%s, %s" % [l["name"], l["code"]], i
-		)
-		i += 1
+	for list in get_tree().get_nodes_in_group("language_options"):
+		if not list is OptionButton:
+			continue
+		(list as OptionButton).clear()
+		var i : int = 0
+		for l in Locales.LOCALES:
+			list.add_item(
+				"%s, %s" % [l["name"], l["code"]], i
+			)
+			i += 1
 	
 	# conectar señales
 	get_node("%MenuFile").get_popup().connect("id_pressed", Callable(self, "_on_FileMenu_id_pressed"))
@@ -245,6 +246,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 				get_node("%WindowDialogRemoveLang").popup_centered()
 		3:
 			# open program settings
+			get_node("%Preferences").set_defaults(Conf)
 			get_node("%Preferences").popup_centered()
 
 func _on_HelpMenu_id_pressed(id:int) -> void:
