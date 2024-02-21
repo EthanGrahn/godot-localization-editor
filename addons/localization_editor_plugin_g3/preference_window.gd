@@ -26,3 +26,11 @@ func _save_and_close() -> void:
 	
 	preferences_updated.emit(preferences)
 	self.hide()
+
+
+func set_defaults(config: ConfigFile) -> void:
+	var ref_lang: String = config.get_value("main", "user_ref_lang", "en")
+	for i in range(0, _ref_lang.item_count):
+		if _ref_lang.get_item_text(i).split(', ')[1] == ref_lang:
+			_ref_lang.select(i)
+			break
