@@ -21,7 +21,8 @@ func _save_and_close() -> void:
 	preferences.append(_make_preference("f_cell", _first_cell.text))
 	preferences.append(_make_preference("delimiter", _delimiter.text))
 	# end TODO
-	preferences.append(_make_preference("user_ref_lang", _ref_lang.get_item_text(_ref_lang.get_selected_id())))
+	var ref_lang: String = _ref_lang.get_item_text(_ref_lang.get_selected_id()).split(", ")[1]
+	preferences.append(_make_preference("user_ref_lang", ref_lang))
 	preferences.append(_make_preference("reopen_last_file", _reopen_file.button_pressed))
 	
 	preferences_updated.emit(preferences)
@@ -31,6 +32,6 @@ func _save_and_close() -> void:
 func set_defaults(config: ConfigFile) -> void:
 	var ref_lang: String = config.get_value("main", "user_ref_lang", "en")
 	for i in range(0, _ref_lang.item_count):
-		if _ref_lang.get_item_text(i).split(', ')[1] == ref_lang:
+		if _ref_lang.get_item_text(i).split(", ")[1] == ref_lang:
 			_ref_lang.select(i)
 			break
