@@ -37,15 +37,16 @@ func _ready() -> void:
 	get_node("%LblCreditTitle").text = get_plugin_info("name")
 	get_node("%LblCreditDescription").text = get_plugin_info("description")
 
-	var i : int = 0
-	for l in Locales.LOCALES:
-		get_node("%OptionButtonAvailableLangsList").add_item(
-			"%s, %s" % [l["name"], l["code"]], i
-		)
-		get_node("%OptionButtonLangsNewFile").add_item(
-			"%s, %s" % [l["name"], l["code"]], i
-		)
-		i += 1
+	for list in get_tree().get_nodes_in_group("language_options"):
+		if not list is OptionButton:
+			continue
+		(list as OptionButton).clear()
+		var i : int = 0
+		for l in Locales.LOCALES:
+			list.add_item(
+				"%s, %s" % [l["name"], l["code"]], i
+			)
+			i += 1
 	
 	# conectar señales
 	get_node("%MenuFile").get_popup().connect("id_pressed", Callable(self, "_on_FileMenu_id_pressed"))
@@ -71,14 +72,10 @@ func _ready() -> void:
 	if Engine.is_editor_hint() == false:
 		get_window().mode = Window.MODE_MAXIMIZED if (Conf.get_value("main","maximized", false)) else Window.MODE_WINDOWED
 	
-	get_node("%TxtSettingFCell").text = Conf.get_value("csv","f_cell","keys")
-	get_node("%TxtSettingDelimiter").text = Conf.get_value("csv","delimiter",",")
-	get_node("%CheckBoxSettingReopenFile").button_pressed = Conf.get_value("main","reopen_last_file",false)
-
 	load_recent_files_list()
 
 	# reopen the last file
-	if get_node("%CheckBoxSettingReopenFile").button_pressed == true:
+	if Conf.get_value("main","reopen_last_file",false):
 		var recent_files:Array = Conf.get_value("main","recent_files",[])
 		if recent_files.is_empty() == false:
 			if FileAccess.file_exists(recent_files[0]):
@@ -249,6 +246,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 				get_node("%WindowDialogRemoveLang").popup_centered()
 		3:
 			# open program settings
+			get_node("%Preferences").set_defaults(Conf)
 			get_node("%Preferences").popup_centered()
 
 func _on_HelpMenu_id_pressed(id:int) -> void:
@@ -367,12 +365,15 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 	get_node("%RefLangItemList").clear()
 	get_node("%TransLangItemList").clear()
 
+	var user_ref_lang: String = Conf.get_value("main","user_ref_lang", "")
 	# add languages from the file
 	var i : int = 0
 	for l in _langs:
 		get_node("%RefLangItemList").add_item(
 			l, i
 		)
+		if not user_ref_lang.is_empty() and user_ref_lang == l:
+			get_node("%RefLangItemList").select(i)
 		get_node("%TransLangItemList").add_item(
 			l, i
 		)
@@ -600,12 +601,6 @@ func _on_BtnSaveFile_pressed() -> void:
 
 	emit_signal("scan_files_requested")
 
-# when the preferences window closes
-func _on_Preferences_popup_hide() -> void:
-	Conf.set_value("csv", "f_cell", get_node("%TxtSettingFCell").text)
-	Conf.set_value("csv", "delimiter", get_node("%TxtSettingDelimiter").text)
-	_save_settings_config()
-
 # the text has changed in any of the text panels
 # on the edit translation panel
 func _on_TextEditPanel_text_changed() -> void:
@@ -646,10 +641,6 @@ func _on_ApiTranslate_text_translated(
 	if TransObj != null:
 		TransObj.update_trans_txt(translated_text)
 		TransObj._on_LineEditTranslation_text_changed(translated_text)
-
-# changed the checkbox to reopen last open file
-func _on_CheckBoxSettingReopenFile_toggled(button_pressed: bool) -> void:
-	Conf.set_value("main", "reopen_last_file", button_pressed)
 
 # pressed add translation
 func _on_BtnAddTranslation_pressed() -> void:
@@ -940,3 +931,9 @@ func _on_BtnCloseFile_pressed() -> void:
 		get_node("%OpenedFilesList").select(0)
 		_on_OpenedFilesList_item_selected(0)
 
+
+
+func _on_preferences_updated(preferences: Array[Dictionary]) -> void:
+	for pref in preferences:
+		Conf.set_value(pref["section"], pref["key"], pref["value"])
+	_save_settings_config()
