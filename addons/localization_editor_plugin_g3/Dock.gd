@@ -8,6 +8,8 @@ const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButt
 const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxItemTranslation.tscn")
 
 @export var _preferences_window: Popup
+@export var _file_dialog: FileDialog
+@export var _create_file_popup: Popup
 
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
@@ -59,12 +61,13 @@ func _ready() -> void:
 	
 	
 	# if running in editor, only use res://
-	if Engine.is_editor_hint():
-		get_node("%FileDialog").access = FileDialog.ACCESS_RESOURCES
-		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_RESOURCES
-	else: # if running standalone, allow full filesystem
-		get_node("%FileDialog").access = FileDialog.ACCESS_FILESYSTEM
-		get_node("%FileDialogNewFilePath").access = FileDialog.ACCESS_FILESYSTEM
+	for dialog in get_tree().get_nodes_in_group("file_access"):
+		if not dialog is FileDialog:
+			continue
+		if Engine.is_editor_hint():
+			dialog.access = FileDialog.ACCESS_RESOURCES
+		else: # if running standalone, allow full filesystem
+			dialog.access = FileDialog.ACCESS_FILESYSTEM
 
 	if FileAccess.file_exists(_settings_file):
 		Conf.load(_settings_file)
@@ -81,7 +84,7 @@ func _ready() -> void:
 		var recent_files:Array = Conf.get_value("main","recent_files",[])
 		if recent_files.is_empty() == false:
 			if FileAccess.file_exists(recent_files[0]):
-				_on_FileDialog_files_selected([recent_files[0]])
+				_on_file_dialog_files_selected([recent_files[0]])
 
 func _save_settings_config(_is_init_step := false) -> void:
 	if not _is_config_initialized and not _is_init_step:
@@ -106,7 +109,7 @@ func load_recent_files_list() -> void:
 	get_node("%LblNoRecentFiles").visible = recent_list.is_empty()
 
 func _OnRecentFile_opened(f_path:String) -> void:
-	_on_FileDialog_files_selected([f_path])
+	_on_file_dialog_files_selected([f_path])
 
 func _OnRecentFile_removed(NodeName:String,f_path:String) -> void:
 	var recent_list:Array = Conf.get_value("main", "recent_files", [])
@@ -222,10 +225,9 @@ func _set_visible_content(vis:bool=true) -> void:
 func _on_FileMenu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			get_node("%WindowDialogCreateFile").popup_centered()
-			get_node("%LineEditNewFileName").grab_focus()
+			_create_file_popup.popup_centered()
 		2:
-			get_node("%FileDialog").popup_centered()
+			_file_dialog.popup_centered()
 		3:
 			_on_CloseAll()
 
@@ -281,53 +283,6 @@ func _on_Popup_about_to_show() -> void:
 	get_node("%PopupBG").visible = true
 func _on_Popup_hide() -> void:
 	get_node("%PopupBG").visible = false
-
-func _on_FileDialog_files_selected(paths: PackedStringArray) -> void:
-	get_node("%OpenedFilesList").clear()
-
-	var i : int = 0
-	for p in paths:
-		# if some of the files do not exist, remove from the list of paths
-		# TODO: improve or make sure it works
-		if FileAccess.file_exists(p) == false:
-			paths.remove_at(i)
-		else:
-			get_node("%OpenedFilesList").add_item(
-				p.get_file(), i
-			)
-			
-			# add path to recent files list
-			var recent_limit:int = 10
-			var recent_list:Array = Conf.get_value("main","recent_files",[])
-			if recent_list.has(p) == false:
-				if recent_list.size() >= recent_limit:
-					recent_list.remove_at(recent_list.size()-1)
-				recent_list.append(p)
-			# the path was already listed
-			# delete it and place it at the top of the array
-			else:
-				recent_list.erase(p)
-				recent_list.push_front(p)
-			
-			Conf.set_value("main","recent_files", recent_list)
-			
-		i += 1
-	
-	_save_settings_config()
-
-	if paths.size() == 0:
-		_set_visible_content(false)
-		return
-	
-	_current_path = paths[0].get_base_dir()
-
-	# show the path of the file
-	get_node("%LblOpenedPath").text = "[%s]" % [_current_path]
-	
-	# send signal of first selected item since it is not activated by default
-	_on_OpenedFilesList_item_selected(0)
-	
-	clear_search()
 
 # a file was selected from the list
 func _on_OpenedFilesList_item_selected(index: int) -> void:
@@ -697,78 +652,6 @@ func _on_BtnAddNewLang_pressed() -> void:
 	
 	get_node("%WindowDialogAddNewLang").hide()
 
-func _on_BtnNewFileAddLang_pressed() -> void:
-	var delim : String = Conf.get_value("csv","delimiter",",")
-	var new_text : String
-	var new_lang : String = get_node("%OptionButtonLangsNewFile").get_item_text(
-		get_node("%OptionButtonLangsNewFile").selected
-	)
-	new_lang = new_lang.split(", ")[1]
-	
-	if new_lang in get_node("%TextEditNewFileLangsAdded").text:
-		return
-
-	new_text = "%s%s %s" % [
-		get_node("%TextEditNewFileLangsAdded").text, delim, new_lang
-	]
-	
-	new_text = new_text.trim_prefix(delim).strip_edges()
-	
-	get_node("%TextEditNewFileLangsAdded").text = new_text
-
-
-func _on_FileDialogNewFilePath_dir_selected(dir: String) -> void:
-	get_node("%LineEditNewFilePath").text = dir
-
-
-func _on_BtnNewFileExplorePath_pressed() -> void:
-	get_node("%FileDialogNewFilePath").popup_centered()
-
-
-func _on_BtnNewFileCreate_pressed() -> void:
-	var f_cell : String = Conf.get_value("csv","f_cell","keys")
-	var delim : String = Conf.get_value("csv","delimiter",",")
-	
-	var namefile : String = get_node("%LineEditNewFileName").text.strip_edges()
-	var filepath : String = get_node("%LineEditNewFilePath").text
-	var langs_txt : String = get_node("%TextEditNewFileLangsAdded").text.replace(" ","")
-	var headers_list : Array = langs_txt.split(delim, false)
-	
-	if filepath.is_empty() == true:
-		OS.alert("Please add a file path.")
-		return
-	
-	if namefile.is_empty() == true:
-		namefile = str(Time.get_ticks_usec())
-	
-	if headers_list.size() == 0:
-		headers_list.append("en")
-	
-	# add the fcell
-	headers_list.push_front(f_cell)
-	
-	var out_file = FileAccess.open(
-		"%s/%s.csv" % [filepath,namefile], FileAccess.WRITE
-	)
-	
-	if out_file.get_open_error() == Error.OK:
-		out_file.store_csv_line(headers_list,delim)
-		out_file.close()
-		# saved file open
-		_on_FileDialog_files_selected([
-			"%s/%s.csv" % [filepath,namefile]
-		])
-		
-		# clean data
-		get_node("%LineEditNewFileName").text = ""
-		get_node("%LineEditNewFilePath").text = ""
-		get_node("%TextEditNewFileLangsAdded").text = ""
-		
-		get_node("%WindowDialogCreateFile").hide()
-	else:
-		OS.alert("Error creating file. Error #"+str(out_file.get_open_error()))
-		out_file.close()
-
 # in the add translation pane any of the LineEdit has been modified
 func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
 	var strkey:String = get_node("%LineEditKeyStrNewTransItem").text.strip_edges()
@@ -939,3 +822,55 @@ func _on_preferences_updated(preferences: Array[Dictionary]) -> void:
 	for pref in preferences:
 		Conf.set_value(pref["section"], pref["key"], pref["value"])
 	_save_settings_config()
+
+
+func _on_file_dialog_files_selected(paths: PackedStringArray) -> void:
+	get_node("%OpenedFilesList").clear()
+
+	var i : int = 0
+	for p in paths:
+		# if some of the files do not exist, remove from the list of paths
+		# TODO: improve or make sure it works
+		if FileAccess.file_exists(p) == false:
+			paths.remove_at(i)
+		else:
+			get_node("%OpenedFilesList").add_item(
+				p.get_file(), i
+			)
+			
+			# add path to recent files list
+			var recent_limit:int = 10
+			var recent_list:Array = Conf.get_value("main","recent_files",[])
+			if recent_list.has(p) == false:
+				if recent_list.size() >= recent_limit:
+					recent_list.remove_at(recent_list.size()-1)
+				recent_list.append(p)
+			# the path was already listed
+			# delete it and place it at the top of the array
+			else:
+				recent_list.erase(p)
+				recent_list.push_front(p)
+			
+			Conf.set_value("main","recent_files", recent_list)
+			
+		i += 1
+	
+	_save_settings_config()
+
+	if paths.size() == 0:
+		_set_visible_content(false)
+		return
+	
+	_current_path = paths[0].get_base_dir()
+
+	# show the path of the file
+	get_node("%LblOpenedPath").text = "[%s]" % [_current_path]
+	
+	# send signal of first selected item since it is not activated by default
+	_on_OpenedFilesList_item_selected(0)
+	
+	clear_search()
+
+
+func _on_new_file_created(filename: String) -> void:
+	_on_file_dialog_files_selected([filename])
