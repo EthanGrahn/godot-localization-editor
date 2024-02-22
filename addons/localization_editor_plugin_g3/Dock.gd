@@ -821,7 +821,7 @@ func _on_BtnAddTransItem_pressed() -> void:
 	
 	get_node("%WindowDialogAddTranslationItem").hide()
 	
-	await get_tree().idle_frame
+	await get_tree().process_frame
 	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
 
 func _on_BtnRemoveLang_pressed() -> void:
