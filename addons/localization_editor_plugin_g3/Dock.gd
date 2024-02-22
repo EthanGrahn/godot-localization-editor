@@ -10,6 +10,8 @@ const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxI
 @export var _preferences_window: Popup
 @export var _file_dialog: FileDialog
 @export var _create_file_popup: Popup
+@export var _credits_popup: Popup
+@export var _version_label: Label
 
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
@@ -28,19 +30,10 @@ var _current_path : String
 var _settings_file : String = "user://settings.ini"
 
 func _ready() -> void:
+	var plugin_conf := ConfigFile.new()
+	plugin_conf.load("res://addons/localization_editor_plugin_g3/plugin.cfg")
+	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
 	
-	get_node("%LblGodotEng").text = "Made with Godot Engine %d.%d.%d %s" % [
-		Engine.get_version_info()["major"],
-		Engine.get_version_info()["minor"],
-		Engine.get_version_info()["patch"],
-		Engine.get_version_info()["status"],
-	]
-	
-	get_node("%LblTextBottom").text = "v%s" % get_plugin_info("version")
-	
-	get_node("%LblCreditTitle").text = get_plugin_info("name")
-	get_node("%LblCreditDescription").text = get_plugin_info("description")
-
 	for list in get_tree().get_nodes_in_group("language_options"):
 		if not list is OptionButton:
 			continue
@@ -120,12 +113,6 @@ func _OnRecentFile_removed(NodeName:String,f_path:String) -> void:
 	_save_settings_config()
 
 	get_node("%VBxRecentFiles").get_node(NodeName).queue_free()
-
-
-func get_plugin_info(val:String) -> String:
-	var ConfPlugin := ConfigFile.new()
-	ConfPlugin.load("res://addons/localization_editor_plugin_g3/plugin.cfg")
-	return ConfPlugin.get_value("plugin", val, "")
 
 func start_search() -> void:
 	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
@@ -258,8 +245,7 @@ func _on_HelpMenu_id_pressed(id:int) -> void:
 		1:
 			OS.shell_open("https://github.com/EthanGrahn/godot-localization-editor?tab=readme-ov-file#usage-guide")
 		2:
-			# credits
-			get_node("%WindowDialogCredits").popup_centered()
+			_credits_popup.popup_centered()
 
 func _on_FilesLoaded() -> void:
 	_set_visible_content(true)
