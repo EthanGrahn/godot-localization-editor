@@ -12,6 +12,10 @@ const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxI
 @export var _create_file_popup: Popup
 @export var _credits_popup: Popup
 @export var _version_label: Label
+@export var _new_lang_popup: Popup
+@export var _add_lang_option: OptionButton
+@export var _ref_lang_option: OptionButton
+@export var _target_lang_option: OptionButton
 
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
@@ -186,23 +190,21 @@ func get_opened_file() -> String:
 # get list of available languages
 func get_langs() -> Array:
 	var langs_list:Array
-	var available_langs_count:int = get_node("%RefLangItemList").get_item_count()
+	var available_langs_count:int = _ref_lang_option.get_item_count()
 	var i:int = 0
 	for l in available_langs_count:
 		langs_list.append(
-			get_node("%RefLangItemList").get_item_text(i)
+			_ref_lang_option.get_item_text(i)
 		)
 		i += 1
 	return langs_list
 
 # get the selected language (ref or trans)
 func get_selected_lang(mode:String="ref") -> String:
-	var nod : String = "%RefLangItemList"
+	var node : OptionButton = _ref_lang_option
 	if mode != "ref":
-		nod = "%TransLangItemList"
-	return get_node(nod).get_item_text(
-		get_node(nod).selected
-	)
+		node = _target_lang_option
+	return node.get_item_text(node.selected)
 
 func _set_visible_content(vis:bool=true) -> void:
 	get_node("%HBxFileAndLangSelect").visible = vis
@@ -223,7 +225,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 		1:
 			# add new language
 			if get_node("%ControlNoOpenedFiles").visible == false:
-				get_node("%WindowDialogAddNewLang").popup_centered()
+				_new_lang_popup.popup_centered()
 		2:
 			# delete language
 			if get_node("%ControlNoOpenedFiles").visible == false and _langs.size() > 0:
@@ -305,30 +307,26 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 			_langs = _translations[_translations.keys()[0]].keys()
 	
 	# clean lists
-	get_node("%RefLangItemList").clear()
-	get_node("%TransLangItemList").clear()
+	_ref_lang_option.clear()
+	_target_lang_option.clear()
 
 	var user_ref_lang: String = Conf.get_value("main","user_ref_lang", "")
 	# add languages from the file
 	var i : int = 0
 	for l in _langs:
-		get_node("%RefLangItemList").add_item(
-			l, i
-		)
+		_ref_lang_option.add_item(l, i)
 		if not user_ref_lang.is_empty() and user_ref_lang == l:
-			get_node("%RefLangItemList").select(i)
-		get_node("%TransLangItemList").add_item(
-			l, i
-		)
+			_ref_lang_option.select(i)
+		_target_lang_option.add_item(l, i)
 		i += 1
 
 	# if both languages are the same, but there is more than one language
-	# select the following language in TransLangItemList
+	# select the subsequent language in TargetLangItemList
 	if (
-		(get_node("%RefLangItemList").get_selected_id() == get_node("%TransLangItemList").get_selected_id())
+		(_ref_lang_option.get_selected_id() == _target_lang_option.get_selected_id())
 		and _langs.size() > 1
 	):
-		get_node("%TransLangItemList").select(1)
+		_target_lang_option.select(1)
 
 	# upload translations
 	_on_LangItemList_item_selected(0)
@@ -605,39 +603,6 @@ func _on_BtnAddTranslation_pressed() -> void:
 	else:
 		get_node("%LineEditTransTxtNewTransItem").visible = true
 
-# the new languages panel appears
-func _on_WindowDialogAddNewLang_about_to_show() -> void:
-	pass # Replace with function body.
-# add new selected language
-func _on_BtnAddNewLang_pressed() -> void:
-	var lang_to_add:String = get_node("%OptionButtonAvailableLangsList").get_item_text(
-		get_node("%OptionButtonAvailableLangsList").selected
-	)
-	lang_to_add = lang_to_add.split(",")[1].strip_edges()
-	
-	if lang_to_add in _langs:
-		OS.alert("The language already exists in the file.")
-		return
-
-	_langs.append(lang_to_add)
-
-	# looping each item (the strkeys)
-	# if the entry doesn't have the language, add it
-	for t_entry in _translations:
-		if _translations[t_entry].keys().has(lang_to_add) == false:
-			_translations[t_entry][lang_to_add] = ""
-	
-	get_node("%RefLangItemList").add_item(
-		lang_to_add, get_node("%RefLangItemList").get_item_count()
-	)
-	get_node("%TransLangItemList").add_item(
-		lang_to_add, get_node("%TransLangItemList").get_item_count()
-	)
-	
-	_on_BtnSaveFile_pressed()
-	
-	get_node("%WindowDialogAddNewLang").hide()
-
 # in the add translation pane any of the LineEdit has been modified
 func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
 	var strkey:String = get_node("%LineEditKeyStrNewTransItem").text.strip_edges()
@@ -709,14 +674,14 @@ func _on_BtnRemoveLang_pressed() -> void:
 	var i:int = 0
 	for l in _langs:
 		if l == selected_lang:
-			get_node("%RefLangItemList").remove_item(i)
-			get_node("%TransLangItemList").remove_item(i)
+			_ref_lang_option.remove_item(i)
+			_target_lang_option.remove_item(i)
 		i += 1
 	
 	_langs.erase(selected_lang)
 	
-	get_node("%RefLangItemList").selected = 0
-	get_node("%TransLangItemList").selected = 0
+	_ref_lang_option.selected = 0
+	_target_lang_option.selected = 0
 	_on_LangItemList_item_selected(0)
 	
 	_on_BtnSaveFile_pressed()
@@ -860,3 +825,33 @@ func _on_file_dialog_files_selected(paths: PackedStringArray) -> void:
 
 func _on_new_file_created(filename: String) -> void:
 	_on_file_dialog_files_selected([filename])
+
+
+func _on_add_lang_button_pressed():
+	var lang_to_add:String = _add_lang_option.get_item_text(
+		_add_lang_option.selected
+	)
+	lang_to_add = lang_to_add.split(",")[1].strip_edges()
+	
+	if lang_to_add in _langs:
+		OS.alert("The chosen language already exists in the file.")
+		return
+
+	_langs.append(lang_to_add)
+
+	# looping each item (the strkeys)
+	# if the entry doesn't have the language, add it
+	for t_entry in _translations:
+		if _translations[t_entry].keys().has(lang_to_add) == false:
+			_translations[t_entry][lang_to_add] = ""
+	
+	_ref_lang_option.add_item(
+		lang_to_add, _ref_lang_option.get_item_count()
+	)
+	_target_lang_option.add_item(
+		lang_to_add, _target_lang_option.get_item_count()
+	)
+	
+	_on_BtnSaveFile_pressed()
+	
+	_new_lang_popup.hide()
