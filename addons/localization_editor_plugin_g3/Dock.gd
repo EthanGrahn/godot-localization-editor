@@ -17,6 +17,7 @@ const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButt
 @export var _ref_lang_option: OptionButton
 @export var _target_lang_option: OptionButton
 @export var _remove_lang_popup: Popup
+@export var _add_translation_popup: Popup
 
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
@@ -413,78 +414,11 @@ func _on_BtnSaveFile_pressed() -> void:
 
 # pressed add translation
 func _on_BtnAddTranslation_pressed() -> void:
-	
-	get_node("%CheckBoxNewSTRKeyUppercase").button_pressed = Conf.get_value("main", "uppercase_on_input", true)
-	
-	get_node("%LineEditKeyStrNewTransItem").text = ""
-	get_node("%LineEditRefTxtNewTransItem").placeholder_text = "[%s] Text here..." % [get_selected_lang("ref")]
-	get_node("%LineEditRefTxtNewTransItem").text = ""
-	get_node("%LineEditTransTxtNewTransItem").placeholder_text = "[%s] Text here... (optional)" % [get_selected_lang("trans")]
-	get_node("%LineEditTransTxtNewTransItem").text = ""
-	
-	get_node("%BtnAddTransItem").disabled = true
-	get_node("%WindowDialogAddTranslationItem").popup_centered()
-	get_node("%LineEditKeyStrNewTransItem").grab_focus()
-	
-	if get_selected_lang("ref") == get_selected_lang("trans"):
-		get_node("%LineEditTransTxtNewTransItem").visible = false
-	else:
-		get_node("%LineEditTransTxtNewTransItem").visible = true
-
-# in the add translation pane any of the LineEdit has been modified
-func _on_NewTransLineEdit_text_changed(_new_text: String) -> void:
-	var strkey:String = get_node("%LineEditKeyStrNewTransItem").text.strip_edges()
-	var reftxt:String = get_node("%LineEditRefTxtNewTransItem").text.strip_edges()
-	var transtxt:String = get_node("%LineEditTransTxtNewTransItem").text.strip_edges()
-	
-	if (
-		strkey.is_empty() == true 
-		or reftxt.is_empty() == true 
-	):
-		get_node("%BtnAddTransItem").disabled = true
-	else:
-		get_node("%BtnAddTransItem").disabled = false
-
-# clocked add translation in the new translation panel
-func _on_BtnAddTransItem_pressed() -> void:
-	var ref_lang:String = get_selected_lang("ref")
-	var trans_lang:String = get_selected_lang("trans")
-	
-	var strkey:String = get_node("%LineEditKeyStrNewTransItem").text.strip_edges()
-	var reftxt:String = get_node("%LineEditRefTxtNewTransItem").text.strip_edges()
-	var transtxt:String = get_node("%LineEditTransTxtNewTransItem").text.strip_edges()
-	
-	if _translations.keys().has(strkey) == true:
-		OS.alert(
-			"The String key: %s already exists." % [strkey]
-		)
-		return
-	
-	_translations[strkey] = {}
-	
-	for l in get_langs():
-		if l == ref_lang or ref_lang==trans_lang:
-			_translations[strkey][l] = reftxt
-		elif l == trans_lang:
-			_translations[strkey][l] = transtxt
-		else:
-			_translations[strkey][l] = ""
-	
-	# if the languages are the same, copy ref to trans
-	if ref_lang == trans_lang:
-		transtxt = reftxt
-	
-	# add dashboard
-	add_translation_panel(strkey, reftxt, transtxt, true)
-	
-	# show indicator of not having saved changes
-	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
-		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
-	
-	get_node("%WindowDialogAddTranslationItem").hide()
-	
-	await get_tree().process_frame
-	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
+	_add_translation_popup.request_popup(
+		get_selected_lang("ref"),
+		get_selected_lang("trans"),
+		_current_path_config.get_value(_current_file, "uppercase_keys", true)
+	)
 
 func _on_language_removed(selected_lang: String) -> void:
 	if _langs.size() < 2:
@@ -508,25 +442,6 @@ func _on_language_removed(selected_lang: String) -> void:
 	_target_lang_option.selected = 0
 	_on_LangItemList_item_selected(0)
 	_on_data_dirtied()
-
-# the strkey field in the new translation popup changed
-func _on_LineEditKeyStrNewTransItem_text_changed(new_text: String) -> void:
-	if get_node("%CheckBoxNewSTRKeyUppercase").button_pressed == true:
-		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_upper().replace(" ","_")
-	
-	get_node("%LineEditKeyStrNewTransItem").caret_column = get_node("%LineEditKeyStrNewTransItem").text.length()
-
-
-func _on_CheckBoxNewSTRKeyUppercase_toggled(button_pressed: bool) -> void:
-	Conf.set_value("main", "uppercase_on_input", button_pressed)
-	_save_settings_config()
-	
-	if button_pressed == true:
-		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_upper().replace(" ","_")
-	else:
-		get_node("%LineEditKeyStrNewTransItem").text = get_node("%LineEditKeyStrNewTransItem").text.to_lower().replace(" ","_")
-	get_node("%LineEditKeyStrNewTransItem").caret_column = get_node("%LineEditKeyStrNewTransItem").text.length()
-
 
 func _on_CheckBoxHideCompleted_pressed() -> void:
 	if get_node("%CheckBoxHideCompleted").button_pressed == true:
@@ -680,3 +595,38 @@ func _on_add_lang_button_pressed():
 	_on_BtnSaveFile_pressed()
 	
 	_new_lang_popup.hide()
+
+
+func _on_translation_added(key: String, ref_text: String, target_text: String, key_is_uppercase: bool):
+	_current_path_config.set_value(_current_file, "uppercase_keys", key_is_uppercase)
+	_save_settings_config()
+	
+	if _translations.keys().has(key) == true:
+		OS.alert(
+			"The String key: %s already exists." % [key]
+		)
+		return
+	
+	_translations[key] = {}
+	var ref_lang: String = get_selected_lang("ref")
+	var target_lang: String = get_selected_lang("trans")
+	
+	_translations[key][ref_lang] = ref_text
+	_translations[key][target_lang] = target_text
+	print(_translations[key])
+	for l in get_langs():
+		if l != ref_lang and l != target_lang:
+			_translations[key][l] = ""
+	
+	# if the languages are the same, copy ref to target
+	# TODO: disallow having the same value selected
+	if ref_lang == target_lang:
+		target_text = ref_text
+	
+	# add dashboard
+	add_translation_panel(key, ref_text, target_text, true)
+	
+	_on_data_dirtied()
+	
+	await get_tree().process_frame
+	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
