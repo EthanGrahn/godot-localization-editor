@@ -3,7 +3,7 @@
 [ext_resource type="FontFile" path="res://addons/localization_editor_plugin_g3/multilang_font.tres" id="2"]
 [ext_resource type="Texture2D" uid="uid://bn4dmdsqjekhw" path="res://addons/localization_editor_plugin_g3/icons/language.png" id="2_cexq5"]
 [ext_resource type="PackedScene" uid="uid://cib125ol05x5u" path="res://addons/localization_editor_plugin_g3/edit_entry_popup.tscn" id="2_tayl2"]
-[ext_resource type="Script" path="res://addons/localization_editor_plugin_g3/HBxItemTranslation.gd" id="3"]
+[ext_resource type="Script" path="res://addons/localization_editor_plugin_g3/translation_entry.gd" id="3"]
 [ext_resource type="Texture2D" uid="uid://0dlyt1tavfpe" path="res://addons/localization_editor_plugin_g3/icons/exclamation.png" id="3_a1mr7"]
 [ext_resource type="Texture2D" uid="uid://d4jl1sewekqpb" path="res://addons/localization_editor_plugin_g3/icons/google-translate.png" id="5_8e8ep"]
 [ext_resource type="Texture2D" uid="uid://dkbt6f5vf74u1" path="res://addons/localization_editor_plugin_g3/icons/edit-svgrepo-com.svg" id="6_e5c70"]
