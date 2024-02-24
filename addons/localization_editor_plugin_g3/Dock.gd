@@ -18,6 +18,7 @@ const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButt
 @export var _target_lang_option: OptionButton
 @export var _remove_lang_popup: Popup
 @export var _add_translation_popup: Popup
+@export var _alert_window: AcceptDialog
 
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
@@ -159,9 +160,10 @@ func clear_search() -> void:
 	get_node("%CheckBoxHideNoNeedRev").button_pressed = false
 
 func alert(txt:String,title:String="Alert!") -> void:
-	get_node("%WindowDialogAlert").title = title
-	get_node("%WindowDialogAlert").get_node("MarginContainer/VBoxContainer/Label").text = txt
-	get_node("%WindowDialogAlert").popup_centered()
+	_alert_window.title = title
+	_alert_window.get_node("Label").text = txt
+	_alert_window.size = Vector2.ZERO
+	_alert_window.popup_centered()
 
 func add_translation_panel(
 	strkey:String, ref_txt:String, trans_txt:String, focus_lineedit:bool=false
@@ -279,9 +281,6 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 		alert(
 			err_msg, "Translation Manager - Error"
 		)
-#		OS.alert(
-#			err_msg, "Translation Manager - Error"
-#		)
 		return
 
 	# there is nothing to show
@@ -422,7 +421,7 @@ func _on_BtnAddTranslation_pressed() -> void:
 
 func _on_language_removed(selected_lang: String) -> void:
 	if _langs.size() < 2:
-		OS.alert("You can't remove more languages")
+		alert("You can't remove more languages")
 		return
 	
 	for t in _translations:
@@ -574,7 +573,7 @@ func _on_add_lang_button_pressed():
 	lang_to_add = lang_to_add.split(",")[1].strip_edges()
 	
 	if lang_to_add in _langs:
-		OS.alert("The chosen language already exists in the file.")
+		alert("The chosen language already exists in the file.")
 		return
 
 	_langs.append(lang_to_add)
@@ -602,7 +601,7 @@ func _on_translation_added(key: String, ref_text: String, target_text: String, k
 	_save_settings_config()
 	
 	if _translations.keys().has(key) == true:
-		OS.alert(
+		alert(
 			"The String key: %s already exists." % [key]
 		)
 		return
