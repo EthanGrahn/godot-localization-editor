@@ -24,6 +24,7 @@ var Locales = load("res://addons/localization_editor_plugin_g3/localization_loca
 
 var Conf := ConfigFile.new()
 var _is_config_initialized := false
+var _save_pressed := false
 
 var _translations : Dictionary
 var _langs : Array
@@ -86,6 +87,14 @@ func _ready() -> void:
 		if recent_files.is_empty() == false:
 			if FileAccess.file_exists(recent_files[0]):
 				_on_file_dialog_files_selected([recent_files[0]])
+
+func _process(delta):
+	if (not _save_pressed and Input.is_key_pressed(KEY_CTRL)
+	and Input.is_key_pressed(KEY_S)):
+		_on_BtnSaveFile_pressed()
+		_save_pressed = true
+	elif _save_pressed and not Input.is_key_pressed(KEY_S):
+		_save_pressed = false
 
 func _save_settings_config(_is_init_step := false) -> void:
 	if not _is_config_initialized and not _is_init_step:
