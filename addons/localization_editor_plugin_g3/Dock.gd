@@ -16,6 +16,7 @@ const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButt
 @export var _add_lang_option: OptionButton
 @export var _ref_lang_option: OptionButton
 @export var _target_lang_option: OptionButton
+@export var _remove_lang_popup: Popup
 
 var Locales = load("res://addons/localization_editor_plugin_g3/localization_locale_list.gd").new()
 
@@ -227,14 +228,7 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 		2:
 			# delete language
 			if get_node("%ControlNoOpenedFiles").visible == false and _langs.size() > 0:
-				
-				get_node("%OptionButtonLangsToRemoveList").clear()
-				var i:int = 0
-				for l in _langs:
-					get_node("%OptionButtonLangsToRemoveList").add_item(l,i)
-					i += 1
-				
-				get_node("%WindowDialogRemoveLang").popup_centered()
+				_remove_lang_popup.request_popup(_langs)
 		3:
 			# open program settings
 			_preferences_window.set_defaults(Conf)
@@ -492,15 +486,10 @@ func _on_BtnAddTransItem_pressed() -> void:
 	await get_tree().process_frame
 	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
 
-func _on_BtnRemoveLang_pressed() -> void:
-	
+func _on_language_removed(selected_lang: String) -> void:
 	if _langs.size() < 2:
 		OS.alert("You can't remove more languages")
 		return
-	
-	var selected_lang:String = get_node("%OptionButtonLangsToRemoveList").get_item_text(
-		get_node("%OptionButtonLangsToRemoveList").selected
-	)
 	
 	for t in _translations:
 		_translations[t].erase(selected_lang)
@@ -510,6 +499,7 @@ func _on_BtnRemoveLang_pressed() -> void:
 		if l == selected_lang:
 			_ref_lang_option.remove_item(i)
 			_target_lang_option.remove_item(i)
+			break
 		i += 1
 	
 	_langs.erase(selected_lang)
@@ -517,10 +507,7 @@ func _on_BtnRemoveLang_pressed() -> void:
 	_ref_lang_option.selected = 0
 	_target_lang_option.selected = 0
 	_on_LangItemList_item_selected(0)
-	
-	_on_BtnSaveFile_pressed()
-	
-	get_node("%WindowDialogRemoveLang").hide()
+	_on_data_dirtied()
 
 # the strkey field in the new translation popup changed
 func _on_LineEditKeyStrNewTransItem_text_changed(new_text: String) -> void:
