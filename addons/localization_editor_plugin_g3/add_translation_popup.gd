@@ -1,3 +1,4 @@
+@tool
 extends Popup
 
 signal translation_added(key: String, ref_text: String,

@@ -1,3 +1,4 @@
+@tool
 extends Popup
 
 signal preferences_updated(preferences: Array[Dictionary])

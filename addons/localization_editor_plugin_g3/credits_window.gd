@@ -1,3 +1,4 @@
+@tool
 extends Popup
 
 @export var _engine_label: Label

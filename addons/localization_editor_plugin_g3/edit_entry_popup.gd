@@ -1,3 +1,4 @@
+@tool
 extends Popup
 
 signal entry_updated(key: String, source_text: String, target_text: String, notes: String)

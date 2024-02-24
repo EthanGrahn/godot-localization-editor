@@ -1,3 +1,4 @@
+@tool
 extends Popup
 
 signal on_new_file_created(filename: String)
