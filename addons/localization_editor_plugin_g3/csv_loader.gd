@@ -79,12 +79,12 @@ static func save_csv_translation(
 	
 	# scan data row
 	for str_key in data.keys():
-		# get array with strkey translations [en,es,etc.]
-		var str_translations : Array = data[str_key].values()
-		# rowdata will have the strkey and then the other texts that would be the translations
+		# rowdata will have the strkey followed by all translations
 		var row_data : Array = [str_key]
-		row_data.append_array(str_translations)
-		# scan data column
+		# make sure we are storing the languages in correct order
+		for lang in langs:
+			row_data.append(data[str_key][lang])
+		
 		file.store_csv_line(row_data, delimiter)
 
 	return Error.OK
