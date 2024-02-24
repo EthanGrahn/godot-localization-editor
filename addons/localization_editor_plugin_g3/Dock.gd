@@ -5,8 +5,8 @@ signal scan_files_requested
 
 const _data_file_name: String = ".gle-data"
 const LinkBtnFile = preload("res://addons/localization_editor_plugin_g3/LinkButtonRecentFile.tscn")
-const TranslationItem = preload("res://addons/localization_editor_plugin_g3/HBxItemTranslation.tscn")
 
+@export var _translation_entry_scene: PackedScene
 @export var _preferences_window: Popup
 @export var _file_dialog: FileDialog
 @export var _create_file_popup: Popup
@@ -29,6 +29,7 @@ var _selected_translation_panel : String
 
 var _current_file : String
 var _current_path : String
+var _current_path_config := ConfigFile.new()
 
 # folder where internal data of the addon is saved, such as keystr annotations
 var _settings_file : String = "user://settings.ini"
@@ -88,6 +89,9 @@ func _save_settings_config(_is_init_step := false) -> void:
 		return
 	Conf.save(_settings_file)
 
+func _save_path_config() -> void:
+	_current_path_config.save("%s/%s" % [_current_path, _data_file_name])
+
 func load_recent_files_list() -> void:
 	# show recent files
 	var recent_list:Array = Conf.get_value("main","recent_files",[])
@@ -122,25 +126,25 @@ func start_search() -> void:
 	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
 	var hide_translated:bool = get_node("%CheckBoxHideCompleted").button_pressed
 	var hide_no_need_rev:bool = get_node("%CheckBoxHideNoNeedRev").button_pressed
+	var search_key: bool = get_node("%CheckBoxSearchKeyID").button_pressed
+	var search_ref_text: bool = get_node("%CheckBoxSearchRefText").button_pressed
+	var search_target_text: bool = get_node("%CheckBoxSearchTransText").button_pressed
 	
 	for tp in get_node("%VBxTranslations").get_children():
 		tp.visible = true
 		# text search
-		if searchtxt.is_empty()== false:
-			if (
-				(get_node("%CheckBoxSearchKeyID").pressed and searchtxt in tp.key_str.to_lower())
-				or (get_node("%CheckBoxSearchRefText").pressed and searchtxt in tp.orig_txt.to_lower())
-				or (get_node("%CheckBoxSearchTransText").pressed and searchtxt in tp.trans_txt.to_lower())
-			):
-				tp.visible = true
-			else:
-				tp.visible = false
+		if not searchtxt.is_empty():
+			tp.visible = (
+				(search_key and searchtxt in tp.key.to_lower())
+				or (search_ref_text and searchtxt in tp.ref_text.to_lower())
+				or (search_target_text and searchtxt in tp.target_text.to_lower())
+			)
 		
 		# hide those that do not have a translation
-		if hide_translated and tp.has_translation() == true:
+		if hide_translated and tp.has_translation():
 			tp.visible = false
 		# hide those that do not need revision
-		if hide_no_need_rev and tp.need_revision == false:
+		if hide_no_need_rev and not tp.need_revision:
 			tp.visible = false
 
 func clear_search() -> void:
@@ -160,28 +164,22 @@ func alert(txt:String,title:String="Alert!") -> void:
 func add_translation_panel(
 	strkey:String, ref_txt:String, trans_txt:String, focus_lineedit:bool=false
 ) -> void:
-	
-	var TransInstance = TranslationItem.instantiate()
-	var extra_data_path : String = _current_path + "/" + _data_file_name
-	var TransConf := ConfigFile.new()
-	
-	TransConf.load(extra_data_path)
+	var translation_entry = _translation_entry_scene.instantiate()
+	translation_entry.translation_requested.connect(_on_translate_requested)
+	translation_entry.data_changed.connect(_on_data_dirtied)
+	var config_section := "%s/%s" % [_current_file, strkey]
+	translation_entry.set_translation_data(
+		strkey,
+		get_selected_lang("ref"),
+		ref_txt,
+		get_selected_lang("trans"),
+		trans_txt,
+		_current_path_config.get_value(config_section, "notes", ""),
+		_current_path_config.get_value(config_section, "needs_revision", false),
+		focus_lineedit
+	)
 
-	TransInstance.connect("translate_requested", Callable(self, "_on_Translation_translate_requested"))
-	TransInstance.connect("text_updated", Callable(self, "_on_Translation_text_updated"))
-	TransInstance.connect("edit_requested", Callable(self, "_on_Translation_edit_requested"))
-	TransInstance.connect("need_revision_check_pressed", Callable(self, "_on_Translation_need_revision_check_pressed"))
-
-	TransInstance.focus_on_ready = focus_lineedit
-
-	TransInstance.key_str = strkey
-
-	TransInstance.orig_txt = ref_txt
-	TransInstance.trans_txt = trans_txt
-	TransInstance.need_revision = TransConf.get_value(strkey, "need_rev", false)
-	TransInstance.annotations = TransConf.get_value(strkey, "annotations", "")
-
-	get_node("%VBxTranslations").call_deferred("add_child", TransInstance)
+	get_node("%VBxTranslations").call_deferred("add_child", translation_entry)
 
 
 func get_opened_file() -> String:
@@ -359,179 +357,56 @@ func _on_LangItemList_item_selected(_index: int) -> void:
 		)
 
 # translation requested
-func _on_Translation_translate_requested(TransNodeName:String, text_to_trans:String) -> void:
+func _on_translate_requested(source_lang: String, source_text: String,
+	target_lang: String, target_text: String, callback: Callable) -> void:
 	$ApiTranslate.translate(
-		get_selected_lang("ref"),
-		get_selected_lang("trans"),
-		text_to_trans, TransNodeName
+		source_lang,
+		target_lang,
+		source_text,
+		callback
 	)
 
-# pressed edit button for the selected translation
-func _on_Translation_edit_requested(TransNodeName:String) -> void:
-	
-	_selected_translation_panel = TransNodeName
-	
-	var TranslationObj = get_node("%VBxTranslations").get_node(TransNodeName)
-	
-	get_node("%CTCheckEditKey").button_pressed = false
-	_on_CTCheckEditKey_toggled(false)
-	get_node("%CTCheckEnableOriginalTxt").button_pressed = false
-	get_node("%TxtOriginalTxt").editable = false
-	
-	# set data
-	get_node("%LblOriginalTxt").text = "[%s] Original Text" % [get_selected_lang("ref").capitalize()]
-	get_node("%LblTranslation").text = "[%s] Translation" % [get_selected_lang("trans").capitalize()]
-	
-	get_node("%CTLineEdit").text = TranslationObj.key_str
-	get_node("%TxtOriginalTxt").text = TranslationObj.orig_txt
-	get_node("%TxtTranslation").text = TranslationObj.trans_txt
-	get_node("%TxtAnnotations").text = TranslationObj.annotations
-	
-	# hide reference text panel if editing the same language
-	if get_selected_lang("ref") == get_selected_lang("trans"):
-		get_node("%VBxRefText").visible = false
-		# also hide difference bar
-		get_node("%DifferenceBar").visible = false
-	else:
-		get_node("%VBxRefText").visible = true
-		get_node("%DifferenceBar").visible = true
-	
-	_on_TextEditPanel_text_changed()
-	
-	get_node("%DialogEditTranslation").popup_centered()
-	
-	#get_node("%TxtTranslation").grab_focus()
+func _parse_translation_entries():
+	var target_lang: String = get_selected_lang("trans")
+	var ref_lang: String = get_selected_lang("ref")
+	for entry in get_node("%VBxTranslations").get_children():
+		var translation_data: Dictionary = entry.get_translation_data()
+		var config_data: Dictionary = entry.get_config_data()
+		if translation_data["old_key"] != translation_data["key"]:
+			_translations[translation_data["key"]] = _translations[translation_data["old_key"]].duplicate(true)
+			_translations.erase(translation_data["old_key"])
+		_translations[translation_data["key"]][target_lang] = translation_data["target_text"]
+		_translations[translation_data["key"]][ref_lang] = translation_data["ref_text"]
+		if config_data["updated"]:
+			_parse_updated_translation_config(config_data)
+	_save_path_config()
 
-# the line edit of the selected translation has been edited
-func _on_Translation_text_updated(NodeName:String, keystr:String, txt:String) -> void:
-	_translations[keystr][get_selected_lang("trans")] = txt
+func _parse_updated_translation_config(updated_config: Dictionary) -> void:
+	var section_key := "%s/%s" % [_current_file, updated_config["key"]]
+	if updated_config["old_key"] != updated_config["key"]:
+		_current_path_config.erase_section("%s/%s" % [_current_file, updated_config["old_key"]])
+	_current_path_config.set_value(
+		section_key,
+		"notes",
+		updated_config["notes"]
+	)
+	_current_path_config.set_value(
+		section_key,
+		"needs_revision",
+		updated_config["needs_revision"]
+	)
+
+func _on_data_dirtied():
 	# show indicator of not having saved changes
 	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
 		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
-
-	# if you're editing the translation from the same language
-	if get_selected_lang("ref") == get_selected_lang("trans"):
-		get_node("%VBxTranslations").get_node(NodeName).orig_txt = txt
-
-# pressed needs revision checkbox
-func _on_Translation_need_revision_check_pressed(key:String,pressed:bool) -> void:
-	var extra_data_path : String = _current_path + "/" + _data_file_name
-	var TransConf = ConfigFile.new()
-	TransConf.load(extra_data_path)
-	TransConf.set_value(key, "need_rev", pressed)
-	TransConf.save(extra_data_path)
-
-# enable editing or deletion of StringKey and all its translations
-func _on_CTCheckEditKey_toggled(button_pressed: bool) -> void:
-	get_node("%CTLineEdit").editable = button_pressed
-	#get_node("%CTBtnDeleteKey").disabled = ! button_pressed
-	get_node("%CTBtnDeleteKey").visible = button_pressed
-
-
-# delete translation based on the string key from the edit popup
-func _on_CTBtnDeleteKey_pressed() -> void:
-	var TranslationObj = get_node("%VBxTranslations").get_node(_selected_translation_panel)
-	
-	var extra_data_path : String = _current_path + "/" + _data_file_name
-	var TransConf = ConfigFile.new()
-	TransConf.load(extra_data_path)
-	
-	# delete from dictionary
-	_translations.erase(TranslationObj.key_str)
-	
-	# delete from configuration
-	if TransConf.has_section(TranslationObj.key_str):
-		TransConf.erase_section(TranslationObj.key_str)
-		TransConf.save(extra_data_path)
-	
-	# delete panel
-	TranslationObj.queue_free()
-	
-	# show indicator that there are unsaved changes
-	#get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
-	
-	_selected_translation_panel = ""
-	get_node("%DialogEditTranslation").hide()
-
-	_on_BtnSaveFile_pressed()
-
-# save string key data from the edit popup
-func _on_CTBtnSaveKey_pressed() -> void:
-	var extra_data_path : String = _current_path + "/" + _data_file_name
-	var TransConf = ConfigFile.new()
-	TransConf.load(extra_data_path)
-	
-	var TranslationObj = get_node("%VBxTranslations").get_node(_selected_translation_panel)
-	
-	# if the strkey field is checked
-	# rename the keystr to a new one
-	if get_node("%CTCheckEditKey").button_pressed == true:
-		
-		if get_node("%CTLineEdit").text in _translations.keys():
-			OS.alert("The String Key [%s] is already in use"%[get_node("%CTLineEdit").text])
-			return
-		
-		var conf_values : Array
-		# create a new entry with the new key, copying the values of the previous one
-		_translations[get_node("%CTLineEdit").text] = _translations[TranslationObj.key_str]
-		
-		if TransConf.has_section(TranslationObj.key_str):
-			for c in TransConf.get_section_keys(TranslationObj.key_str):
-				# save [confkey,value]
-				conf_values.append(
-					[c, TransConf.get_value(TranslationObj.key_str,c)]
-				)
-		
-		# erase the old
-		_translations.erase(TranslationObj.key_str)
-		
-		if TransConf.has_section(TranslationObj.key_str):
-			TransConf.erase_section(TranslationObj.key_str)
-		
-		# set the new keystr to the translation panel
-		TranslationObj.key_str = get_node("%CTLineEdit").text
-		
-		if conf_values.is_empty() == false:
-			for c in conf_values:
-				TransConf.set_value(
-					get_node("%CTLineEdit").text, # section
-					c[0],c[1]
-				)
-	
-	# if the original text check is checked
-	if get_node("%CTCheckEnableOriginalTxt").button_pressed == true:
-		# store the panel text
-		TranslationObj.orig_txt = get_node("%TxtOriginalTxt").text
-		# save it in the dictionary
-		_translations[TranslationObj.key_str][get_selected_lang("ref")] = TranslationObj.orig_txt
-	
-	# save translated text to the dashboard
-	TranslationObj.trans_txt = get_node("%TxtTranslation").text
-	# and save to the dictionary
-	_translations[TranslationObj.key_str][get_selected_lang("trans")] = TranslationObj.trans_txt
-	
-	# if the same language is edited, save the orig_txt variable as well
-	if get_selected_lang("ref") == get_selected_lang("trans"):
-		# store the panel text
-		TranslationObj.orig_txt = TranslationObj.trans_txt
-		# save it in the dictionary
-		_translations[TranslationObj.key_str][get_selected_lang("ref")] = TranslationObj.orig_txt
-	
-	# save annotations
-	TranslationObj.annotations = get_node("%TxtAnnotations").text
-	TransConf.set_value(TranslationObj.key_str, "annotations", TranslationObj.annotations)
-	TransConf.save(extra_data_path)
-	
-	# send save all button signal
-	get_node("%BtnSaveFile").emit_signal("pressed")
-	
-	get_node("%DialogEditTranslation").hide()
 
 func _on_CTCheckEnableOriginalTxt_toggled(button_pressed: bool) -> void:
 	get_node("%TxtOriginalTxt").editable = button_pressed
 
 # writing data to the csv
 func _on_BtnSaveFile_pressed() -> void:
+	_parse_translation_entries()
 	var err = CSVLoader.save_csv_translation(
 		get_opened_file(),
 		_translations, _langs,
@@ -540,48 +415,7 @@ func _on_BtnSaveFile_pressed() -> void:
 	if err == OK:
 		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
 
-	emit_signal("scan_files_requested")
-
-# the text has changed in any of the text panels
-# on the edit translation panel
-func _on_TextEditPanel_text_changed() -> void:
-	# obtain text size, not counting spaces, tabs, or line breaks
-	var orig_size:int = get_node("%TxtOriginalTxt").text.strip_edges().strip_escapes().length()
-	var trans_size:int = get_node("%TxtTranslation").text.strip_edges().strip_escapes().length()
-	var diff:int = 0
-	var diff_percent:float = 0
-	
-	# the total difference if...
-	# if the translation is larger than the original text
-	# or if the fields are empty
-	if trans_size > orig_size or trans_size == 0 or orig_size == 0:
-		diff_percent = 100
-	else:
-		# difference in the number of characters
-		diff = abs(orig_size-trans_size)
-		# convert to percentage
-		diff_percent = (float(diff)/float(orig_size)) * 100.0
-
-	get_node("%DifferenceBar").value = diff_percent
-	
-	# show colors in the bar
-#	if diff_percent < 20:
-#		get_node("%DifferenceBar").tint_progress = Color.white
-#	elif diff_percent < 50:
-#		get_node("%DifferenceBar").tint_progress = Color.yellow
-#	elif diff_percent < 80:
-#		get_node("%DifferenceBar").tint_progress = Color.orange
-#	else:
-#		get_node("%DifferenceBar").tint_progress = Color.red
-
-# a translation has been received
-func _on_ApiTranslate_text_translated(
-	id, _from_lang, _to_lang, _original_text, translated_text
-) -> void:
-	var TransObj = get_node("%VBxTranslations").get_node_or_null(id)
-	if TransObj != null:
-		TransObj.update_trans_txt(translated_text)
-		TransObj._on_LineEditTranslation_text_changed(translated_text)
+	scan_files_requested.emit()
 
 # pressed add translation
 func _on_BtnAddTranslation_pressed() -> void:
@@ -813,6 +647,10 @@ func _on_file_dialog_files_selected(paths: PackedStringArray) -> void:
 		return
 	
 	_current_path = paths[0].get_base_dir()
+	var config_path := "%s/%s" % [_current_path, _data_file_name]
+	if FileAccess.file_exists(config_path):
+		_current_path_config.load(config_path)
+	_save_path_config()
 
 	# show the path of the file
 	get_node("%LblOpenedPath").text = "[%s]" % [_current_path]

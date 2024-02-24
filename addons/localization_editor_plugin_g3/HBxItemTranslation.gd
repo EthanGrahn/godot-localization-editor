@@ -1,131 +1,159 @@
 @tool
-extends HBoxContainer
+extends Node
 
-signal translate_requested(NodeName, base_text)
-signal text_updated(NodeName,key_str,txt)
-signal edit_requested(NodeName)
-signal need_revision_check_pressed(StringKey, pressed)
+signal data_changed
+signal translation_requested(source_lang: String, source_text: String,
+	target_lang: String, target_text: String, callback: Callable)
 
-var focus_on_ready : bool
+@export var _edit_translation_popup: Popup
+@export var _ref_lang_label: Label
+@export var _target_lang_line_edit: LineEdit
+@export var _key_label: Label
+@export var _needs_revision_cb: CheckBox
+@export var _empty_translation_color: Color
+@export var _icon_normal: TextureRect
+@export var _icon_alert: TextureRect
 
-var key_str : String = "ItemTranslation": set = _key_str_txt_changed
-var orig_txt : String = "Original Text": set = _orig_txt_changed
-var trans_txt : String = "Text Translated": set = update_trans_txt
+@onready var _default_translation_color: Color = _target_lang_line_edit.modulate
 
-var need_revision : bool = false
-var annotations : String = ""
+var key: String = "Translation Key": set = _set_key
+var ref_text: String = "Reference Translation": set = _set_ref_text
+var target_text: String = "Translated Text"
+var notes: String = ""
+var ref_lang: String = "en"
+var target_lang: String = "es"
+
+var needs_revision : bool = false
+var old_config: Dictionary = {}
+var new_config: Dictionary = {}
 
 # flag to avoid emitting signal as soon as the object is added to the tree
-var _is_ready_for_emit_signals : bool
-
-func _ready() -> void:
-	
-	$VBxString1/HBoxContainer/CheckBoxRevision.button_pressed = need_revision
-	
-	name = key_str
-
-	_on_CheckBoxRevision_toggled(
-		$VBxString1/HBoxContainer/CheckBoxRevision.button_pressed
-	)
-
-	_on_LineEditTranslation_text_changed(trans_txt)
-	
-	_is_ready_for_emit_signals = true
-	
-	if focus_on_ready == true:
-		focus_line_edit()
-		get_node("%LineEditTranslation").caret_column = get_node("%LineEditTranslation").text.length()
-
-func focus_line_edit() -> void:
-	get_node("%LineEditTranslation").grab_focus()
+var _is_ready_for_emit_signals: bool
+var _previous_key: String
 
 func has_translation() -> bool:
-	return ! get_node("%LineEditTranslation").text.strip_edges().is_empty()
+	return !_target_lang_line_edit.text.is_empty()
 
-# the orig_txt variable has changed
-func _orig_txt_changed(txt:String) -> void:
-	orig_txt = txt
+func _emit_data_changed():
+	if not _is_ready_for_emit_signals:
+		return
+	data_changed.emit()
+
+func _set_ref_text(new_ref_text: String) -> void:
+	ref_text = new_ref_text
+	_ref_lang_label.text = ref_text
+	if ref_text.is_empty() == true:
+		ref_text = "[EMPTY]"
 	
-	if orig_txt.is_empty() == true:
-		orig_txt = "EMPTY TEXT"
-	
-	get_node("%LblOriginalTxt").text = orig_txt
-	# disabled as it may confuse the ellipsis with translation content
-	# trim large amount of text (not working)
-#	if orig_txt.length() > 10:
-#		get_node("%LblOriginalTxt").text.erase(0,10)
-#		get_node("%LblOriginalTxt").text = get_node("%LblOriginalTxt").text + "..." 
+	# TODO: add logic for text that doesn't fit in box
 
-func update_trans_txt(txt:String) -> void:
-	trans_txt = txt
-	get_node("%LineEditTranslation").text = trans_txt
-	# hide original text if it is the same as the translation
-	# also hide the translate button
-#	if trans_txt == orig_txt:
-#		#get_node("%LblOriginalTxt").visible = false
-#		get_node("%BtnTranslate").visible = false
-#	else:
-#		#get_node("%LblOriginalTxt").visible = true
-#		get_node("%BtnTranslate").visible = true
-	
-	_on_LineEditTranslation_text_changed(trans_txt, false)
+func set_translation_data(key: String, ref_lang: String, ref_text: String,
+	target_lang: String, target_text: String, notes: String,
+	needs_revision: bool, start_focused := false) -> void:
+	self.key = key
+	self.ref_lang = ref_lang
+	self.ref_text = ref_text
+	self.target_lang = target_lang
+	self.target_text = target_text
+	_target_lang_line_edit.text = target_text
+	self.notes = notes
+	self.needs_revision = needs_revision
+	if start_focused:
+		_target_lang_line_edit.grab_focus()
+		_target_lang_line_edit.caret_column = _target_lang_line_edit.text.length()
+	name = key
+	_previous_key = key
+	_needs_revision_cb.button_pressed = needs_revision
+	_on_needs_revision_toggled(_needs_revision_cb.button_pressed)
+	old_config = {
+		"key": key,
+		"notes": notes,
+		"needs_revision": needs_revision
+	}
+	_is_ready_for_emit_signals = true
 
-func _key_str_txt_changed(txt:String) -> void:
-	key_str = txt
-	get_node("%LblKeyStr").text = "Identifier: " + key_str
+func get_translation_data() -> Dictionary:
+	var output: Dictionary = {
+		"ref_text": ref_text,
+		"target_text": target_text,
+		"key": key,
+		"old_key": _previous_key
+	}
+	_previous_key = key
+	return output
 
-func _on_CheckBoxRevision_toggled(button_pressed: bool) -> void:
-	need_revision = button_pressed
-	if need_revision == true:
-		$ButtonCopyKey/MarginContainer/IconNormal.visible = false
-		$ButtonCopyKey/MarginContainer/IconAlert.visible = true
+func get_config_data() -> Dictionary:
+	new_config = {
+		"key": key,
+		"notes": notes,
+		"needs_revision": needs_revision
+	}
+	var config_changed: bool = new_config != old_config
+	var output_config := new_config.duplicate(true)
+	output_config["updated"] = config_changed
+	output_config["old_key"] = old_config["key"]
+	old_config = new_config.duplicate(true)
+	return output_config
+
+func _translation_callback(new_target_text: String) -> void:
+	if target_text != new_target_text:
+		_emit_data_changed()
+	target_text = new_target_text
+	_target_lang_line_edit.text = target_text
+	if _target_lang_line_edit.has_focus():
+		_target_lang_line_edit.caret_column = _target_lang_line_edit.text.length()
+	_on_translation_text_changed(new_target_text)
+
+func _set_key(new_key: String) -> void:
+	if key != new_key:
+		_emit_data_changed()
+	key = new_key
+	_key_label.text = key
+
+func _on_needs_revision_toggled(button_pressed: bool) -> void:
+	needs_revision = button_pressed
+	_icon_normal.visible = !needs_revision
+	_icon_alert.visible = needs_revision
+	_emit_data_changed()
+
+func _on_translation_text_changed(new_text: String) -> void:
+	if new_text.is_empty():
+		_target_lang_line_edit.modulate = _empty_translation_color
 	else:
-		$ButtonCopyKey/MarginContainer/IconNormal.visible = true
-		$ButtonCopyKey/MarginContainer/IconAlert.visible = false
-	
-	if _is_ready_for_emit_signals == true:
-		emit_signal("need_revision_check_pressed", key_str, need_revision)
+		_target_lang_line_edit.modulate = _default_translation_color
 
+	if target_text != new_text:
+		_emit_data_changed()
+	target_text = new_text
 
-func _on_LineEditTranslation_focus_entered() -> void:
-	pass
-func _on_LineEditTranslation_focus_exited() -> void:
-	pass
+func _on_translate_button_pressed() -> void:
+	target_text = "Translating: [%s] please wait..." % [ref_text]
+	_target_lang_line_edit.text = target_text
+	translation_requested.emit(
+		ref_lang,
+		ref_text,
+		target_lang,
+		target_text,
+		_translation_callback
+	)
 
-func _on_LineEditTranslation_text_changed(new_text: String, update_trans_txt: bool = true) -> void:
-	
-	new_text = new_text.strip_edges()
-	
-	if new_text.is_empty() == true:
-		get_node("%LineEditTranslation").modulate = Color("ce5f5f")
-		# has_translation = false
-	else:
-		get_node("%LineEditTranslation").modulate = Color("ffffff")
-		# has_translation = true
-	
-	if _is_ready_for_emit_signals == true:
-		emit_signal("text_updated", name, key_str, get_node("%LineEditTranslation").text)
+func _on_entry_updated(key, ref_text, target_text, notes) -> void:
+	if (self.key != key or self.ref_text != ref_text
+		or self.target_text != target_text or self.notes != notes):
+		_emit_data_changed()
+	self.key = key
+	self.ref_text = ref_text
+	self.target_text = target_text
+	_target_lang_line_edit.text = target_text
+	_target_lang_line_edit.caret_column = _target_lang_line_edit.text.length()
+	self.notes = notes
 
-	if update_trans_txt:
-		trans_txt = new_text
-
-func _on_BtnEdit_pressed() -> void:
-	emit_signal("edit_requested", name)
-
-func _on_BtnTranslate_pressed() -> void:
-	trans_txt = "Translating: [%s] please wait..." % [orig_txt]
-	get_node("%LineEditTranslation").text = trans_txt
-	emit_signal("translate_requested", name, orig_txt)
-
-func _on_ButtonCopyKey_pressed() -> void:
-	DisplayServer.clipboard_set(key_str)
-
-# enter was pressed in the text field
-# send focus to the following translation line edit
-func _on_LineEditTranslation_text_entered(_new_text: String) -> void:
-	var next_node:Control = get_node("%LineEditTranslation").find_next_valid_focus()
-	
-	if next_node.name == "LineEditTranslation":
-		next_node.grab_focus()
-	# set cursor position to the end
-	next_node.caret_column = next_node.text.length()
+func _on_edit_button_pressed() -> void:
+	_edit_translation_popup.request_edit(
+		key,
+		ref_lang,
+		target_lang,
+		ref_text,
+		target_text,
+		notes
+	)

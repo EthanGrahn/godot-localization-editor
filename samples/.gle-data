@@ -1,3 +1,9 @@
-[TESTSTRING]
+[dialogs_quick.csv/TESTSTRING]
 
-need_rev=true
+notes="some notes"
+needs_revision=false
+
+[localizations.csv/NO]
+
+notes=""
+needs_revision=false
