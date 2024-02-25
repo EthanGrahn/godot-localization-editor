@@ -2,7 +2,6 @@
 extends Popup
 
 @export var _engine_label: Label
-@export var _title_label: Label
 @export var _description_label: Label
 
 # Called when the node enters the scene tree for the first time.
@@ -19,5 +18,6 @@ func _ready():
 	var plugin_conf := ConfigFile.new()
 	plugin_conf.load("res://addons/localization_editor_plugin_g3/plugin.cfg")
 	
-	_title_label.text = plugin_conf.get_value("plugin", "name", "")
+	var plugin_name := plugin_conf.get_value("plugin", "name", "")
+	self.title = "%s - Credits" % plugin_name
 	_description_label.text = plugin_conf.get_value("plugin", "description", "")
