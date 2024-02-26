@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bv6qx8tx0i2o2"]
 
-[ext_resource type="PackedScene" uid="uid://b6km6wg3nuskc" path="res://addons/localization_editor_plugin_g3/Dock.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://b6km6wg3nuskc" path="res://addons/localization_editor/scenes/dock.tscn" id="1"]
 
 [node name="Main" type="Control"]
 layout_mode = 3

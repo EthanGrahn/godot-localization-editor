@@ -1,0 +1,130 @@
+[gd_scene load_steps=8 format=3 uid="uid://b0crqylwpgb5l"]
+
+[ext_resource type="Script" path="res://addons/localization_editor/scripts/translation_entry.gd" id="1_847b3"]
+[ext_resource type="PackedScene" uid="uid://cib125ol05x5u" path="res://addons/localization_editor/scenes/edit_entry_popup.tscn" id="2_1qqww"]
+[ext_resource type="Texture2D" uid="uid://nlokd1xs7v1b" path="res://addons/localization_editor/icons/globe-icon.svg" id="3_5uc7f"]
+[ext_resource type="Texture2D" uid="uid://ykubrxtrwk83" path="res://addons/localization_editor/icons/exclamation-icon.svg" id="4_aue74"]
+[ext_resource type="FontFile" path="res://addons/localization_editor/multilang_font.tres" id="5_w8cuk"]
+[ext_resource type="Texture2D" uid="uid://cl2gqvw3v3f4r" path="res://addons/localization_editor/icons/edit-icon.svg" id="6_uwhd7"]
+[ext_resource type="Texture2D" uid="uid://dle24xyew1bxh" path="res://addons/localization_editor/icons/google-translate.svg" id="7_caoi8"]
+
+[node name="Translation Key" type="HBoxContainer" node_paths=PackedStringArray("_edit_translation_popup", "_ref_lang_label", "_target_lang_line_edit", "_key_label", "_needs_revision_cb", "_icon_normal", "_icon_alert")]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 96.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+script = ExtResource("1_847b3")
+_edit_translation_popup = NodePath("EditEntryPopup")
+_ref_lang_label = NodePath("VBxString1/OriginalTextLabel")
+_target_lang_line_edit = NodePath("VBxString1/HBoxContainer2/TranslationLineEdit")
+_key_label = NodePath("VBxString1/HBoxContainer/KeyLabel")
+_needs_revision_cb = NodePath("VBxString1/HBoxContainer/CheckBoxRevision")
+_empty_translation_color = Color(0.858824, 0.239216, 0.239216, 1)
+_icon_normal = NodePath("ButtonCopyKey/MarginContainer/IconNormal")
+_icon_alert = NodePath("ButtonCopyKey/MarginContainer/IconAlert")
+
+[node name="EditEntryPopup" parent="." instance=ExtResource("2_1qqww")]
+visible = false
+
+[node name="ButtonCopyKey" type="Button" parent="."]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+mouse_default_cursor_shape = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ButtonCopyKey"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="IconNormal" type="TextureRect" parent="ButtonCopyKey/MarginContainer"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+texture = ExtResource("3_5uc7f")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="IconAlert" type="TextureRect" parent="ButtonCopyKey/MarginContainer"]
+visible = false
+self_modulate = Color(1, 0.352941, 0.47451, 1)
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+texture = ExtResource("4_aue74")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="VBxString1" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OriginalTextLabel" type="Label" parent="VBxString1"]
+modulate = Color(1, 1, 1, 0.611765)
+layout_mode = 2
+size_flags_horizontal = 0
+tooltip_text = "Reference Translation"
+mouse_filter = 1
+theme_override_fonts/font = ExtResource("5_w8cuk")
+text = "gdfgdfgdgd"
+max_lines_visible = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBxString1"]
+layout_mode = 2
+
+[node name="TranslationLineEdit" type="LineEdit" parent="VBxString1/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("5_w8cuk")
+text = "Text Translated"
+placeholder_text = "Enter translation..."
+caret_blink = true
+
+[node name="EditButton" type="Button" parent="VBxString1/HBoxContainer2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+tooltip_text = "Edit Translation"
+icon = ExtResource("6_uwhd7")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBxString1"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="KeyLabel" type="Label" parent="VBxString1/HBoxContainer"]
+modulate = Color(1, 1, 1, 0.47451)
+layout_mode = 2
+size_flags_horizontal = 2
+tooltip_text = "Translation Key"
+mouse_filter = 1
+text = "ItemTranslation"
+
+[node name="BtnTranslate" type="Button" parent="VBxString1/HBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+focus_mode = 0
+text = "Translate"
+icon = ExtResource("7_caoi8")
+expand_icon = true
+
+[node name="CheckBoxRevision" type="CheckBox" parent="VBxString1/HBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+text = "Need Revision"
+
+[node name="HSeparator" type="HSeparator" parent="VBxString1"]
+layout_mode = 2
+
+[connection signal="entry_updated" from="EditEntryPopup" to="." method="_on_entry_updated"]
+[connection signal="text_changed" from="VBxString1/HBoxContainer2/TranslationLineEdit" to="." method="_on_translation_text_changed"]
+[connection signal="pressed" from="VBxString1/HBoxContainer2/EditButton" to="." method="_on_edit_button_pressed"]
+[connection signal="pressed" from="VBxString1/HBoxContainer/BtnTranslate" to="." method="_on_translate_button_pressed"]
+[connection signal="toggled" from="VBxString1/HBoxContainer/CheckBoxRevision" to="." method="_on_needs_revision_toggled"]

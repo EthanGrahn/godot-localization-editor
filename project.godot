@@ -17,7 +17,7 @@ config/custom_user_dir_name="godot-localization-editor"
 config/features=PackedStringArray("4.1")
 boot_splash/bg_color=Color(0.12549, 0.145098, 0.192157, 1)
 boot_splash/show_image=false
-config/icon="res://addons/localization_editor_plugin_g3/gle-logo.svg"
+config/icon="res://addons/localization_editor/gle-logo.svg"
 
 [audio]
 
@@ -26,10 +26,6 @@ buses/default_bus_layout=""
 [display]
 
 window/energy_saving/keep_screen_on=false
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/localization_editor_plugin_g3/plugin.cfg")
 
 [gui]
 

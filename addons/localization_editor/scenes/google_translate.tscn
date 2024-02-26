@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ccotagses28p5"]
+
+[ext_resource type="Script" path="res://addons/localization_editor/scripts/google_translate.gd" id="1_3dfe5"]
+
+[node name="ApiTranslate" type="Node"]
+script = ExtResource("1_3dfe5")

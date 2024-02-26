@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbub070702fwd"]
+
+[ext_resource type="Script" path="res://addons/localization_editor/scripts/remove_lang_popup.gd" id="1_b20kw"]
+
+[node name="RemoveLangPopup" type="Popup" node_paths=PackedStringArray("_option_button", "_confirmation")]
+title = "Remove Language"
+initial_position = 2
+size = Vector2i(490, 231)
+visible = true
+borderless = false
+script = ExtResource("1_b20kw")
+_option_button = NodePath("MarginContainer/VBoxContainer/HBoxContainer/LangsToRemove")
+_confirmation = NodePath("Confirmation")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Language to remove:"
+
+[node name="LangsToRemove" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "CAUTION: This will erase all translations for the selected language. This action cannot be undone."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BtnRemoveLang" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Remove"
+
+[node name="Confirmation" type="ConfirmationDialog" parent="."]
+initial_position = 2
+ok_button_text = "Yes"
+dialog_text = "Are you sure?"
+dialog_autowrap = true
+cancel_button_text = "No"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/BtnRemoveLang" to="." method="_on_remove_button_pressed"]
+[connection signal="confirmed" from="Confirmation" to="." method="_on_remove_confirmed"]
