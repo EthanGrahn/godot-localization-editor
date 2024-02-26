@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-const icon = preload("res://addons/localization_editor_plugin_g3/icon.svg")
+const icon: Texture2D = preload("res://addons/localization_editor_plugin_g3/gle-plugin-icon.svg")
 
 const Dock = preload("res://addons/localization_editor_plugin_g3/Dock.tscn")
 var dock_instance
