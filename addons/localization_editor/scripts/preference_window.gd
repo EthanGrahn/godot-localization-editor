@@ -4,7 +4,7 @@ extends Popup
 signal preferences_updated(preferences: Array[Dictionary])
 
 @export var _first_cell: LineEdit
-@export var _delimiter: LineEdit
+@export var _delimiter: OptionButton
 @export var _ref_lang: OptionButton
 @export var _reopen_file: CheckBox
 
@@ -20,7 +20,7 @@ func _save_and_close() -> void:
 	
 	# TODO: make these values file dependent or remove
 	preferences.append(_make_preference("f_cell", _first_cell.text))
-	preferences.append(_make_preference("delimiter", _delimiter.text))
+	preferences.append(_make_preference("delimiter", _get_delimiter_value()))
 	# end TODO
 	var ref_lang: String = _ref_lang.get_item_text(_ref_lang.get_selected_id()).split(", ")[1]
 	preferences.append(_make_preference("user_ref_lang", ref_lang))
@@ -28,6 +28,16 @@ func _save_and_close() -> void:
 	
 	preferences_updated.emit(preferences)
 	self.hide()
+
+
+func _get_delimiter_value():
+	match _delimiter.get_selected_id():
+		1:
+			return ";"
+		2:
+			return "	"
+		_: # option 0 and default
+			return ","
 
 
 func set_defaults(config: ConfigFile) -> void:

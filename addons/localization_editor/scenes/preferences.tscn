@@ -5,56 +5,70 @@
 [node name="Preferences" type="Popup" node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file")]
 title = "Preferences"
 initial_position = 2
-size = Vector2i(377, 201)
+size = Vector2i(393, 217)
 visible = true
 borderless = false
 script = ExtResource("1_q5kei")
-_first_cell = NodePath("CenterContainer/VBoxContainer/HBoxContainer/TxtSettingFCell")
-_delimiter = NodePath("CenterContainer/VBoxContainer/HBoxContainer2/TxtSettingDelimiter")
-_ref_lang = NodePath("CenterContainer/VBoxContainer/RefLangItemList")
-_reopen_file = NodePath("CenterContainer/VBoxContainer/CheckBoxSettingReopenFile")
+_first_cell = NodePath("MarginContainer/VBoxContainer/HBoxContainer/TxtSettingFCell")
+_delimiter = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/OptionButton")
+_ref_lang = NodePath("MarginContainer/VBoxContainer/RefLangItemList")
+_reopen_file = NodePath("MarginContainer/VBoxContainer/CheckBoxSettingReopenFile")
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Value stored in cell A1 of the CSV"
+mouse_filter = 1
 text = "First Cell Name"
 
-[node name="TxtSettingFCell" type="LineEdit" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+[node name="TxtSettingFCell" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "keys"
 max_length = 20
 caret_blink = true
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Delimiter"
 
-[node name="TxtSettingDelimiter" type="LineEdit" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
-text = ","
-max_length = 1
+item_count = 3
+selected = 0
+popup/item_0/text = "Comma"
+popup/item_0/id = 0
+popup/item_1/text = "Semicolon"
+popup/item_1/id = 1
+popup/item_2/text = "Tab"
+popup/item_2/id = 2
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Reference Language"
 
-[node name="RefLangItemList" type="OptionButton" parent="CenterContainer/VBoxContainer" groups=["language_options"]]
+[node name="RefLangItemList" type="OptionButton" parent="MarginContainer/VBoxContainer" groups=["language_options"]]
 layout_mode = 2
 size_flags_horizontal = 3
 item_count = 364
@@ -788,14 +802,14 @@ popup/item_362/id = 362
 popup/item_363/text = "Zulu (South Africa), zu_ZA"
 popup/item_363/id = 363
 
-[node name="CheckBoxSettingReopenFile" type="CheckBox" parent="CenterContainer/VBoxContainer"]
+[node name="CheckBoxSettingReopenFile" type="CheckBox" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 button_pressed = true
 text = "Re-open last opened file on start"
 
-[node name="Button" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Button" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Save and Close"
 
-[connection signal="pressed" from="CenterContainer/VBoxContainer/Button" to="." method="_save_and_close"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/Button" to="." method="_save_and_close"]
