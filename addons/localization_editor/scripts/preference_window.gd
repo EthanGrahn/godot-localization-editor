@@ -18,10 +18,8 @@ func _make_preference(key: String, value) -> Dictionary:
 func _save_and_close() -> void:
 	var preferences: Array[Dictionary] = []
 	
-	# TODO: make these values file dependent or remove
-	preferences.append(_make_preference("f_cell", _first_cell.text))
+	preferences.append(_make_preference("first_cell", _first_cell.text))
 	preferences.append(_make_preference("delimiter", _get_delimiter_value()))
-	# end TODO
 	var ref_lang: String = _ref_lang.get_item_text(_ref_lang.get_selected_id()).split(", ")[1]
 	preferences.append(_make_preference("user_ref_lang", ref_lang))
 	preferences.append(_make_preference("reopen_last_file", _reopen_file.button_pressed))
@@ -46,3 +44,12 @@ func set_defaults(config: ConfigFile) -> void:
 		if _ref_lang.get_item_text(i).split(", ")[1] == ref_lang:
 			_ref_lang.select(i)
 			break
+	_first_cell.text = config.get_value("main", "first_cell", "keys")
+	match config.get_value("main", "delimiter", ","):
+		";":
+			_delimiter.select(1)
+		"	":
+			_delimiter.select(2)
+		_:
+			_delimiter.select(0)
+	_reopen_file.button_pressed = config.get_value("main", "reopen_last_file", true)

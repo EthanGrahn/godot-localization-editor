@@ -3,12 +3,15 @@ extends Control
 
 signal scan_files_requested
 
+# where user preferences are stored
+const _settings_file : String = "user://settings.ini"
+# where file specific data is stored
 const _data_file_name: String = ".gle-data"
-const LinkBtnFile = preload("res://addons/localization_editor/scenes/recent_file_button.tscn")
 
+@export var _recent_file_button_scene: PackedScene
 @export var _translation_entry_scene: PackedScene
 @export var _preferences_window: Popup
-@export var _file_dialog: FileDialog
+@export var _open_file_popup: Popup
 @export var _create_file_popup: Popup
 @export var _credits_popup: Popup
 @export var _version_label: Label
@@ -19,47 +22,46 @@ const LinkBtnFile = preload("res://addons/localization_editor/scenes/recent_file
 @export var _remove_lang_popup: Popup
 @export var _add_translation_popup: Popup
 @export var _alert_window: AcceptDialog
+@export var _locale_list: Script
 
-var Locales = load("res://addons/localization_editor/scripts/localization_locale_list.gd").new()
-
-var Conf := ConfigFile.new()
+var _user_config := ConfigFile.new()
 var _is_config_initialized := false
 var _save_pressed := false
 
-var _translations : Dictionary
-var _langs : Array
+var _translations: Dictionary
+var _langs: Array
 
-var _selected_translation_panel : String
-
-var _current_file : String
-var _current_path : String
+var _current_full_file: String
+var _current_file: String
+var _current_path: String
 var _current_path_config := ConfigFile.new()
+var _recent_files: PackedStringArray = []
+var _opened_files: PackedStringArray = []
 
-# folder where internal data of the addon is saved, such as keystr annotations
-var _settings_file : String = "user://settings.ini"
 
 func _ready() -> void:
 	var plugin_conf := ConfigFile.new()
 	plugin_conf.load("res://addons/localization_editor/plugin.cfg")
 	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
 	
+	var locales = _locale_list.new()
 	for list in get_tree().get_nodes_in_group("language_options"):
 		if not list is OptionButton:
 			continue
 		(list as OptionButton).clear()
 		var i : int = 0
-		for l in Locales.LOCALES:
+		for l in locales.LOCALES:
 			list.add_item(
 				"%s, %s" % [l["name"], l["code"]], i
 			)
 			i += 1
 	
 	# conectar señales
-	get_node("%MenuFile").get_popup().connect("id_pressed", Callable(self, "_on_FileMenu_id_pressed"))
-	get_node("%MenuEdit").get_popup().connect("id_pressed", Callable(self, "_on_EditMenu_id_pressed"))
-	get_node("%MenuHelp").get_popup().connect("id_pressed", Callable(self, "_on_HelpMenu_id_pressed"))
+	get_node("%MenuFile").get_popup().id_pressed.connect(_on_file_menu_id_pressed)
+	get_node("%MenuEdit").get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
+	get_node("%MenuHelp").get_popup().id_pressed.connect(_on_help_menu_id_pressed)
 
-	_on_CloseAll()
+	_close_all()
 	
 	
 	# if running in editor, only use res://
@@ -72,26 +74,26 @@ func _ready() -> void:
 			dialog.access = FileDialog.ACCESS_FILESYSTEM
 
 	if FileAccess.file_exists(_settings_file):
-		Conf.load(_settings_file)
+		_user_config.load(_settings_file)
 	_save_settings_config(true)
 	_is_config_initialized = true
 	
 	if Engine.is_editor_hint() == false:
-		get_window().mode = Window.MODE_MAXIMIZED if (Conf.get_value("main","maximized", false)) else Window.MODE_WINDOWED
+		get_window().mode = Window.MODE_MAXIMIZED if (_user_config.get_value("main","maximized", false)) else Window.MODE_WINDOWED
 	
-	load_recent_files_list()
+	_recent_files = _user_config.get_value("main", "recent_files", [])
+	_load_recent_files_list()
 
 	# reopen the last file
-	if Conf.get_value("main","reopen_last_file",false):
-		var recent_files:Array = Conf.get_value("main","recent_files",[])
-		if recent_files.is_empty() == false:
-			if FileAccess.file_exists(recent_files[0]):
-				_on_file_dialog_files_selected([recent_files[0]])
+	if _user_config.get_value("main", "reopen_last_file", false):
+		if _recent_files.is_empty() == false:
+			if FileAccess.file_exists(_recent_files[0]):
+				_open_file(_recent_files[0])
 
 func _process(delta):
 	if (not _save_pressed and Input.is_key_pressed(KEY_CTRL)
 	and Input.is_key_pressed(KEY_S)):
-		_on_BtnSaveFile_pressed()
+		_save_file()
 		_save_pressed = true
 	elif _save_pressed and not Input.is_key_pressed(KEY_S):
 		_save_pressed = false
@@ -99,42 +101,31 @@ func _process(delta):
 func _save_settings_config(_is_init_step := false) -> void:
 	if not _is_config_initialized and not _is_init_step:
 		return
-	Conf.save(_settings_file)
+	_user_config.save(_settings_file)
 
 func _save_path_config() -> void:
 	_current_path_config.save("%s/%s" % [_current_path, _data_file_name])
 
-func load_recent_files_list() -> void:
-	# show recent files
-	var recent_list:Array = Conf.get_value("main","recent_files",[])
-	
+func _load_recent_files_list() -> void:
 	for n in get_node("%VBxRecentFiles").get_children():
 		n.queue_free()
 	
-	for rl in recent_list:
-		var Btn := LinkBtnFile.instantiate()
-		Btn.f_path = rl
-		Btn.connect("opened", Callable(self, "_OnRecentFile_opened"))
-		Btn.connect("removed", Callable(self, "_OnRecentFile_removed"))
-		get_node("%VBxRecentFiles").add_child(Btn)
+	for file in _recent_files:
+		var file_button := _recent_file_button_scene.instantiate()
+		file_button.filename = file
+		file_button.opened.connect(_open_file)
+		file_button.removed.connect(_on_recent_file_removed)
+		get_node("%VBxRecentFiles").add_child(file_button)
 	
 	# show message if list is empty
-	get_node("%LblNoRecentFiles").visible = recent_list.is_empty()
+	get_node("%LblNoRecentFiles").visible = _recent_files.is_empty()
 
-func _OnRecentFile_opened(f_path:String) -> void:
-	_on_file_dialog_files_selected([f_path])
-
-func _OnRecentFile_removed(NodeName:String,f_path:String) -> void:
-	var recent_list:Array = Conf.get_value("main", "recent_files", [])
-	
-	recent_list.erase(f_path)
-	Conf.get_value("main", "recent_files", recent_list)
-	
+func _on_recent_file_removed(file_path: String) -> void:
+	_recent_files.remove_at(_recent_files.find(file_path))
+	_user_config.get_value("main", "recent_files", _recent_files)
 	_save_settings_config()
 
-	get_node("%VBxRecentFiles").get_node(NodeName).queue_free()
-
-func start_search() -> void:
+func _start_search() -> void:
 	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
 	var hide_translated:bool = get_node("%CheckBoxHideCompleted").button_pressed
 	var hide_no_need_rev:bool = get_node("%CheckBoxHideNoNeedRev").button_pressed
@@ -159,7 +150,7 @@ func start_search() -> void:
 		if hide_no_need_rev and not tp.need_revision:
 			tp.visible = false
 
-func clear_search() -> void:
+func _clear_search() -> void:
 	get_node("%BtnClearSearch").disabled = true
 	get_node("%LineEditSearchBox").text = ""
 	get_node("%CheckBoxSearchKeyID").button_pressed = true
@@ -174,7 +165,7 @@ func alert(txt:String,title:String="Alert!") -> void:
 	_alert_window.size = Vector2.ZERO
 	_alert_window.popup_centered()
 
-func add_translation_panel(
+func _add_translation_panel(
 	strkey:String, ref_txt:String, trans_txt:String, focus_lineedit:bool=false
 ) -> void:
 	var translation_entry = _translation_entry_scene.instantiate()
@@ -195,7 +186,7 @@ func add_translation_panel(
 	get_node("%VBxTranslations").call_deferred("add_child", translation_entry)
 
 
-func get_opened_file() -> String:
+func _get_opened_file() -> String:
 	return _current_path + "/" + _current_file
 
 # get list of available languages
@@ -222,16 +213,19 @@ func _set_visible_content(vis:bool=true) -> void:
 	get_node("%HBxContentFile").visible = vis
 	get_node("%ControlNoOpenedFiles").visible = ! vis
 
-func _on_FileMenu_id_pressed(id:int) -> void:
+func _on_file_menu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			_create_file_popup.popup_centered()
+			_create_file_popup.request_popup(
+				_user_config.get_value("main", "first_cell", "keys"),
+				_user_config.get_value("main", "delimiter", ",")
+			)
 		2:
-			_file_dialog.popup_centered()
+			_open_file_popup.popup_centered()
 		3:
-			_on_CloseAll()
+			_close_all()
 
-func _on_EditMenu_id_pressed(id:int) -> void:
+func _on_edit_menu_id_pressed(id:int) -> void:
 	match id:
 		1:
 			# add new language
@@ -243,26 +237,22 @@ func _on_EditMenu_id_pressed(id:int) -> void:
 				_remove_lang_popup.request_popup(_langs)
 		3:
 			# open program settings
-			_preferences_window.set_defaults(Conf)
+			_preferences_window.set_defaults(_user_config)
 			_preferences_window.popup_centered()
 
-func _on_HelpMenu_id_pressed(id:int) -> void:
+func _on_help_menu_id_pressed(id:int) -> void:
 	match id:
 		1:
 			OS.shell_open("https://github.com/EthanGrahn/godot-localization-editor?tab=readme-ov-file#usage-guide")
 		2:
 			_credits_popup.popup_centered()
 
-func _on_FilesLoaded() -> void:
-	_set_visible_content(true)
-
-func _on_CloseAll() -> void:
-	load_recent_files_list()
-	clear_search()
-	# initial settings
+func _close_all() -> void:
+	_opened_files = []
+	_load_recent_files_list()
+	_clear_search()
 	_set_visible_content(false)
 	_on_Popup_hide()
-	# clean fields
 	_current_file = ""
 	_current_path = ""
 	get_node("%OpenedFilesList").clear()
@@ -277,24 +267,43 @@ func _on_Popup_hide() -> void:
 	get_node("%PopupBG").visible = false
 
 # a file was selected from the list
-func _on_OpenedFilesList_item_selected(index: int) -> void:
-	_current_file = get_node("%OpenedFilesList").get_item_text(index)
+func _on_opened_file_item_selected(index: int) -> void:
+	_open_file(get_node("%OpenedFilesList").get_item_tooltip(index))
 
-	# dict with text keys mapped to a dict containing translations
+
+func _open_file(full_path: String, delimiter := "") -> void:
+	if _opened_files.has(full_path):
+		_opened_files.remove_at(_opened_files.find(full_path))
+	_opened_files.append(full_path)
+	_current_full_file = full_path
+	_current_file = full_path.get_file()
+	_current_path = full_path.get_base_dir()
+	
+	var config_path := "%s/%s" % [_current_path, _data_file_name]
+	if FileAccess.file_exists(config_path):
+		_current_path_config.load(config_path)
+	_save_path_config()
+	
+	if delimiter.is_empty():
+		delimiter = _current_path_config.get_value(
+			_current_file,
+			"delimiter",
+			","
+		)
+	
+	# get dictionary with keys mapped to language translations
 	# e.g. {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
-	_translations = CSVLoader.load_csv_translation(get_opened_file(), Conf)
+	_translations = CSVLoader.load_csv_translation(full_path, delimiter)
 
 	if _translations.size() == 1 and _translations.keys().has("TMERROR"):
 		var err_msg:String = _translations["TMERROR"]
-		_on_CloseAll()
-		alert(
-			err_msg, "Translation Manager - Error"
-		)
+		_close_all()
+		alert(err_msg, "Translation Manager - Error")
 		return
 
 	# there is nothing to show
 	if _translations.size() == 0 and _langs.size() == 0:
-		_on_CloseAll()
+		_close_all()
 		return
 	
 	if _translations.size() > 0:
@@ -311,7 +320,7 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 	_ref_lang_option.clear()
 	_target_lang_option.clear()
 
-	var user_ref_lang: String = Conf.get_value("main","user_ref_lang", "")
+	var user_ref_lang: String = _user_config.get_value("main", "user_ref_lang", "en")
 	# add languages from the file
 	var i : int = 0
 	for l in _langs:
@@ -329,21 +338,31 @@ func _on_OpenedFilesList_item_selected(index: int) -> void:
 	):
 		_target_lang_option.select(1)
 
-	# upload translations
-	_on_LangItemList_item_selected(0)
+	_on_language_item_selected(0)
+	_update_opened_file_list()
+	_set_visible_content(true)
+	_add_recent_file(full_path)
 
-	_on_FilesLoaded()
+
+func _update_opened_file_list():
+	var file_list: OptionButton = get_node("%OpenedFilesList") as OptionButton
+	file_list.clear()
+	var i := 0
+	for file in _opened_files:
+		file_list.add_item(file.get_file())
+		file_list.set_item_tooltip(i, file)
+		if file == _current_full_file:
+			file_list.select(i)
+		i += 1
+
 
 # changed the language selected in the item list
 # this loses any unsaved change
 # load translation panels
-func _on_LangItemList_item_selected(_index: int) -> void:
-	
-	clear_search()
+func _on_language_item_selected(_index: int) -> void:
+	_clear_search()
 
 	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
-	
-	_selected_translation_panel = ""
 	
 	# clear list of on-screan translations
 	for t in get_node("%VBxTranslations").get_children():
@@ -353,13 +372,13 @@ func _on_LangItemList_item_selected(_index: int) -> void:
 	var selected_lang_ref : String = get_selected_lang("ref")
 	var selected_lang_trans : String = get_selected_lang("trans")
 	for t_key in _translations:
-		add_translation_panel(
+		_add_translation_panel(
 			t_key,
 			_translations[t_key][selected_lang_ref],
 			_translations[t_key][selected_lang_trans]
 		)
 
-# translation requested
+
 func _on_translate_requested(source_lang: String, source_text: String,
 	target_lang: String, target_text: String, callback: Callable) -> void:
 	$ApiTranslate.translate(
@@ -368,6 +387,7 @@ func _on_translate_requested(source_lang: String, source_text: String,
 		source_text,
 		callback
 	)
+
 
 func _parse_translation_entries():
 	var target_lang: String = get_selected_lang("trans")
@@ -384,6 +404,7 @@ func _parse_translation_entries():
 			_parse_updated_translation_config(config_data)
 	_save_path_config()
 
+
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
 	var section_key := "%s/%s" % [_current_file, updated_config["key"]]
 	if updated_config["old_key"] != updated_config["key"]:
@@ -399,34 +420,35 @@ func _parse_updated_translation_config(updated_config: Dictionary) -> void:
 		updated_config["needs_revision"]
 	)
 
+
 func _on_data_dirtied():
 	# show indicator of not having saved changes
 	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
 		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
 
-func _on_CTCheckEnableOriginalTxt_toggled(button_pressed: bool) -> void:
-	get_node("%TxtOriginalTxt").editable = button_pressed
 
 # writing data to the csv
-func _on_BtnSaveFile_pressed() -> void:
+func _save_file() -> void:
 	_parse_translation_entries()
 	var err = CSVLoader.save_csv_translation(
-		get_opened_file(),
+		_get_opened_file(),
 		_translations, _langs,
-		Conf
+		_current_path_config.get_value(_current_file, "first_cell", "keys"),
+		_current_path_config.get_value(_current_file, "delimiter", ",")
 	)
 	if err == OK:
 		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
-
+	
 	scan_files_requested.emit()
 
-# pressed add translation
-func _on_BtnAddTranslation_pressed() -> void:
+
+func _on_add_translation_pressed() -> void:
 	_add_translation_popup.request_popup(
 		get_selected_lang("ref"),
 		get_selected_lang("trans"),
 		_current_path_config.get_value(_current_file, "uppercase_keys", true)
 	)
+
 
 func _on_language_removed(selected_lang: String) -> void:
 	if _langs.size() < 2:
@@ -448,21 +470,26 @@ func _on_language_removed(selected_lang: String) -> void:
 	
 	_ref_lang_option.selected = 0
 	_target_lang_option.selected = 0
-	_on_LangItemList_item_selected(0)
+	_on_language_item_selected(0)
 	_on_data_dirtied()
+
 
 func _on_CheckBoxHideCompleted_pressed() -> void:
 	if get_node("%CheckBoxHideCompleted").button_pressed == true:
 		get_node("%BtnClearSearch").disabled = false
-	start_search()
+	_start_search()
+
+
 func _on_CheckBoxShowNeedRev_pressed() -> void:
 	if get_node("%CheckBoxHideNoNeedRev").button_pressed == true:
 		get_node("%BtnClearSearch").disabled = false
-	start_search()
+	_start_search()
+
 
 func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
 	get_node("%BtnClearSearch").disabled = new_text.strip_edges().is_empty()
-	start_search()
+	_start_search()
+
 
 # pressed any checkbox from the search bar
 func _on_CheckBoxSearch_pressed() -> void:
@@ -483,20 +510,20 @@ func _on_CheckBoxSearch_pressed() -> void:
 	):
 		get_node("%BtnClearSearch").disabled = false
 	
-	start_search()
+	_start_search()
+
 
 func _on_BtnClearSearch_pressed() -> void:
-	clear_search()
-	start_search()
+	_clear_search()
+	_start_search()
 
 
 func _on_Dock_resized() -> void:
 	if Engine.is_editor_hint() == false:
-		Conf.set_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
+		_user_config.set_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
 		_save_settings_config()
-		
 
-# close opened file
+
 func _on_BtnCloseFile_pressed() -> void:
 	
 	get_node("%OpenedFilesList").remove_item(
@@ -505,74 +532,47 @@ func _on_BtnCloseFile_pressed() -> void:
 
 	# if there are no more files, close everything
 	if get_node("%OpenedFilesList").get_item_count() == 0:
-		_on_CloseAll()
+		_close_all()
 	# select the first
 	else:
 		get_node("%OpenedFilesList").select(0)
-		_on_OpenedFilesList_item_selected(0)
+		#_on_opened_file_item_selected(0)
 
+
+func _close_current_file() -> void:
+	var opened_files_list: OptionButton = get_node("%OpenedFilesList") as OptionButton
+	var selected_index: int = opened_files_list.selected
+	var file_to_remove: String = opened_files_list.get_item_tooltip(selected_index)
+	_opened_files.remove_at(_opened_files.find(file_to_remove))
+	opened_files_list.remove_item(selected_index)
+	if opened_files_list.get_item_count() == 0:
+		_close_all()
+	else:
+		opened_files_list.select(0)
+		_on_opened_file_item_selected(0)
 
 
 func _on_preferences_updated(preferences: Array[Dictionary]) -> void:
 	for pref in preferences:
-		Conf.set_value(pref["section"], pref["key"], pref["value"])
+		_user_config.set_value(pref["section"], pref["key"], pref["value"])
 	_save_settings_config()
 
 
-func _on_file_dialog_files_selected(paths: PackedStringArray) -> void:
-	get_node("%OpenedFilesList").clear()
-
-	var i : int = 0
-	for p in paths:
-		# if some of the files do not exist, remove from the list of paths
-		# TODO: improve or make sure it works
-		if FileAccess.file_exists(p) == false:
-			paths.remove_at(i)
-		else:
-			get_node("%OpenedFilesList").add_item(
-				p.get_file(), i
-			)
-			
-			# add path to recent files list
-			var recent_limit:int = 10
-			var recent_list:Array = Conf.get_value("main","recent_files",[])
-			if recent_list.has(p) == false:
-				if recent_list.size() >= recent_limit:
-					recent_list.remove_at(recent_list.size()-1)
-				recent_list.append(p)
-			# the path was already listed
-			# delete it and place it at the top of the array
-			else:
-				recent_list.erase(p)
-				recent_list.push_front(p)
-			
-			Conf.set_value("main","recent_files", recent_list)
-			
-		i += 1
+func _add_recent_file(filename: String) -> void:
+	if _recent_files.has(filename):
+		_recent_files.remove_at(_recent_files.find(filename))
 	
+	_recent_files.insert(0, filename)
+	# limit to 10 recent files
+	_recent_files = _recent_files.slice(0, 10)
+	_user_config.set_value("main", "recent_files", _recent_files)
 	_save_settings_config()
 
-	if paths.size() == 0:
-		_set_visible_content(false)
-		return
-	
-	_current_path = paths[0].get_base_dir()
-	var config_path := "%s/%s" % [_current_path, _data_file_name]
-	if FileAccess.file_exists(config_path):
-		_current_path_config.load(config_path)
-	_save_path_config()
 
-	# show the path of the file
-	get_node("%LblOpenedPath").text = "[%s]" % [_current_path]
-	
-	# send signal of first selected item since it is not activated by default
-	_on_OpenedFilesList_item_selected(0)
-	
-	clear_search()
-
-
-func _on_new_file_created(filename: String) -> void:
-	_on_file_dialog_files_selected([filename])
+func _on_new_file_created(filename: String, first_cell: String, delimiter: String) -> void:
+	_current_path_config.set_value(filename.get_file(), "first_cell", first_cell)
+	_current_path_config.set_value(filename.get_file(), "delimiter", delimiter)
+	_open_file(filename)
 
 
 func _on_add_lang_button_pressed():
@@ -600,7 +600,7 @@ func _on_add_lang_button_pressed():
 		lang_to_add, _target_lang_option.get_item_count()
 	)
 	
-	_on_BtnSaveFile_pressed()
+	_save_file()
 	
 	_new_lang_popup.hide()
 
@@ -621,7 +621,6 @@ func _on_translation_added(key: String, ref_text: String, target_text: String, k
 	
 	_translations[key][ref_lang] = ref_text
 	_translations[key][target_lang] = target_text
-	print(_translations[key])
 	for l in get_langs():
 		if l != ref_lang and l != target_lang:
 			_translations[key][l] = ""
@@ -632,9 +631,13 @@ func _on_translation_added(key: String, ref_text: String, target_text: String, k
 		target_text = ref_text
 	
 	# add dashboard
-	add_translation_panel(key, ref_text, target_text, true)
+	_add_translation_panel(key, ref_text, target_text, true)
 	
 	_on_data_dirtied()
 	
 	await get_tree().process_frame
 	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
+
+
+func _on_open_file_selected(filename: String, delimiter: String) -> void:
+	_open_file(filename, delimiter)

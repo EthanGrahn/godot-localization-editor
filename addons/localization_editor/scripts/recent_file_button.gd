@@ -1,30 +1,28 @@
 @tool
-extends HBoxContainer
+extends Control
 
-signal opened(f_path)
-signal removed(NodeName,f_path)
+signal opened(filename: String)
+signal removed(filename: String)
 
-var f_path:String
+@export var _link: LinkButton
+@export var _delete_button: Button
+
+var filename: String
 
 func _ready() -> void:
-	var full_path : String = "%s/%s" % [
-		f_path.get_base_dir(),
-		f_path.get_file()
-	] 
-	if not FileAccess.file_exists(full_path):
-		$Lnk.disabled = true
-	$Lnk.text = "%s" % [
-		f_path.get_file()
-	]
+	_link.disabled = not FileAccess.file_exists(filename)
+	_link.text = filename.get_file()
 	
-	$Lnk.tooltip_text = "%s%s" % [
-		"[NOT FOUND] " if $Lnk.disabled else "",
-		full_path
-	] 
+	_link.tooltip_text = "%s%s" % [
+		"[NOT FOUND] " if _link.disabled else "",
+		filename
+	]
 
 
-func _on_BtnRemove_pressed() -> void:
-	emit_signal("removed",name, f_path)
+func _on_remove_pressed():
+	removed.emit(filename)
+	self.queue_free()
 
-func _on_Lnk_pressed() -> void:
-	emit_signal("opened",f_path)
+
+func _on_link_pressed():
+	opened.emit(filename)

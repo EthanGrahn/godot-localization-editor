@@ -2,24 +2,16 @@
 extends RefCounted
 class_name CSVLoader
 
-static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionary:
-	
-	var f_cell:String = conf.get_value("csv","f_cell","keys")
-	var delimiter:String = conf.get_value("csv","delimiter",",")
-
+static func load_csv_translation(filepath: String, delimiter: String = ",") -> Dictionary:
 	var file := FileAccess.open(filepath, FileAccess.READ)
 
 	if file.get_open_error() != Error.OK:
 		return {"TMERROR":"Can't open file: {0}, code {1}".format([filepath, file.get_open_error()])}
 	
 	var first_row := file.get_csv_line(delimiter)
-
-	if first_row[0] != f_cell:
-		return {"TMERROR":"Translation file is missing the `id` (f_cell) column"}
 	
-	var languages := PackedStringArray()
-	for i in range(1, len(first_row)):
-		languages.append(first_row[i])
+	var languages: PackedStringArray = []
+	languages.append_array(first_row.slice(1))
 	
 	var ids := []
 	var rows := []
@@ -55,16 +47,11 @@ static func load_csv_translation(filepath: String, conf:ConfigFile) -> Dictionar
 	# will return dictionary or empty if there are no languages or translations
 	return translations
 
-static func save_csv_translation(
-	filepath: String, data: Dictionary, langs: Array, conf:ConfigFile
-) -> int:
-	
-	var f_cell:String = conf.get_value("csv","f_cell","keys")
-	var delimiter:String = conf.get_value("csv","delimiter",",")
-	
+static func save_csv_translation(filepath: String, data: Dictionary,
+langs: Array, first_cell: String = "keys", delimiter: String = ",") -> int:
 	# csv headers are the first row
 	var file = FileAccess.open(filepath, FileAccess.WRITE)
-	var csv_headers : Array = [f_cell]
+	var csv_headers : Array = [first_cell]
 	csv_headers.append_array(langs)
 
 	if file.get_open_error() != Error.OK:

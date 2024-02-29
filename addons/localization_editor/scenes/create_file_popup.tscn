@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://addons/localization_editor/scripts/create_file_popup.gd" id="1_oomvq"]
 
-[node name="CreateFilePopup" type="Popup" node_paths=PackedStringArray("_filename_line_edit", "_filepath_line_edit", "_added_langs", "_lang_option", "_folder_dialog")]
+[node name="CreateFilePopup" type="Popup" node_paths=PackedStringArray("_filename_line_edit", "_filepath_line_edit", "_added_langs", "_lang_option", "_folder_dialog", "_delimiter_option", "_create_new_file_button")]
 title = "Create New File"
 initial_position = 2
-size = Vector2i(519, 260)
+size = Vector2i(519, 309)
 visible = true
 borderless = false
 min_size = Vector2i(475, 260)
@@ -15,6 +15,8 @@ _filepath_line_edit = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/Lin
 _added_langs = NodePath("MarginContainer/VBoxContainer/VBoxContainer/LangsAdded")
 _lang_option = NodePath("MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/OptionButtonLangsNewFile")
 _folder_dialog = NodePath("FolderDialog")
+_delimiter_option = NodePath("MarginContainer/VBoxContainer/HBoxContainer3/DelimiterOption")
+_create_new_file_button = NodePath("MarginContainer/VBoxContainer/CreateNewFileButton")
 
 [node name="FolderDialog" type="FileDialog" parent="." groups=["file_access"]]
 mode = 2
@@ -70,6 +72,25 @@ editable = false
 [node name="BtnNewFileExplorePath" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 text = "Explore"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Column Delimiter"
+
+[node name="DelimiterOption" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 3
+selected = 0
+popup/item_0/text = "Comma (,)"
+popup/item_0/id = 0
+popup/item_1/text = "Semicolon (;)"
+popup/item_1/id = 1
+popup/item_2/text = "Tab (\\t)"
+popup/item_2/id = 2
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -824,6 +845,7 @@ layout_mode = 2
 text = "Add"
 
 [node name="LangsAdded" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_vertical = 3
 caret_blink = true
@@ -846,5 +868,6 @@ text = "When the file is created, previously opened files will be closed."
 [connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
 [connection signal="dir_selected" from="FolderDialog" to="." method="_on_folder_dialog_dir_selected"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/BtnNewFileExplorePath" to="." method="_on_btn_new_file_explore_path_pressed"]
+[connection signal="item_selected" from="MarginContainer/VBoxContainer/HBoxContainer3/DelimiterOption" to="." method="_on_delimiter_selected"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/AddLangButton" to="." method="_on_add_lang_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/CreateNewFileButton" to="." method="_on_create_new_file_button_pressed"]
