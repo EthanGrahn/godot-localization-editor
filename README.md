@@ -24,10 +24,10 @@ This project was inspired, forked, and upgraded to Godot 4 from [dannygaray60/lo
 ## Installation
 
 ### Godot Plugin
-Copy the `addons/localization_editor_plugin_g3` folder into your Godot project's `addons` folder.
+Copy the `addons/localization_editor` folder into your Godot project's `addons` folder. Exclude `addons/localization_editor/google_translate` if you do not want the Google Translate API included.
 
 ### Standalone
-Download the latest version from the [GitHub Releases](https://github.com/EthanGrahn/godot-localization-editor/releases) page and run the .exe (Windows) or .x86_64 (Linux).
+Download the latest version from the [GitHub Releases](https://github.com/EthanGrahn/godot-localization-editor/releases) page and run the .exe (Windows) or .x86_64 (Linux). Executables with `_NoGoogle` in the name do not include the Google Translate API.
 
 ## Usage Guide
 
