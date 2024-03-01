@@ -9,6 +9,7 @@ static func load_csv_translation(filepath: String, delimiter: String = ",") -> D
 		return {"TMERROR":"Can't open file: {0}, code {1}".format([filepath, file.get_open_error()])}
 	
 	var first_row := file.get_csv_line(delimiter)
+	var first_cell: String = first_row[0]
 	
 	var languages: PackedStringArray = []
 	languages.append_array(first_row.slice(1))
@@ -45,7 +46,7 @@ static func load_csv_translation(filepath: String, delimiter: String = ",") -> D
 		return {"EMPTYTRANSLATIONS":languages}
 	
 	# will return dictionary or empty if there are no languages or translations
-	return translations
+	return {"first_cell": first_cell, "translations": translations}
 
 static func save_csv_translation(filepath: String, data: Dictionary,
 langs: Array, first_cell: String = "keys", delimiter: String = ",") -> int:

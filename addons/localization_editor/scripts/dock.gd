@@ -293,7 +293,14 @@ func _open_file(full_path: String, delimiter := "") -> void:
 	
 	# get dictionary with keys mapped to language translations
 	# e.g. {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
-	_translations = CSVLoader.load_csv_translation(full_path, delimiter)
+	var csv_result = CSVLoader.load_csv_translation(full_path, delimiter)
+	_current_path_config.set_value(
+		_current_file,
+		"first_cell",
+		csv_result["first_cell"]
+	)
+	_save_path_config()
+	_translations = csv_result["translations"]
 
 	if _translations.size() == 1 and _translations.keys().has("TMERROR"):
 		var err_msg:String = _translations["TMERROR"]
@@ -430,10 +437,11 @@ func _on_data_dirtied():
 # writing data to the csv
 func _save_file() -> void:
 	_parse_translation_entries()
+	var default_fcell: String = _user_config.get_value("main", "first_cell", "keys")
 	var err = CSVLoader.save_csv_translation(
 		_get_opened_file(),
 		_translations, _langs,
-		_current_path_config.get_value(_current_file, "first_cell", "keys"),
+		_current_path_config.get_value(_current_file, "first_cell", default_fcell),
 		_current_path_config.get_value(_current_file, "delimiter", ",")
 	)
 	if err == OK:
