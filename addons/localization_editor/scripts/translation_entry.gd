@@ -13,6 +13,7 @@ signal translation_requested(source_lang: String, source_text: String,
 @export var _empty_translation_color: Color
 @export var _icon_normal: TextureRect
 @export var _icon_alert: TextureRect
+@export var _translate_button: Button
 
 @onready var _default_translation_color: Color = _target_lang_line_edit.modulate
 
@@ -49,7 +50,7 @@ func _set_ref_text(new_ref_text: String) -> void:
 
 func set_translation_data(key: String, ref_lang: String, ref_text: String,
 	target_lang: String, target_text: String, notes: String,
-	needs_revision: bool, start_focused := false) -> void:
+	needs_revision: bool, start_focused := false, has_google := false) -> void:
 	self.key = key
 	self.ref_lang = ref_lang
 	self.ref_text = ref_text
@@ -64,6 +65,7 @@ func set_translation_data(key: String, ref_lang: String, ref_text: String,
 	name = key
 	_previous_key = key
 	_needs_revision_cb.button_pressed = needs_revision
+	_translate_button.visible = has_google
 	_on_needs_revision_toggled(_needs_revision_cb.button_pressed)
 	old_config = {
 		"key": key,

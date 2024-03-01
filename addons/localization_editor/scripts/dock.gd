@@ -7,6 +7,7 @@ signal scan_files_requested
 const _settings_file : String = "user://settings.ini"
 # where file specific data is stored
 const _data_file_name: String = ".gle-data"
+const _google_translate_path: String = "res://addons/localization_editor/google_translate/google_translate.tscn"
 
 @export var _recent_file_button_scene: PackedScene
 @export var _translation_entry_scene: PackedScene
@@ -37,12 +38,17 @@ var _current_path: String
 var _current_path_config := ConfigFile.new()
 var _recent_files: PackedStringArray = []
 var _opened_files: PackedStringArray = []
+var _google_translate: Node
 
 
 func _ready() -> void:
 	var plugin_conf := ConfigFile.new()
 	plugin_conf.load("res://addons/localization_editor/plugin.cfg")
 	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
+	
+	if ResourceLoader.exists(_google_translate_path):
+		_google_translate = load(_google_translate_path).instantiate()
+		add_child(_google_translate)
 	
 	var locales = _locale_list.new()
 	for list in get_tree().get_nodes_in_group("language_options"):
@@ -180,7 +186,8 @@ func _add_translation_panel(
 		trans_txt,
 		_current_path_config.get_value(config_section, "notes", ""),
 		_current_path_config.get_value(config_section, "needs_revision", false),
-		focus_lineedit
+		focus_lineedit,
+		_google_translate != null
 	)
 
 	get_node("%VBxTranslations").call_deferred("add_child", translation_entry)
@@ -388,7 +395,9 @@ func _on_language_item_selected(_index: int) -> void:
 
 func _on_translate_requested(source_lang: String, source_text: String,
 	target_lang: String, target_text: String, callback: Callable) -> void:
-	$ApiTranslate.translate(
+	if not _google_translate:
+		return
+	_google_translate.translate(
 		source_lang,
 		target_lang,
 		source_text,

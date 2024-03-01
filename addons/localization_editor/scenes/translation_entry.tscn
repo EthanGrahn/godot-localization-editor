@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://cl2gqvw3v3f4r" path="res://addons/localization_editor/icons/edit-icon.svg" id="6_uwhd7"]
 [ext_resource type="Texture2D" uid="uid://dle24xyew1bxh" path="res://addons/localization_editor/icons/google-translate.svg" id="7_caoi8"]
 
-[node name="Translation Key" type="HBoxContainer" node_paths=PackedStringArray("_edit_translation_popup", "_ref_lang_label", "_target_lang_line_edit", "_key_label", "_needs_revision_cb", "_icon_normal", "_icon_alert")]
+[node name="Translation Key" type="HBoxContainer" node_paths=PackedStringArray("_edit_translation_popup", "_ref_lang_label", "_target_lang_line_edit", "_key_label", "_needs_revision_cb", "_icon_normal", "_icon_alert", "_translate_button")]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 96.0
@@ -23,6 +23,7 @@ _needs_revision_cb = NodePath("VBxString1/HBoxContainer/CheckBoxRevision")
 _empty_translation_color = Color(0.858824, 0.239216, 0.239216, 1)
 _icon_normal = NodePath("ButtonCopyKey/MarginContainer/IconNormal")
 _icon_alert = NodePath("ButtonCopyKey/MarginContainer/IconAlert")
+_translate_button = NodePath("VBxString1/HBoxContainer/BtnTranslate")
 
 [node name="EditEntryPopup" parent="." instance=ExtResource("2_1qqww")]
 visible = false
@@ -108,6 +109,7 @@ mouse_filter = 1
 text = "ItemTranslation"
 
 [node name="BtnTranslate" type="Button" parent="VBxString1/HBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 focus_mode = 0
