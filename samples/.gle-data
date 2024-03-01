@@ -7,3 +7,7 @@ needs_revision=false
 
 notes=""
 needs_revision=false
+
+[dialogs_quick.csv]
+
+first_cell="keys"

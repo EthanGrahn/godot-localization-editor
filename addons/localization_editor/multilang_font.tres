@@ -1,0 +1,33 @@
+[gd_resource type="FontFile" load_steps=15 format=3]
+
+[ext_resource type="FontFile" uid="uid://ddsc37rk7ueju" path="res://addons/localization_editor/extra_fonts/NotoSansThaiUI_Regular.ttf" id="1"]
+[ext_resource type="FontFile" uid="uid://fhtriv45c6k0" path="res://addons/localization_editor/extra_fonts/NotoSansTeluguUI_Regular.ttf" id="2"]
+[ext_resource type="FontFile" uid="uid://d0wrlr0xfd3ge" path="res://addons/localization_editor/extra_fonts/NotoSansHebrew_Regular.ttf" id="3"]
+[ext_resource type="FontFile" uid="uid://c0jmfdxypc1nk" path="res://addons/localization_editor/extra_fonts/NotoSansOriyaUI_Regular.ttf" id="4"]
+[ext_resource type="FontFile" uid="uid://giwb8ham2nsn" path="res://addons/localization_editor/extra_fonts/NotoSansSinhalaUI_Regular.ttf" id="5"]
+[ext_resource type="FontFile" uid="uid://dv0i13k7nrhha" path="res://addons/localization_editor/extra_fonts/NotoSansTamilUI_Regular.ttf" id="6"]
+[ext_resource type="FontFile" uid="uid://b07kmiexewofl" path="res://addons/localization_editor/extra_fonts/NotoSansMalayalamUI_Regular.ttf" id="7"]
+[ext_resource type="FontFile" uid="uid://dhf1ixlf0krra" path="res://addons/localization_editor/extra_fonts/NotoSansGeorgian_Regular.ttf" id="8"]
+[ext_resource type="FontFile" uid="uid://bk0hvjffinnfj" path="res://addons/localization_editor/extra_fonts/DroidSansJapanese.ttf" id="9"]
+[ext_resource type="FontFile" uid="uid://c40te4plwvjsy" path="res://addons/localization_editor/extra_fonts/DroidSansFallback.ttf" id="10"]
+[ext_resource type="FontFile" uid="uid://dfq3a6gnnkhia" path="res://addons/localization_editor/extra_fonts/NotoSansDevanagariUI_Regular.ttf" id="11"]
+[ext_resource type="FontFile" uid="uid://cvu76n1802q8q" path="res://addons/localization_editor/extra_fonts/NotoNaskhArabicUI_Regular.ttf" id="12"]
+[ext_resource type="FontFile" uid="uid://3lq1n125f4dg" path="res://addons/localization_editor/extra_fonts/NotoSans-Regular.ttf" id="13"]
+[ext_resource type="FontFile" uid="uid://c8tpuajnphjne" path="res://addons/localization_editor/extra_fonts/NotoSansBengali_Regular.ttf" id="14"]
+
+
+[resource]
+font_data = ExtResource( 13 )
+fallback/0 = ExtResource( 10 )
+fallback/1 = ExtResource( 9 )
+fallback/2 = ExtResource( 12 )
+fallback/3 = ExtResource( 14 )
+fallback/4 = ExtResource( 11 )
+fallback/5 = ExtResource( 8 )
+fallback/6 = ExtResource( 3 )
+fallback/7 = ExtResource( 7 )
+fallback/8 = ExtResource( 4 )
+fallback/9 = ExtResource( 5 )
+fallback/10 = ExtResource( 6 )
+fallback/11 = ExtResource( 2 )
+fallback/12 = ExtResource( 1 )
