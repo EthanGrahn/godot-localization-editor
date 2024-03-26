@@ -70,11 +70,12 @@ size_flags_horizontal = 3
 [node name="OriginalTextLabel" type="Label" parent="VBxString1"]
 modulate = Color(1, 1, 1, 0.611765)
 layout_mode = 2
-size_flags_horizontal = 0
 tooltip_text = "Reference Translation"
 mouse_filter = 1
 theme_override_fonts/font = ExtResource("5_w8cuk")
 text = "gdfgdfgdgd"
+clip_text = true
+text_overrun_behavior = 3
 max_lines_visible = 1
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBxString1"]
@@ -103,10 +104,12 @@ theme_override_constants/separation = 11
 [node name="KeyLabel" type="Label" parent="VBxString1/HBoxContainer"]
 modulate = Color(1, 1, 1, 0.47451)
 layout_mode = 2
-size_flags_horizontal = 2
+size_flags_horizontal = 3
 tooltip_text = "Translation Key"
 mouse_filter = 1
 text = "ItemTranslation"
+clip_text = true
+text_overrun_behavior = 3
 
 [node name="BtnTranslate" type="Button" parent="VBxString1/HBoxContainer"]
 visible = false
