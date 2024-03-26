@@ -223,14 +223,20 @@ func _set_visible_content(vis:bool=true) -> void:
 func _on_file_menu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			_create_file_popup.request_popup(
-				_user_config.get_value("main", "first_cell", "keys"),
-				_user_config.get_value("main", "delimiter", ",")
-			)
+			create_file_popup()
 		2:
-			_open_file_popup.popup_centered()
+			open_file_popup()
 		3:
 			_close_all()
+
+func open_file_popup():
+	_open_file_popup.popup_centered()
+
+func create_file_popup():
+	_create_file_popup.request_popup(
+		_user_config.get_value("main", "first_cell", "keys"),
+		_user_config.get_value("main", "delimiter", ",")
+	)
 
 func _on_edit_menu_id_pressed(id:int) -> void:
 	match id:
