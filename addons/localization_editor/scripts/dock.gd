@@ -153,7 +153,7 @@ func _start_search() -> void:
 		if hide_translated and tp.has_translation():
 			tp.visible = false
 		# hide those that do not need revision
-		if hide_no_need_rev and not tp.need_revision:
+		if hide_no_need_rev and not tp.needs_revision:
 			tp.visible = false
 
 func _clear_search() -> void:
