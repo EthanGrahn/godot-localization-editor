@@ -11,3 +11,11 @@ needs_revision=false
 [dialogs_quick.csv]
 
 first_cell="keys"
+
+[LocalizationsListLong.csv]
+
+first_cell="keys"
+
+[localizations.csv]
+
+first_cell="keys"
