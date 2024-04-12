@@ -24,6 +24,7 @@ const _google_translate_path: String = "res://addons/localization_editor/google_
 @export var _add_translation_popup: Popup
 @export var _alert_window: AcceptDialog
 @export var _locale_list: Script
+@export var _search_filter_popup: PopupMenu
 
 var _user_config := ConfigFile.new()
 var _is_config_initialized := false
@@ -39,6 +40,10 @@ var _current_path_config := ConfigFile.new()
 var _recent_files: PackedStringArray = []
 var _opened_files: PackedStringArray = []
 var _google_translate: Node
+var _search_filters := {
+	"need_translation": false,
+	"need_revision": false
+}
 
 
 func _ready() -> void:
@@ -62,13 +67,11 @@ func _ready() -> void:
 			)
 			i += 1
 	
-	# conectar señales
 	get_node("%MenuFile").get_popup().id_pressed.connect(_on_file_menu_id_pressed)
 	get_node("%MenuEdit").get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
 	get_node("%MenuHelp").get_popup().id_pressed.connect(_on_help_menu_id_pressed)
 
 	_close_all()
-	
 	
 	# if running in editor, only use res://
 	for dialog in get_tree().get_nodes_in_group("file_access"):
@@ -133,8 +136,8 @@ func _on_recent_file_removed(file_path: String) -> void:
 
 func _start_search() -> void:
 	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
-	var hide_translated:bool = get_node("%CheckBoxHideCompleted").button_pressed
-	var hide_no_need_rev:bool = get_node("%CheckBoxHideNoNeedRev").button_pressed
+	var hide_translated:bool = _search_filters["need_translation"]
+	var hide_no_need_rev:bool = _search_filters["need_revision"]
 	var search_key: bool = get_node("%CheckBoxSearchKeyID").button_pressed
 	var search_ref_text: bool = get_node("%CheckBoxSearchRefText").button_pressed
 	var search_target_text: bool = get_node("%CheckBoxSearchTransText").button_pressed
@@ -153,7 +156,7 @@ func _start_search() -> void:
 		if hide_translated and tp.has_translation():
 			tp.visible = false
 		# hide those that do not need revision
-		if hide_no_need_rev and not tp.need_revision:
+		if hide_no_need_rev and not tp.needs_revision:
 			tp.visible = false
 
 func _clear_search() -> void:
@@ -162,8 +165,10 @@ func _clear_search() -> void:
 	get_node("%CheckBoxSearchKeyID").button_pressed = true
 	get_node("%CheckBoxSearchRefText").button_pressed = true
 	get_node("%CheckBoxSearchTransText").button_pressed = true
-	get_node("%CheckBoxHideCompleted").button_pressed = false
-	get_node("%CheckBoxHideNoNeedRev").button_pressed = false
+	_search_filters["need_translation"] = false
+	_search_filters["need_revision"] = false
+	for i in range(0, _search_filter_popup.item_count):
+		_search_filter_popup.set_item_checked(i, false)
 
 func alert(txt:String,title:String="Alert!") -> void:
 	_alert_window.title = title
@@ -223,14 +228,20 @@ func _set_visible_content(vis:bool=true) -> void:
 func _on_file_menu_id_pressed(id:int) -> void:
 	match id:
 		1:
-			_create_file_popup.request_popup(
-				_user_config.get_value("main", "first_cell", "keys"),
-				_user_config.get_value("main", "delimiter", ",")
-			)
+			create_file_popup()
 		2:
-			_open_file_popup.popup_centered()
+			open_file_popup()
 		3:
 			_close_all()
+
+func open_file_popup():
+	_open_file_popup.popup_centered()
+
+func create_file_popup():
+	_create_file_popup.request_popup(
+		_user_config.get_value("main", "first_cell", "keys"),
+		_user_config.get_value("main", "delimiter", ",")
+	)
 
 func _on_edit_menu_id_pressed(id:int) -> void:
 	match id:
@@ -491,15 +502,15 @@ func _on_language_removed(selected_lang: String) -> void:
 	_on_data_dirtied()
 
 
-func _on_CheckBoxHideCompleted_pressed() -> void:
-	if get_node("%CheckBoxHideCompleted").button_pressed == true:
-		get_node("%BtnClearSearch").disabled = false
-	_start_search()
-
-
-func _on_CheckBoxShowNeedRev_pressed() -> void:
-	if get_node("%CheckBoxHideNoNeedRev").button_pressed == true:
-		get_node("%BtnClearSearch").disabled = false
+func _on_filter_changed(index: int) -> void:
+	match index:
+		0:
+			_search_filters["need_translation"] = !_search_filters["need_translation"]
+		1:
+			_search_filters["need_revision"] = !_search_filters["need_revision"]
+		_:
+			return
+	get_node("%BtnClearSearch").disabled = false
 	_start_search()
 
 
