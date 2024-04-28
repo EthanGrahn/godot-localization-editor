@@ -9,11 +9,12 @@ signal translation_requested(source_lang: String, source_text: String,
 @export var _ref_lang_label: Label
 @export var _target_lang_line_edit: LineEdit
 @export var _key_label: Label
-@export var _needs_revision_cb: CheckBox
+@export var _needs_revision_cb: Button
 @export var _empty_translation_color: Color
-@export var _icon_normal: TextureRect
-@export var _icon_alert: TextureRect
 @export var _translate_button: Button
+@export var _index_line_edit: LineEdit
+@export var _dec_index_button: TextureButton
+@export var _inc_index_button: TextureButton
 
 @onready var _default_translation_color: Color = _target_lang_line_edit.modulate
 
@@ -31,6 +32,10 @@ var new_config: Dictionary = {}
 # flag to avoid emitting signal as soon as the object is added to the tree
 var _is_ready_for_emit_signals: bool
 var _previous_key: String
+var _is_dragging: bool = false
+
+func _ready() -> void:
+	get_parent().child_order_changed.connect(_on_order_changed)
 
 func has_translation() -> bool:
 	return !_target_lang_line_edit.text.is_empty()
@@ -72,6 +77,8 @@ func set_translation_data(key: String, ref_lang: String, ref_text: String,
 		"notes": notes,
 		"needs_revision": needs_revision
 	}
+
+func set_init_complete() -> void:
 	_is_ready_for_emit_signals = true
 
 func get_translation_data() -> Dictionary:
@@ -114,8 +121,6 @@ func _set_key(new_key: String) -> void:
 
 func _on_needs_revision_toggled(button_pressed: bool) -> void:
 	needs_revision = button_pressed
-	_icon_normal.visible = !needs_revision
-	_icon_alert.visible = needs_revision
 	_emit_data_changed()
 
 func _on_translation_text_changed(new_text: String) -> void:
@@ -159,3 +164,43 @@ func _on_edit_button_pressed() -> void:
 		target_text,
 		notes
 	)
+
+func _on_change_index_pressed(is_up: bool) -> void:
+	if is_up and get_index() == 0:
+		return
+	var amount: int = -1 if is_up else 1
+	get_parent().move_child(self, get_index() + amount)
+
+
+func _on_order_changed():
+	var new_index: int = get_index()
+	_index_line_edit.text = str(new_index)
+	var value_set := false
+	if new_index == 0:
+		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		_dec_index_button.disabled = true
+		value_set = true
+	else:
+		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		_dec_index_button.disabled = false
+		
+	if get_parent() != null and new_index == get_parent().get_child_count() - 1:
+		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		_inc_index_button.disabled = true
+		value_set = true
+	else:
+		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		_inc_index_button.disabled = false
+	
+	_emit_data_changed()
+
+
+func _on_index_text_submitted(line_edit: LineEdit, new_text: String) -> void:
+	# validate index
+	var new_index := int(new_text)
+	var max_index := get_parent().get_child_count() - 1
+	if new_index > max_index:
+		new_index = max_index
+	
+	line_edit.text = str(new_index)
+	get_parent().move_child(self, new_index)

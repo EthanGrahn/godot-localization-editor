@@ -402,6 +402,11 @@ func _on_language_item_selected(_index: int) -> void:
 			_translations[t_key][selected_lang_ref],
 			_translations[t_key][selected_lang_trans]
 		)
+	
+	# wait a frame for entries to be loaded
+	await get_tree().process_frame
+	for t in get_node("%VBxTranslations").get_children():
+		t.set_init_complete()
 
 
 func _on_translate_requested(source_lang: String, source_text: String,

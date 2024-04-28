@@ -1,117 +1,147 @@
-[gd_scene load_steps=8 format=3 uid="uid://b0crqylwpgb5l"]
+[gd_scene load_steps=12 format=3 uid="uid://b0crqylwpgb5l"]
 
 [ext_resource type="Script" path="res://addons/localization_editor/scripts/translation_entry.gd" id="1_847b3"]
 [ext_resource type="PackedScene" uid="uid://cib125ol05x5u" path="res://addons/localization_editor/scenes/edit_entry_popup.tscn" id="2_1qqww"]
-[ext_resource type="Texture2D" uid="uid://nlokd1xs7v1b" path="res://addons/localization_editor/icons/globe-icon.svg" id="3_5uc7f"]
-[ext_resource type="Texture2D" uid="uid://ykubrxtrwk83" path="res://addons/localization_editor/icons/exclamation-icon.svg" id="4_aue74"]
+[ext_resource type="Texture2D" uid="uid://ck02jgllirga2" path="res://addons/localization_editor/icons/triangle/triangle-normal.svg" id="3_5id72"]
+[ext_resource type="Texture2D" uid="uid://d3nq4nudjmkpc" path="res://addons/localization_editor/icons/triangle/triangle-disabled.svg" id="4_t3bfu"]
+[ext_resource type="Texture2D" uid="uid://cvk18eta7ffct" path="res://addons/localization_editor/icons/triangle/triangle-outline.svg" id="5_a11t0"]
+[ext_resource type="Script" path="res://addons/localization_editor/scripts/number_input.gd" id="5_u5oxk"]
 [ext_resource type="FontFile" path="res://addons/localization_editor/multilang_font.tres" id="5_w8cuk"]
 [ext_resource type="Texture2D" uid="uid://cl2gqvw3v3f4r" path="res://addons/localization_editor/icons/edit-icon.svg" id="6_uwhd7"]
 [ext_resource type="Texture2D" uid="uid://dle24xyew1bxh" path="res://addons/localization_editor/icons/google-translate.svg" id="7_caoi8"]
+[ext_resource type="PackedScene" uid="uid://cvkoh3dmerylx" path="res://addons/localization_editor/scenes/revision_button.tscn" id="7_lw34m"]
 
-[node name="Translation Key" type="HBoxContainer" node_paths=PackedStringArray("_edit_translation_popup", "_ref_lang_label", "_target_lang_line_edit", "_key_label", "_needs_revision_cb", "_icon_normal", "_icon_alert", "_translate_button")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ny5y"]
+bg_color = Color(0.129412, 0.14902, 0.180392, 1)
+expand_margin_left = 6.0
+expand_margin_right = 6.0
+
+[node name="Translation Key" type="MarginContainer" node_paths=PackedStringArray("_edit_translation_popup", "_ref_lang_label", "_target_lang_line_edit", "_key_label", "_needs_revision_cb", "_translate_button", "_index_line_edit", "_dec_index_button", "_inc_index_button")]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 96.0
 grow_horizontal = 2
-theme_override_constants/separation = 10
+size_flags_vertical = 0
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
 script = ExtResource("1_847b3")
 _edit_translation_popup = NodePath("EditEntryPopup")
-_ref_lang_label = NodePath("VBxString1/OriginalTextLabel")
-_target_lang_line_edit = NodePath("VBxString1/HBoxContainer2/TranslationLineEdit")
-_key_label = NodePath("VBxString1/HBoxContainer/KeyLabel")
-_needs_revision_cb = NodePath("VBxString1/HBoxContainer/CheckBoxRevision")
+_ref_lang_label = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer3/OriginalTextLabel")
+_target_lang_line_edit = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer2/TranslationLineEdit")
+_key_label = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer/KeyLabel")
+_needs_revision_cb = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer/Button")
 _empty_translation_color = Color(0.858824, 0.239216, 0.239216, 1)
-_icon_normal = NodePath("ButtonCopyKey/MarginContainer/IconNormal")
-_icon_alert = NodePath("ButtonCopyKey/MarginContainer/IconAlert")
-_translate_button = NodePath("VBxString1/HBoxContainer/BtnTranslate")
+_translate_button = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer/BtnTranslate")
+_index_line_edit = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput")
+_dec_index_button = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer3/CenterContainer/TextureButton")
+_inc_index_button = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer/CenterContainer/TextureButton2")
 
 [node name="EditEntryPopup" parent="." instance=ExtResource("2_1qqww")]
 visible = false
 
-[node name="ButtonCopyKey" type="Button" parent="."]
-custom_minimum_size = Vector2(32, 32)
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
-size_flags_vertical = 4
-focus_mode = 0
-mouse_default_cursor_shape = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="ButtonCopyKey"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 2
-theme_override_constants/margin_bottom = 2
-
-[node name="IconNormal" type="TextureRect" parent="ButtonCopyKey/MarginContainer"]
-custom_minimum_size = Vector2(25, 0)
+[node name="HBox" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
-texture = ExtResource("3_5uc7f")
-expand_mode = 3
-stretch_mode = 5
 
-[node name="IconAlert" type="TextureRect" parent="ButtonCopyKey/MarginContainer"]
-visible = false
-self_modulate = Color(1, 0.352941, 0.47451, 1)
-custom_minimum_size = Vector2(25, 0)
-layout_mode = 2
-texture = ExtResource("4_aue74")
-expand_mode = 3
-stretch_mode = 5
-
-[node name="VBxString1" type="VBoxContainer" parent="."]
+[node name="VBxString1" type="VBoxContainer" parent="VBoxContainer/HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 2.8
 
-[node name="OriginalTextLabel" type="Label" parent="VBxString1"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/HBox/VBxString1"]
+layout_mode = 2
+theme_override_constants/separation = 11
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBox/VBxString1/HBoxContainer3"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+
+[node name="TextureButton" type="TextureButton" parent="VBoxContainer/HBox/VBxString1/HBoxContainer3/CenterContainer"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 10
+disabled = true
+texture_normal = ExtResource("3_5id72")
+texture_pressed = ExtResource("4_t3bfu")
+texture_hover = ExtResource("5_a11t0")
+texture_disabled = ExtResource("4_t3bfu")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="OriginalTextLabel" type="Label" parent="VBoxContainer/HBox/VBxString1/HBoxContainer3"]
 modulate = Color(1, 1, 1, 0.611765)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 10
 tooltip_text = "Reference Translation"
 mouse_filter = 1
 theme_override_fonts/font = ExtResource("5_w8cuk")
-text = "gdfgdfgdgd"
+text = "Reference Translation"
 clip_text = true
 text_overrun_behavior = 3
 max_lines_visible = 1
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBxString1"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBox/VBxString1"]
 layout_mode = 2
+theme_override_constants/separation = 9
 
-[node name="TranslationLineEdit" type="LineEdit" parent="VBxString1/HBoxContainer2"]
+[node name="NumberInput" type="LineEdit" parent="VBoxContainer/HBox/VBxString1/HBoxContainer2"]
+custom_minimum_size = Vector2(68, 31)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 6
+text = "0"
+alignment = 1
+select_all_on_focus = true
+script = ExtResource("5_u5oxk")
+
+[node name="TranslationLineEdit" type="LineEdit" parent="VBoxContainer/HBox/VBxString1/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 6
 theme_override_fonts/font = ExtResource("5_w8cuk")
-text = "Text Translated"
+text = "Target Translation"
 placeholder_text = "Enter translation..."
 caret_blink = true
 
-[node name="EditButton" type="Button" parent="VBxString1/HBoxContainer2"]
-custom_minimum_size = Vector2(30, 0)
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBox/VBxString1"]
 layout_mode = 2
-tooltip_text = "Edit Translation"
-icon = ExtResource("6_uwhd7")
-icon_alignment = 1
-expand_icon = true
-
-[node name="HBoxContainer" type="HBoxContainer" parent="VBxString1"]
-layout_mode = 2
+size_flags_vertical = 2
 theme_override_constants/separation = 11
 
-[node name="KeyLabel" type="Label" parent="VBxString1/HBoxContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBox/VBxString1/HBoxContainer"]
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+
+[node name="TextureButton2" type="TextureButton" parent="VBoxContainer/HBox/VBxString1/HBoxContainer/CenterContainer"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 2
+disabled = true
+texture_normal = ExtResource("3_5id72")
+texture_pressed = ExtResource("4_t3bfu")
+texture_hover = ExtResource("5_a11t0")
+texture_disabled = ExtResource("4_t3bfu")
+ignore_texture_size = true
+stretch_mode = 5
+flip_v = true
+
+[node name="KeyLabel" type="Label" parent="VBoxContainer/HBox/VBxString1/HBoxContainer"]
 modulate = Color(1, 1, 1, 0.47451)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 1
 tooltip_text = "Translation Key"
 mouse_filter = 1
-text = "ItemTranslation"
+text = "Key Label"
 clip_text = true
 text_overrun_behavior = 3
 
-[node name="BtnTranslate" type="Button" parent="VBxString1/HBoxContainer"]
+[node name="BtnTranslate" type="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer"]
 visible = false
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
@@ -120,16 +150,34 @@ text = "Translate"
 icon = ExtResource("7_caoi8")
 expand_icon = true
 
-[node name="CheckBoxRevision" type="CheckBox" parent="VBxString1/HBoxContainer"]
+[node name="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer" instance=ExtResource("7_lw34m")]
 layout_mode = 2
-focus_mode = 0
-text = "Need Revision"
 
-[node name="HSeparator" type="HSeparator" parent="VBxString1"]
+[node name="EditButton" type="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer"]
+custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
+tooltip_text = "Edit Translation"
+icon = ExtResource("6_uwhd7")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="."]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0ny5y")
 
 [connection signal="entry_updated" from="EditEntryPopup" to="." method="_on_entry_updated"]
-[connection signal="text_changed" from="VBxString1/HBoxContainer2/TranslationLineEdit" to="." method="_on_translation_text_changed"]
-[connection signal="pressed" from="VBxString1/HBoxContainer2/EditButton" to="." method="_on_edit_button_pressed"]
-[connection signal="pressed" from="VBxString1/HBoxContainer/BtnTranslate" to="." method="_on_translate_button_pressed"]
-[connection signal="toggled" from="VBxString1/HBoxContainer/CheckBoxRevision" to="." method="_on_needs_revision_toggled"]
+[connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer3/CenterContainer/TextureButton" to="." method="_on_change_index_pressed" binds= [true]]
+[connection signal="focus_entered" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" method="_on_focus_entered"]
+[connection signal="focus_exited" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" method="_on_focus_exited"]
+[connection signal="text_changed" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" method="_on_text_changed"]
+[connection signal="text_ready" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="." method="_on_index_text_submitted"]
+[connection signal="text_submitted" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" method="_on_text_submitted"]
+[connection signal="text_changed" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/TranslationLineEdit" to="." method="_on_translation_text_changed"]
+[connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/CenterContainer/TextureButton2" to="." method="_on_change_index_pressed" binds= [false]]
+[connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/BtnTranslate" to="." method="_on_translate_button_pressed"]
+[connection signal="toggled" from="VBoxContainer/HBox/VBxString1/HBoxContainer/Button" to="." method="_on_needs_revision_toggled"]
+[connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/EditButton" to="." method="_on_edit_button_pressed"]
