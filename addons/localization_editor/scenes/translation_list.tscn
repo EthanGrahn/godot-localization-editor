@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6m6y7sdy4y4p"]
+
+[ext_resource type="Script" path="res://addons/localization_editor/scripts/translation_list.gd" id="1_74xwk"]
+[ext_resource type="PackedScene" uid="uid://b0crqylwpgb5l" path="res://addons/localization_editor/scenes/translation_entry.tscn" id="2_0koy3"]
+
+[node name="VBxTranslations" type="VBoxContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_74xwk")
+_translation_entry_scene = ExtResource("2_0koy3")
