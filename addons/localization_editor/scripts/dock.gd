@@ -7,10 +7,8 @@ signal scan_files_requested
 const _settings_file : String = "user://settings.ini"
 # where file specific data is stored
 const _data_file_name: String = ".gle-data"
-const _google_translate_path: String = "res://addons/localization_editor/google_translate/google_translate.tscn"
 
 @export var _recent_file_button_scene: PackedScene
-@export var _translation_entry_scene: PackedScene
 @export var _preferences_window: Popup
 @export var _open_file_popup: Popup
 @export var _create_file_popup: Popup
@@ -25,13 +23,34 @@ const _google_translate_path: String = "res://addons/localization_editor/google_
 @export var _alert_window: AcceptDialog
 @export var _locale_list: Script
 @export var _search_filter_popup: PopupMenu
+@export var _csv_loader: Node
 
 var _user_config := ConfigFile.new()
 var _is_config_initialized := false
 var _save_pressed := false
 
-var _translations: Dictionary
-var _langs: Array
+var _current_data: Dictionary
+var _translations: Dictionary:
+	set(new_value):
+		_current_data["translations"] = new_value
+	get:
+		if _current_data.is_empty():
+			return {}
+		return _current_data["translations"]
+var _key_index: Array:
+	set(new_value):
+		_current_data["key_index"] = new_value
+	get:
+		if _current_data.is_empty():
+			return []
+		return _current_data["key_index"]
+var _langs: Array:
+	set(new_value):
+		_current_data["languages"] = new_value
+	get:
+		if _current_data.is_empty():
+			return []
+		return _current_data["languages"]
 
 var _current_full_file: String
 var _current_file: String
@@ -50,10 +69,6 @@ func _ready() -> void:
 	var plugin_conf := ConfigFile.new()
 	plugin_conf.load("res://addons/localization_editor/plugin.cfg")
 	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
-	
-	if ResourceLoader.exists(_google_translate_path):
-		_google_translate = load(_google_translate_path).instantiate()
-		add_child(_google_translate)
 	
 	var locales = _locale_list.new()
 	for list in get_tree().get_nodes_in_group("language_options"):
@@ -176,42 +191,9 @@ func alert(txt:String,title:String="Alert!") -> void:
 	_alert_window.size = Vector2.ZERO
 	_alert_window.popup_centered()
 
-func _add_translation_panel(
-	strkey:String, ref_txt:String, trans_txt:String, focus_lineedit:bool=false
-) -> void:
-	var translation_entry = _translation_entry_scene.instantiate()
-	translation_entry.translation_requested.connect(_on_translate_requested)
-	translation_entry.data_changed.connect(_on_data_dirtied)
-	var config_section := "%s/%s" % [_current_file, strkey]
-	translation_entry.set_translation_data(
-		strkey,
-		get_selected_lang("ref"),
-		ref_txt,
-		get_selected_lang("trans"),
-		trans_txt,
-		_current_path_config.get_value(config_section, "notes", ""),
-		_current_path_config.get_value(config_section, "needs_revision", false),
-		focus_lineedit,
-		_google_translate != null
-	)
-
-	get_node("%VBxTranslations").call_deferred("add_child", translation_entry)
-
 
 func _get_opened_file() -> String:
 	return _current_path + "/" + _current_file
-
-# get list of available languages
-func get_langs() -> Array:
-	var langs_list:Array
-	var available_langs_count:int = _ref_lang_option.get_item_count()
-	var i:int = 0
-	for l in available_langs_count:
-		langs_list.append(
-			_ref_lang_option.get_item_text(i)
-		)
-		i += 1
-	return langs_list
 
 # get the selected language (ref or trans)
 func get_selected_lang(mode:String="ref") -> String:
@@ -275,8 +257,9 @@ func _close_all() -> void:
 	_current_path = ""
 	get_node("%OpenedFilesList").clear()
 	get_node("%ControlNoOpenedFiles").visible = true
-	_translations = {}
-	_langs = []
+	for child in get_node("%VBxTranslations").get_children():
+		child.remove()
+	_current_data = {}
 	
 # Show or hide a popup
 func _on_Popup_about_to_show() -> void:
@@ -311,42 +294,37 @@ func _open_file(full_path: String, delimiter := "") -> void:
 	
 	# get dictionary with keys mapped to language translations
 	# e.g. {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
-	var csv_result = CSVLoader.load_csv_translation(full_path, delimiter)
-	_current_path_config.set_value(
-		_current_file,
-		"first_cell",
-		csv_result["first_cell"]
-	)
-	_save_path_config()
-	_translations = csv_result["translations"]
-
-	if _translations.size() == 1 and _translations.keys().has("TMERROR"):
-		var err_msg:String = _translations["TMERROR"]
+	_current_data = _csv_loader.load_translations(full_path, delimiter)
+	
+	# handle potential errors
+	if _current_data.keys().has("ERROR"):
+		var err_msg:String = _current_data["ERROR"]
 		_close_all()
 		alert(err_msg, "Translation Manager - Error")
 		return
-
+	# get updated data
+	#_translations = _current_data["translations"]
+	#_langs = _current_data["languages"]
+	
 	# there is nothing to show
 	if _translations.size() == 0 and _langs.size() == 0:
 		_close_all()
 		return
 	
-	if _translations.size() > 0:
-		# if it only contains the list of languages, set variables to empty
-		# from now on only _langs will be used in the rest of the func
-		if _translations.size() == 1 and _translations.keys().has("EMPTYTRANSLATIONS"):
-			_langs = _translations["EMPTYTRANSLATIONS"]
-			_translations = {}
-		else:
-			# get array of languages parsed from the file
-			_langs = _translations[_translations.keys()[0]].keys()
+	_current_path_config.set_value(
+		_current_file,
+		"first_cell",
+		_current_data["first_cell"]
+	)
+	_save_path_config()
 	
 	# clean lists
 	_ref_lang_option.clear()
 	_target_lang_option.clear()
-
+	
+	# get user's preferred reference language
 	var user_ref_lang: String = _user_config.get_value("main", "user_ref_lang", "en")
-	# add languages from the file
+	# add languages to the reference and target lists
 	var i : int = 0
 	for l in _langs:
 		_ref_lang_option.add_item(l, i)
@@ -362,8 +340,10 @@ func _open_file(full_path: String, delimiter := "") -> void:
 		and _langs.size() > 1
 	):
 		_target_lang_option.select(1)
-
-	_on_language_item_selected(0)
+		
+	#_on_language_item_selected(0)
+	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
+	get_node("%VBxTranslations").init_list(_translations, _current_path_config, _current_file)
 	_update_opened_file_list()
 	_set_visible_content(true)
 	_add_recent_file(full_path)
@@ -381,45 +361,18 @@ func _update_opened_file_list():
 		i += 1
 
 
-# changed the language selected in the item list
-# this loses any unsaved change
-# load translation panels
-func _on_language_item_selected(_index: int) -> void:
+func _on_language_item_selected() -> void:
 	_clear_search()
-
 	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
+
+func _on_ref_lang_item_selected(index):
+	get_node("%VBxTranslations").update_reference_language(_ref_lang_option.get_item_text(index))
+	_on_language_item_selected()
 	
-	# clear list of on-screan translations
-	for t in get_node("%VBxTranslations").get_children():
-		t.queue_free()
-
-	# add translation panels
-	var selected_lang_ref : String = get_selected_lang("ref")
-	var selected_lang_trans : String = get_selected_lang("trans")
-	for t_key in _translations:
-		_add_translation_panel(
-			t_key,
-			_translations[t_key][selected_lang_ref],
-			_translations[t_key][selected_lang_trans]
-		)
+func _on_target_lang_item_selected(index):
+	get_node("%VBxTranslations").update_target_language(_target_lang_option.get_item_text(index))
+	_on_language_item_selected()
 	
-	# wait a frame for entries to be loaded
-	await get_tree().process_frame
-	for t in get_node("%VBxTranslations").get_children():
-		t.set_init_complete()
-
-
-func _on_translate_requested(source_lang: String, source_text: String,
-	target_lang: String, target_text: String, callback: Callable) -> void:
-	if not _google_translate:
-		return
-	_google_translate.translate(
-		source_lang,
-		target_lang,
-		source_text,
-		callback
-	)
-
 
 func _parse_translation_entries():
 	var target_lang: String = get_selected_lang("trans")
@@ -463,10 +416,9 @@ func _on_data_dirtied():
 func _save_file() -> void:
 	_parse_translation_entries()
 	var default_fcell: String = _user_config.get_value("main", "first_cell", "keys")
-	var err = CSVLoader.save_csv_translation(
+	var err = _csv_loader.save_translations(
 		_get_opened_file(),
-		_translations, _langs,
-		_current_path_config.get_value(_current_file, "first_cell", default_fcell),
+		_current_data,
 		_current_path_config.get_value(_current_file, "delimiter", ",")
 	)
 	if err == OK:
@@ -503,7 +455,8 @@ func _on_language_removed(selected_lang: String) -> void:
 	
 	_ref_lang_option.selected = 0
 	_target_lang_option.selected = 0
-	_on_language_item_selected(0)
+	# TODO: call remove language
+	#_on_language_item_selected(0)
 	_on_data_dirtied()
 
 
@@ -654,7 +607,7 @@ func _on_translation_added(key: String, ref_text: String, target_text: String, k
 	
 	_translations[key][ref_lang] = ref_text
 	_translations[key][target_lang] = target_text
-	for l in get_langs():
+	for l in _langs:
 		if l != ref_lang and l != target_lang:
 			_translations[key][l] = ""
 	
@@ -663,14 +616,28 @@ func _on_translation_added(key: String, ref_text: String, target_text: String, k
 	if ref_lang == target_lang:
 		target_text = ref_text
 	
-	# add dashboard
-	_add_translation_panel(key, ref_text, target_text, true)
+	get_node("%VBxTranslations").add_entry(key, ref_text, target_text,
+		_current_path_config, _current_file)
 	
 	_on_data_dirtied()
 	
-	await get_tree().process_frame
-	get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
+	#await get_tree().process_frame
+	#get_node("%ScrollContainerTranslationsPanels").ensure_control_visible(get_viewport().gui_get_focus_owner())
 
 
 func _on_open_file_selected(filename: String, delimiter: String) -> void:
 	_open_file(filename, delimiter)
+
+
+func _on_translation_entry_updated(new_data: Dictionary) -> void:
+	if _translations.is_empty():
+		return
+	_translations[new_data["key"]] = new_data["translations"]
+	_key_index[new_data["index"]] = new_data["key"]
+	_on_data_dirtied()
+
+
+func _on_translation_entry_added(new_data: Dictionary) -> void:
+	_translations[new_data["key"]] = new_data["translations"]
+	_key_index.append(new_data["key"])
+	_on_data_dirtied()
