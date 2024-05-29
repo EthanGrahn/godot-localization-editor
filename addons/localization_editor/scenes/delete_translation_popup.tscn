@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://clseq07nnhsan"]
+
+[ext_resource type="Script" path="res://addons/localization_editor/scripts/delete_translation_popup.gd" id="1_uwyae"]
+
+[node name="Popup" type="ConfirmationDialog" node_paths=PackedStringArray("_remember_checkbox")]
+title = "Delete Translation"
+initial_position = 2
+size = Vector2i(392, 121)
+visible = true
+ok_button_text = "Yes"
+cancel_button_text = "No"
+script = ExtResource("1_uwyae")
+_remember_checkbox = NodePath("VBoxContainer/HBoxContainer/CheckButton")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 384.0
+offset_bottom = 72.0
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Are you sure you want to delete this translation?"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Remember this choice"
+
+[node name="CheckButton" type="CheckButton" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]

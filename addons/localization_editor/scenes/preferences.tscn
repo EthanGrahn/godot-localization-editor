@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://addons/localization_editor/scripts/preference_window.gd" id="1_q5kei"]
 
-[node name="Preferences" type="Popup" node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file")]
+[node name="Preferences" type="Popup" node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file", "_delete_confirmation")]
 title = "Preferences"
 initial_position = 2
-size = Vector2i(393, 217)
+size = Vector2i(393, 252)
 visible = true
 borderless = false
 script = ExtResource("1_q5kei")
@@ -13,6 +13,7 @@ _first_cell = NodePath("MarginContainer/VBoxContainer/HBoxContainer/TxtSettingFC
 _delimiter = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/OptionButton")
 _ref_lang = NodePath("MarginContainer/VBoxContainer/RefLangItemList")
 _reopen_file = NodePath("MarginContainer/VBoxContainer/CheckBoxSettingReopenFile")
+_delete_confirmation = NodePath("MarginContainer/VBoxContainer/DeleteConfirmation")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -807,9 +808,14 @@ layout_mode = 2
 button_pressed = true
 text = "Re-open last opened file on start"
 
+[node name="DeleteConfirmation" type="CheckBox" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Skip translation delete confirmation"
+
 [node name="Button" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Save and Close"
 
+[connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/Button" to="." method="_save_and_close"]

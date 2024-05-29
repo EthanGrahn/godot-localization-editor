@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://b0crqylwpgb5l"]
+[gd_scene load_steps=14 format=3 uid="uid://b0crqylwpgb5l"]
 
 [ext_resource type="Script" path="res://addons/localization_editor/scripts/translation_entry.gd" id="1_847b3"]
 [ext_resource type="PackedScene" uid="uid://cib125ol05x5u" path="res://addons/localization_editor/scenes/edit_entry_popup.tscn" id="2_1qqww"]
 [ext_resource type="Texture2D" uid="uid://ck02jgllirga2" path="res://addons/localization_editor/icons/triangle/triangle-normal.svg" id="3_5id72"]
+[ext_resource type="PackedScene" uid="uid://clseq07nnhsan" path="res://addons/localization_editor/scenes/delete_translation_popup.tscn" id="3_lf0tn"]
 [ext_resource type="Texture2D" uid="uid://d3nq4nudjmkpc" path="res://addons/localization_editor/icons/triangle/triangle-disabled.svg" id="4_t3bfu"]
 [ext_resource type="Texture2D" uid="uid://cvk18eta7ffct" path="res://addons/localization_editor/icons/triangle/triangle-outline.svg" id="5_a11t0"]
 [ext_resource type="Script" path="res://addons/localization_editor/scripts/number_input.gd" id="5_u5oxk"]
@@ -10,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://cl2gqvw3v3f4r" path="res://addons/localization_editor/icons/edit-icon.svg" id="6_uwhd7"]
 [ext_resource type="Texture2D" uid="uid://dle24xyew1bxh" path="res://addons/localization_editor/icons/google-translate.svg" id="7_caoi8"]
 [ext_resource type="PackedScene" uid="uid://cvkoh3dmerylx" path="res://addons/localization_editor/scenes/revision_button.tscn" id="7_lw34m"]
+[ext_resource type="Texture2D" uid="uid://c3gtnt4hce7vq" path="res://addons/localization_editor/icons/trash-icon.svg" id="11_3gcht"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ny5y"]
 bg_color = Color(0.129412, 0.14902, 0.180392, 1)
@@ -38,6 +40,9 @@ _inc_index_button = NodePath("VBoxContainer/HBox/VBxString1/HBoxContainer/Center
 [node name="EditEntryPopup" parent="." instance=ExtResource("2_1qqww")]
 visible = false
 
+[node name="Popup" parent="." instance=ExtResource("3_lf0tn")]
+visible = false
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
 
@@ -63,7 +68,7 @@ custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 10
-disabled = true
+mouse_default_cursor_shape = 2
 texture_normal = ExtResource("3_5id72")
 texture_pressed = ExtResource("4_t3bfu")
 texture_hover = ExtResource("5_a11t0")
@@ -121,7 +126,7 @@ custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 2
-disabled = true
+mouse_default_cursor_shape = 2
 texture_normal = ExtResource("3_5id72")
 texture_pressed = ExtResource("4_t3bfu")
 texture_hover = ExtResource("5_a11t0")
@@ -153,6 +158,14 @@ expand_icon = true
 [node name="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer" instance=ExtResource("7_lw34m")]
 layout_mode = 2
 
+[node name="DeleteButton" type="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+tooltip_text = "Edit Translation"
+icon = ExtResource("11_3gcht")
+icon_alignment = 1
+expand_icon = true
+
 [node name="EditButton" type="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
@@ -170,6 +183,7 @@ layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0ny5y")
 
 [connection signal="entry_updated" from="EditEntryPopup" to="." method="_on_entry_updated"]
+[connection signal="delete_confirmed" from="Popup" to="." method="_on_delete_confirmed"]
 [connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer3/CenterContainer/TextureButton" to="." method="_on_change_index_pressed" binds= [true]]
 [connection signal="focus_entered" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" method="_on_focus_entered"]
 [connection signal="focus_exited" from="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" to="VBoxContainer/HBox/VBxString1/HBoxContainer2/NumberInput" method="_on_focus_exited"]
@@ -180,4 +194,5 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0ny5y")
 [connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/CenterContainer/TextureButton2" to="." method="_on_change_index_pressed" binds= [false]]
 [connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/BtnTranslate" to="." method="_on_translate_button_pressed"]
 [connection signal="toggled" from="VBoxContainer/HBox/VBxString1/HBoxContainer/Button" to="." method="_on_needs_revision_toggled"]
+[connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/DeleteButton" to="." method="_on_delete_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBox/VBxString1/HBoxContainer/EditButton" to="." method="_on_edit_button_pressed"]
