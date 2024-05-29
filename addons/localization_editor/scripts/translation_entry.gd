@@ -18,9 +18,8 @@ extends Node
 signal data_changed(new_data: Dictionary)
 signal translation_requested(source_lang: String, source_text: String,
 	target_lang: String, callback: Callable)
-signal config_data_changed(translation_key: String, config_key: String, value: Variant)
-signal key_changed(original_key: String, new_key: String)
-signal translation_data_changed
+signal removed(key: String)
+
 
 @export var _edit_translation_popup: Popup
 @export var _ref_lang_label: Label
@@ -34,12 +33,15 @@ signal translation_data_changed
 @export var _inc_index_button: TextureButton
 
 @onready var _default_translation_color: Color = _target_lang_line_edit.modulate
+@onready var _config_manager: Node = get_node("/root/Main/ConfigManager")
 
 var key: String = "Translation Key":
 	set(new_value):
+		var old_value: String = _entry_data.get("key", new_value)
 		_entry_data["key"] = new_value
 		_key_label.text = key
-		_emit_data_changed()
+		if old_value != new_value and _is_ready_for_emit_signals:
+			_config_manager.replace_key(old_value, new_value)
 	get:
 		return _entry_data["key"]
 
@@ -59,13 +61,19 @@ var target_text: String = "Translated Text":
 
 var notes: String = "":
 	set(new_value):
+		var old_value: String = _entry_data.get("notes", new_value)
 		_entry_data["notes"] = new_value
+		if old_value != new_value and _is_ready_for_emit_signals:
+			_config_manager.set_key_value(key, "notes", new_value)
 	get:
 		return _entry_data["notes"]
 
 var needs_revision : bool = false:
 	set(new_value):
+		var old_value: bool = _entry_data.get("needs_revision", new_value)
 		_entry_data["needs_revision"] = new_value
+		if old_value != new_value and _is_ready_for_emit_signals:
+			_config_manager.set_key_value(key, "needs_revision", new_value)
 	get:
 		return _entry_data["needs_revision"]
 
@@ -159,8 +167,10 @@ func update_target_language(new_lang: String) -> void:
 	target_lang = new_lang
 	target_text = _entry_data["translations"][new_lang]
 
-func remove() -> void:
+func remove(quiet := false) -> void:
 	_is_ready_for_emit_signals = false
+	if not quiet:
+		removed.emit(key)
 	self.queue_free()
 
 func _translation_callback(new_target_text: String) -> void:
@@ -196,8 +206,7 @@ func _on_translate_button_pressed() -> void:
 	)
 
 func _on_entry_updated(key, ref_text, target_text, notes) -> void:
-	if (self.key != key or self.ref_text != ref_text
-		or self.target_text != target_text or self.notes != notes):
+	if self.ref_text != ref_text or self.target_text != target_text:
 		_emit_data_changed()
 	self.key = key
 	self.ref_text = ref_text
@@ -258,3 +267,15 @@ func _on_index_text_submitted(line_edit: LineEdit, new_text: String) -> void:
 	
 	line_edit.text = str(new_index)
 	get_parent().move_child(self, new_index)
+
+
+func _on_delete_confirmed(remember_choice: bool) -> void:
+	_config_manager.set_settings_value("main", "no_confirm_delete", remember_choice)
+	remove()
+
+
+func _on_delete_button_pressed():
+	if not _config_manager.get_settings_value("main", "no_confirm_delete", false):
+		get_node("Popup").popup_centered()
+	else:
+		remove()

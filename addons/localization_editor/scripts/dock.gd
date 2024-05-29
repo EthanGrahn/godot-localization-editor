@@ -24,8 +24,8 @@ const _data_file_name: String = ".gle-data"
 @export var _locale_list: Script
 @export var _search_filter_popup: PopupMenu
 @export var _csv_loader: Node
+@export var _config_manager: Node
 
-var _user_config := ConfigFile.new()
 var _is_config_initialized := false
 var _save_pressed := false
 
@@ -85,7 +85,7 @@ func _ready() -> void:
 	get_node("%MenuFile").get_popup().id_pressed.connect(_on_file_menu_id_pressed)
 	get_node("%MenuEdit").get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
 	get_node("%MenuHelp").get_popup().id_pressed.connect(_on_help_menu_id_pressed)
-
+	
 	_close_all()
 	
 	# if running in editor, only use res://
@@ -96,20 +96,20 @@ func _ready() -> void:
 			dialog.access = FileDialog.ACCESS_RESOURCES
 		else: # if running standalone, allow full filesystem
 			dialog.access = FileDialog.ACCESS_FILESYSTEM
-
-	if FileAccess.file_exists(_settings_file):
-		_user_config.load(_settings_file)
-	_save_settings_config(true)
+	
+	if not _config_manager.is_initialized:
+		await _config_manager.initialized
+	
 	_is_config_initialized = true
 	
 	if Engine.is_editor_hint() == false:
-		get_window().mode = Window.MODE_MAXIMIZED if (_user_config.get_value("main","maximized", false)) else Window.MODE_WINDOWED
+		get_window().mode = Window.MODE_MAXIMIZED if (_config_manager.get_settings_value("main","maximized", false)) else Window.MODE_WINDOWED
 	
-	_recent_files = _user_config.get_value("main", "recent_files", [])
+	_recent_files = _config_manager.get_settings_value("main", "recent_files", [])
 	_load_recent_files_list()
 
 	# reopen the last file
-	if _user_config.get_value("main", "reopen_last_file", false):
+	if _config_manager.get_settings_value("main", "reopen_last_file", false):
 		if _recent_files.is_empty() == false:
 			if FileAccess.file_exists(_recent_files[0]):
 				_open_file(_recent_files[0])
@@ -121,14 +121,6 @@ func _process(delta):
 		_save_pressed = true
 	elif _save_pressed and not Input.is_key_pressed(KEY_S):
 		_save_pressed = false
-
-func _save_settings_config(_is_init_step := false) -> void:
-	if not _is_config_initialized and not _is_init_step:
-		return
-	_user_config.save(_settings_file)
-
-func _save_path_config() -> void:
-	_current_path_config.save("%s/%s" % [_current_path, _data_file_name])
 
 func _load_recent_files_list() -> void:
 	for n in get_node("%VBxRecentFiles").get_children():
@@ -146,8 +138,7 @@ func _load_recent_files_list() -> void:
 
 func _on_recent_file_removed(file_path: String) -> void:
 	_recent_files.remove_at(_recent_files.find(file_path))
-	_user_config.get_value("main", "recent_files", _recent_files)
-	_save_settings_config()
+	_config_manager.set_settings_value("main", "recent_files", _recent_files)
 
 func _start_search() -> void:
 	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
@@ -221,8 +212,8 @@ func open_file_popup():
 
 func create_file_popup():
 	_create_file_popup.request_popup(
-		_user_config.get_value("main", "first_cell", "keys"),
-		_user_config.get_value("main", "delimiter", ",")
+		_config_manager.get_settings_value("main", "first_cell", "keys"),
+		_config_manager.get_settings_value("main", "delimiter", ",")
 	)
 
 func _on_edit_menu_id_pressed(id:int) -> void:
@@ -237,7 +228,6 @@ func _on_edit_menu_id_pressed(id:int) -> void:
 				_remove_lang_popup.request_popup(_langs)
 		3:
 			# open program settings
-			_preferences_window.set_defaults(_user_config)
 			_preferences_window.popup_centered()
 
 func _on_help_menu_id_pressed(id:int) -> void:
@@ -277,20 +267,12 @@ func _open_file(full_path: String, delimiter := "") -> void:
 		_opened_files.remove_at(_opened_files.find(full_path))
 	_opened_files.append(full_path)
 	_current_full_file = full_path
+	_config_manager.set_new_file(full_path)
 	_current_file = full_path.get_file()
 	_current_path = full_path.get_base_dir()
 	
-	var config_path := "%s/%s" % [_current_path, _data_file_name]
-	if FileAccess.file_exists(config_path):
-		_current_path_config.load(config_path)
-	_save_path_config()
-	
 	if delimiter.is_empty():
-		delimiter = _current_path_config.get_value(
-			_current_file,
-			"delimiter",
-			","
-		)
+		delimiter = _config_manager.get_file_value("delimiter", ",")
 	
 	# get dictionary with keys mapped to language translations
 	# e.g. {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
@@ -311,19 +293,17 @@ func _open_file(full_path: String, delimiter := "") -> void:
 		_close_all()
 		return
 	
-	_current_path_config.set_value(
-		_current_file,
+	_config_manager.set_file_value(
 		"first_cell",
 		_current_data["first_cell"]
 	)
-	_save_path_config()
 	
 	# clean lists
 	_ref_lang_option.clear()
 	_target_lang_option.clear()
 	
 	# get user's preferred reference language
-	var user_ref_lang: String = _user_config.get_value("main", "user_ref_lang", "en")
+	var user_ref_lang: String = _config_manager.get_settings_value("main", "user_ref_lang", "en")
 	# add languages to the reference and target lists
 	var i : int = 0
 	for l in _langs:
@@ -343,7 +323,7 @@ func _open_file(full_path: String, delimiter := "") -> void:
 		
 	#_on_language_item_selected(0)
 	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
-	get_node("%VBxTranslations").init_list(_translations, _current_path_config, _current_file)
+	get_node("%VBxTranslations").init_list(_translations)
 	_update_opened_file_list()
 	_set_visible_content(true)
 	_add_recent_file(full_path)
@@ -387,7 +367,6 @@ func _parse_translation_entries():
 		_translations[translation_data["key"]][ref_lang] = translation_data["ref_text"]
 		if config_data["updated"]:
 			_parse_updated_translation_config(config_data)
-	_save_path_config()
 
 
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
@@ -415,11 +394,11 @@ func _on_data_dirtied():
 # writing data to the csv
 func _save_file() -> void:
 	_parse_translation_entries()
-	var default_fcell: String = _user_config.get_value("main", "first_cell", "keys")
+	var default_fcell: String = _config_manager.get_settings_value("main", "first_cell", "keys")
 	var err = _csv_loader.save_translations(
 		_get_opened_file(),
 		_current_data,
-		_current_path_config.get_value(_current_file, "delimiter", ",")
+		_config_manager.get_file_value("delimiter", ",")
 	)
 	if err == OK:
 		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
@@ -431,7 +410,7 @@ func _on_add_translation_pressed() -> void:
 	_add_translation_popup.request_popup(
 		get_selected_lang("ref"),
 		get_selected_lang("trans"),
-		_current_path_config.get_value(_current_file, "uppercase_keys", true)
+		_config_manager.get_file_value("uppercase_keys", true)
 	)
 
 
@@ -506,8 +485,7 @@ func _on_BtnClearSearch_pressed() -> void:
 
 func _on_Dock_resized() -> void:
 	if Engine.is_editor_hint() == false:
-		_user_config.set_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
-		_save_settings_config()
+		_config_manager.set_settings_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
 
 
 func _on_BtnCloseFile_pressed() -> void:
@@ -538,12 +516,6 @@ func _close_current_file() -> void:
 		_on_opened_file_item_selected(0)
 
 
-func _on_preferences_updated(preferences: Array[Dictionary]) -> void:
-	for pref in preferences:
-		_user_config.set_value(pref["section"], pref["key"], pref["value"])
-	_save_settings_config()
-
-
 func _add_recent_file(filename: String) -> void:
 	if _recent_files.has(filename):
 		_recent_files.remove_at(_recent_files.find(filename))
@@ -551,13 +523,12 @@ func _add_recent_file(filename: String) -> void:
 	_recent_files.insert(0, filename)
 	# limit to 10 recent files
 	_recent_files = _recent_files.slice(0, 10)
-	_user_config.set_value("main", "recent_files", _recent_files)
-	_save_settings_config()
+	_config_manager.set_settings_value("main", "recent_files", _recent_files)
 
 
 func _on_new_file_created(filename: String, first_cell: String, delimiter: String) -> void:
-	_current_path_config.set_value(filename.get_file(), "first_cell", first_cell)
-	_current_path_config.set_value(filename.get_file(), "delimiter", delimiter)
+	_config_manager.set_file_value("first_cell", first_cell)
+	_config_manager.set_file_value("delimiter", delimiter)
 	_open_file(filename)
 
 
@@ -592,8 +563,7 @@ func _on_add_lang_button_pressed():
 
 
 func _on_translation_added(key: String, ref_text: String, target_text: String, key_is_uppercase: bool):
-	_current_path_config.set_value(_current_file, "uppercase_keys", key_is_uppercase)
-	_save_settings_config()
+	_config_manager.set_file_value("uppercase_keys", key_is_uppercase)
 	
 	if _translations.keys().has(key) == true:
 		alert(
@@ -616,8 +586,7 @@ func _on_translation_added(key: String, ref_text: String, target_text: String, k
 	if ref_lang == target_lang:
 		target_text = ref_text
 	
-	get_node("%VBxTranslations").add_entry(key, ref_text, target_text,
-		_current_path_config, _current_file)
+	get_node("%VBxTranslations").add_entry(key, ref_text, target_text)
 	
 	_on_data_dirtied()
 	
@@ -641,3 +610,8 @@ func _on_translation_entry_added(new_data: Dictionary) -> void:
 	_translations[new_data["key"]] = new_data["translations"]
 	_key_index.append(new_data["key"])
 	_on_data_dirtied()
+
+
+func _on_translation_entry_deleted(key: String) -> void:
+	_key_index.remove_at(_key_index.find(key))
+	_translations.erase(key)
