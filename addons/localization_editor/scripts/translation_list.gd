@@ -56,7 +56,10 @@ func add_entry(key: String, ref_text: String, target_text: String) -> void:
 	await get_tree().process_frame
 	entry_added.emit(new_entry.get_entry_data())
 	new_entry.set_init_complete()
-	
+
+func search(search_text: String, filters: Dictionary) -> void:
+	for child in get_children():
+		child.filter(search_text, filters)
 
 func _add_entry_internal(key: String, entry_data: Dictionary,
 		focus: bool = false) -> Node:

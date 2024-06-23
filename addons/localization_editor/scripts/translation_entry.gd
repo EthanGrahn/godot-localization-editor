@@ -173,6 +173,28 @@ func remove(quiet := false) -> void:
 		removed.emit(key)
 	self.queue_free()
 
+func filter(search_text: String, filters: Dictionary) -> void:
+	var hide_translated: bool = filters["need_translation"]
+	var hide_no_need_rev: bool = filters["need_revision"]
+	var search_key: bool = filters.get("search_key", true)
+	var search_ref_text: bool = filters.get("search_ref_text", true)
+	var search_target_text: bool = filters.get("search_target_text", true)
+	
+	self.visible = true
+	
+	if (hide_translated and has_translation() or 
+	hide_no_need_rev and not needs_revision):
+		self.visible = false
+		return
+	
+	if not search_text.is_empty():
+		var key_match: bool = search_key and search_text in key.to_lower()
+		var ref_match: bool = (search_ref_text and 
+			search_text in ref_text.to_lower())
+		var target_match: bool = (search_target_text and 
+			search_text in target_text.to_lower())
+		self.visible = key_match or ref_match or target_match
+
 func _translation_callback(new_target_text: String) -> void:
 	if target_text != new_target_text:
 		_emit_data_changed()
