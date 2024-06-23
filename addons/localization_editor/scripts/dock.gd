@@ -141,29 +141,13 @@ func _on_recent_file_removed(file_path: String) -> void:
 	_config_manager.set_settings_value("main", "recent_files", _recent_files)
 
 func _start_search() -> void:
-	var searchtxt:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
+	var search_text:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
 	var hide_translated:bool = _search_filters["need_translation"]
 	var hide_no_need_rev:bool = _search_filters["need_revision"]
-	var search_key: bool = get_node("%CheckBoxSearchKeyID").button_pressed
-	var search_ref_text: bool = get_node("%CheckBoxSearchRefText").button_pressed
-	var search_target_text: bool = get_node("%CheckBoxSearchTransText").button_pressed
-	
-	for tp in get_node("%VBxTranslations").get_children():
-		tp.visible = true
-		# text search
-		if not searchtxt.is_empty():
-			tp.visible = (
-				(search_key and searchtxt in tp.key.to_lower())
-				or (search_ref_text and searchtxt in tp.ref_text.to_lower())
-				or (search_target_text and searchtxt in tp.target_text.to_lower())
-			)
-		
-		# hide those that do not have a translation
-		if hide_translated and tp.has_translation():
-			tp.visible = false
-		# hide those that do not need revision
-		if hide_no_need_rev and not tp.needs_revision:
-			tp.visible = false
+	_search_filters["search_key"] = get_node("%CheckBoxSearchKeyID").button_pressed
+	_search_filters["search_ref_text"] = get_node("%CheckBoxSearchRefText").button_pressed
+	_search_filters["search_target_text"] = get_node("%CheckBoxSearchTransText").button_pressed
+	get_node("%VBxTranslations").search(search_text, _search_filters)
 
 func _clear_search() -> void:
 	get_node("%BtnClearSearch").disabled = true
