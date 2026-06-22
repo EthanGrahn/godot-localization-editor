@@ -237,8 +237,7 @@ func _close_all() -> void:
 	_current_path = ""
 	get_node("%OpenedFilesList").clear()
 	get_node("%ControlNoOpenedFiles").visible = true
-	for child in get_node("%VBxTranslations").get_children():
-		child.remove()
+	get_node("%VBxTranslations").clear_list()
 	_current_data = {}
 	
 # Show or hide a popup
@@ -344,20 +343,6 @@ func _on_target_lang_item_selected(index):
 	_on_language_item_selected()
 	
 
-func _parse_translation_entries():
-	var target_lang: String = get_selected_lang("trans")
-	var ref_lang: String = get_selected_lang("ref")
-	for entry in get_node("%VBxTranslations").get_children():
-		var translation_data: Dictionary = entry.get_translation_data()
-		var config_data: Dictionary = entry.get_config_data()
-		if translation_data["old_key"] != translation_data["key"]:
-			_translations[translation_data["key"]] = _translations[translation_data["old_key"]].duplicate(true)
-			_translations.erase(translation_data["old_key"])
-		_translations[translation_data["key"]][target_lang] = translation_data["target_text"]
-		_translations[translation_data["key"]][ref_lang] = translation_data["ref_text"]
-		if config_data["updated"]:
-			_parse_updated_translation_config(config_data)
-
 
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
 	var section_key := "%s/%s" % [_current_file, updated_config["key"]]
@@ -383,7 +368,7 @@ func _on_data_dirtied():
 
 # writing data to the csv
 func _save_file() -> void:
-	_parse_translation_entries()
+	get_node("%VBxTranslations").flush(get_selected_lang("ref"), get_selected_lang("trans"), _translations, _key_index)
 	var default_fcell: String = _config_manager.get_settings_value("main", "first_cell", "keys")
 	var err = _csv_loader.save_translations(
 		_get_opened_file(),
@@ -591,13 +576,10 @@ func _on_open_file_selected(filename: String, delimiter: String) -> void:
 func _on_translation_entry_updated(new_data: Dictionary) -> void:
 	if _translations.is_empty():
 		return
-	_translations[new_data["key"]] = new_data["translations"]
-	_key_index[new_data["index"]] = new_data["key"]
 	_on_data_dirtied()
 
 
 func _on_translation_entry_added(new_data: Dictionary) -> void:
-	_translations[new_data["key"]] = new_data["translations"]
 	_key_index.append(new_data["key"])
 	_on_data_dirtied()
 
@@ -605,3 +587,4 @@ func _on_translation_entry_added(new_data: Dictionary) -> void:
 func _on_translation_entry_deleted(key: String) -> void:
 	_key_index.remove_at(_key_index.find(key))
 	_translations.erase(key)
+	_on_data_dirtied()

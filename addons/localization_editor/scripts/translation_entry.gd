@@ -19,6 +19,7 @@ signal data_changed(new_data: Dictionary)
 signal translation_requested(source_lang: String, source_text: String,
 	target_lang: String, callback: Callable)
 signal removed(key: String)
+signal reorder_requested(direction: int)
 
 
 @export var _edit_translation_popup: Popup
@@ -89,13 +90,11 @@ var _is_dragging: bool = false
 var _entry_data: Dictionary = {}
 var _grab_focus: bool = false
 
-func _enter_tree() -> void:
-	if not get_parent().child_order_changed.is_connected(_on_order_changed):
-		get_parent().child_order_changed.connect(_on_order_changed)
+# Virtual scroll tracking - set by translation_list
+var data_index: int = 0
+var filter_index: int = 0
+var filter_total: int = 0
 
-func _exit_tree() -> void:
-	if get_parent() != null and get_parent().child_order_changed.is_connected(_on_order_changed):
-		get_parent().child_order_changed.disconnect(_on_order_changed)
 
 func _ready():
 	if _grab_focus:
@@ -116,7 +115,7 @@ func get_entry_data() -> Dictionary:
 
 func set_translation_data(key: String, ref_lang: String, target_lang: String,
 	translations: Dictionary, notes: String,
-	needs_revision: bool, start_focused := false, has_google := false) -> void:
+	needs_revision: bool, p_data_index: int = 0, start_focused := false, has_google := false) -> void:
 	self.key = key
 	self.ref_lang = ref_lang
 	self.ref_text = translations[ref_lang]
@@ -125,7 +124,9 @@ func set_translation_data(key: String, ref_lang: String, target_lang: String,
 	self.notes = notes
 	self.needs_revision = needs_revision
 	_grab_focus = start_focused
-	_entry_data["index"] = get_index()
+	data_index = p_data_index
+	_entry_data["index"] = p_data_index
+	_index_line_edit.text = str(p_data_index)
 	_entry_data["translations"] = translations
 	name = key
 	_previous_key = key
@@ -176,7 +177,9 @@ func remove(quiet := false) -> void:
 	_is_ready_for_emit_signals = false
 	if not quiet:
 		removed.emit(key)
-	self.queue_free()
+	if get_parent():
+		get_parent().remove_child(self)
+	queue_free()
 
 func filter(search_text: String, filters: Dictionary) -> void:
 	var hide_translated: bool = filters["need_translation"]
@@ -184,21 +187,40 @@ func filter(search_text: String, filters: Dictionary) -> void:
 	var search_key: bool = filters.get("search_key", true)
 	var search_ref_text: bool = filters.get("search_ref_text", true)
 	var search_target_text: bool = filters.get("search_target_text", true)
-	
+
 	self.visible = true
-	
-	if (hide_translated and has_translation() or 
+
+	if (hide_translated and has_translation() or
 	hide_no_need_rev and not needs_revision):
 		self.visible = false
 		return
-	
+
 	if not search_text.is_empty():
 		var key_match: bool = search_key and search_text in key.to_lower()
-		var ref_match: bool = (search_ref_text and 
+		var ref_match: bool = (search_ref_text and
 			search_text in ref_text.to_lower())
-		var target_match: bool = (search_target_text and 
+		var target_match: bool = (search_target_text and
 			search_text in target_text.to_lower())
 		self.visible = key_match or ref_match or target_match
+
+# Called by translation_list to update position metadata without emitting signals.
+func set_position_metadata(new_data_idx: int, new_filter_idx: int, total: int) -> void:
+	data_index = new_data_idx
+	filter_index = new_filter_idx
+	filter_total = total
+	_entry_data["index"] = new_data_idx
+	_index_line_edit.text = str(new_data_idx)
+	_update_arrows()
+
+# Called by translation_list after a reorder - updates metadata and notifies dock.
+func update_display_index(new_data_idx: int, new_filter_idx: int, total: int) -> void:
+	data_index = new_data_idx
+	filter_index = new_filter_idx
+	filter_total = total
+	_entry_data["index"] = new_data_idx
+	_index_line_edit.text = str(new_data_idx)
+	_update_arrows()
+	_emit_data_changed()
 
 func _translation_callback(new_target_text: String) -> void:
 	if target_text != new_target_text:
@@ -253,48 +275,22 @@ func _on_edit_button_pressed() -> void:
 	)
 
 func _on_change_index_pressed(is_up: bool) -> void:
-	if is_up and get_index() == 0:
-		return
-	var amount: int = -1 if is_up else 1
-	get_parent().move_child(self, get_index() + amount)
-
-
-func _on_order_changed():
-	var new_index: int = get_index()
-	_update_arrows()
-	# check if index has changed
-	if new_index == -1 or _entry_data.get("index", new_index) == new_index:
-		return
-	_index_line_edit.text = str(new_index)
-	_entry_data["index"] = new_index
-	_emit_data_changed()
+	reorder_requested.emit(-1 if is_up else 1)
 
 func _update_arrows() -> void:
-	var new_index: int = get_index()
-	if new_index == 0:
+	if filter_index == 0:
 		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
 		_dec_index_button.disabled = true
 	else:
 		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_dec_index_button.disabled = false
-		
-	if get_parent() != null and new_index == get_parent().get_child_count() - 1:
+
+	if filter_total == 0 or filter_index >= filter_total - 1:
 		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
 		_inc_index_button.disabled = true
 	else:
 		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_inc_index_button.disabled = false
-
-func _on_index_text_submitted(line_edit: LineEdit, new_text: String) -> void:
-	# validate index
-	var new_index := int(new_text)
-	var max_index := get_parent().get_child_count() - 1
-	if new_index > max_index:
-		new_index = max_index
-	
-	line_edit.text = str(new_index)
-	get_parent().move_child(self, new_index)
-
 
 func _on_delete_confirmed(remember_choice: bool) -> void:
 	_config_manager.set_settings_value("main", "no_confirm_delete", remember_choice)
