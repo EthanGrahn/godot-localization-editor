@@ -97,6 +97,12 @@ func _ready() -> void:
 		else: # if running standalone, allow full filesystem
 			dialog.access = FileDialog.ACCESS_FILESYSTEM
 	
+	if not is_instance_valid(_config_manager):
+		_config_manager = get_tree().root.find_child("ConfigManager", true, false)
+
+	if not is_instance_valid(_config_manager):
+		return
+
 	if not _config_manager.is_initialized:
 		await _config_manager.initialized
 	
@@ -468,7 +474,7 @@ func _on_BtnClearSearch_pressed() -> void:
 
 
 func _on_Dock_resized() -> void:
-	if Engine.is_editor_hint() == false:
+	if Engine.is_editor_hint() == false and _is_config_initialized:
 		_config_manager.set_settings_value("main","maximized",(get_window().mode == Window.MODE_MAXIMIZED))
 
 

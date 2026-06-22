@@ -11,7 +11,7 @@ signal entry_deleted(key: String)
 @export var _reference_lang_option: OptionButton
 @export var _translated_lang_option: OptionButton
 
-@onready var _config_manager: Node = get_node("/root/Main/ConfigManager")
+@onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
 const _google_translate_path: String = "res://addons/localization_editor/google_translate/google_translate.tscn"
 var _google_translate: Node
@@ -19,19 +19,20 @@ var _google_translate: Node
 func _ready():
 	if ResourceLoader.exists(_google_translate_path) and _google_translate == null:
 		_google_translate = load(_google_translate_path).instantiate()
-		get_node("/root/Main/Dock").add_child.call_deferred(_google_translate)
+		var target := owner if is_instance_valid(owner) else self
+		target.add_child.call_deferred(_google_translate)
 
 func init_list(translation_data: Dictionary) -> void:
 	# reset list
 	for child in get_children():
 		child.remove(true)
-	
+
 	# wait a frame for entries to be removed
 	await get_tree().process_frame
-	
+
 	for key in translation_data:
 		_add_entry_internal(key, translation_data[key])
-	
+
 	# wait a frame for entries to be loaded
 	await get_tree().process_frame
 	for child in get_children():
