@@ -28,6 +28,7 @@ const _data_file_name: String = ".gle-data"
 
 var _is_config_initialized := false
 var _save_pressed := false
+var _save_warning_dialog: ConfirmationDialog
 
 var _current_data: Dictionary
 var _translations: Dictionary:
@@ -82,6 +83,11 @@ func _ready() -> void:
 			)
 			i += 1
 	
+	_save_warning_dialog = ConfirmationDialog.new()
+	_save_warning_dialog.title = "Save with Issues?"
+	_save_warning_dialog.confirmed.connect(_do_save)
+	add_child(_save_warning_dialog)
+
 	get_node("%MenuFile").get_popup().id_pressed.connect(_on_file_menu_id_pressed)
 	get_node("%MenuEdit").get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
 	get_node("%MenuHelp").get_popup().id_pressed.connect(_on_help_menu_id_pressed)
@@ -368,8 +374,31 @@ func _on_data_dirtied():
 
 # writing data to the csv
 func _save_file() -> void:
+	var issues: Dictionary = get_node("%VBxTranslations").get_key_issue_counts()
+	var empty_count: int = issues["empty"]
+	var duplicate_count: int = issues["duplicates"]
+
+	if empty_count > 0 or duplicate_count > 0:
+		var lines: PackedStringArray = []
+		if empty_count > 0:
+			lines.append("%d entr%s with an empty key" % [
+				empty_count, "ies" if empty_count != 1 else "y"
+			])
+		if duplicate_count > 0:
+			lines.append("%d entr%s with a duplicate key" % [
+				duplicate_count, "ies" if duplicate_count != 1 else "y"
+			])
+		_save_warning_dialog.dialog_text = (
+			"The following issues were found:\n\n%s\n\nSave anyway?" % "\n".join(lines)
+		)
+		_save_warning_dialog.popup_centered()
+		return
+
+	_do_save()
+
+
+func _do_save() -> void:
 	get_node("%VBxTranslations").flush(get_selected_lang("ref"), get_selected_lang("trans"), _translations, _key_index)
-	var default_fcell: String = _config_manager.get_settings_value("main", "first_cell", "keys")
 	var err = _csv_loader.save_translations(
 		_get_opened_file(),
 		_current_data,
@@ -377,7 +406,7 @@ func _save_file() -> void:
 	)
 	if err == OK:
 		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
-	
+
 	scan_files_requested.emit()
 
 

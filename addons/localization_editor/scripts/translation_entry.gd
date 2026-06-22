@@ -43,6 +43,7 @@ var key: String = "Translation Key":
 		_key_label.text = key
 		if old_value != new_value and _is_ready_for_emit_signals:
 			_config_manager.replace_key(old_value, new_value)
+			_emit_data_changed()
 	get:
 		return _entry_data["key"]
 
@@ -71,10 +72,7 @@ var notes: String = "":
 
 var needs_revision : bool = false:
 	set(new_value):
-		var old_value: bool = _entry_data.get("needs_revision", new_value)
 		_entry_data["needs_revision"] = new_value
-		if old_value != new_value and _is_ready_for_emit_signals:
-			_config_manager.set_key_value(key, "needs_revision", new_value)
 	get:
 		return _entry_data["needs_revision"]
 
@@ -89,6 +87,8 @@ var _previous_key: String
 var _is_dragging: bool = false
 var _entry_data: Dictionary = {}
 var _grab_focus: bool = false
+var _key_is_invalid: bool = false
+var _revision_forced_by_key: bool = false
 
 # Virtual scroll tracking - set by translation_list
 var data_index: int = 0
@@ -203,6 +203,25 @@ func filter(search_text: String, filters: Dictionary) -> void:
 			search_text in target_text.to_lower())
 		self.visible = key_match or ref_match or target_match
 
+func set_key_status(is_empty: bool, duplicate_count: int) -> void:
+	_key_is_invalid = is_empty or duplicate_count > 1
+	if is_empty:
+		_key_label.add_theme_color_override("font_color", _empty_translation_color)
+		_key_label.tooltip_text = "Empty key"
+	elif duplicate_count > 1:
+		_key_label.add_theme_color_override("font_color", _empty_translation_color)
+		_key_label.tooltip_text = "Duplicate key: %d entries share this key" % duplicate_count
+	else:
+		_key_label.remove_theme_color_override("font_color")
+		_key_label.tooltip_text = "Translation Key"
+
+	if _key_is_invalid and not needs_revision:
+		_needs_revision_cb.button_pressed = true
+		_revision_forced_by_key = true
+	elif not _key_is_invalid and _revision_forced_by_key:
+		_revision_forced_by_key = false
+		_needs_revision_cb.button_pressed = false
+
 # Called by translation_list to update position metadata without emitting signals.
 func set_position_metadata(new_data_idx: int, new_filter_idx: int, total: int) -> void:
 	data_index = new_data_idx
@@ -231,6 +250,9 @@ func _translation_callback(new_target_text: String) -> void:
 	_on_translation_text_changed(new_target_text)
 
 func _on_needs_revision_toggled(button_pressed: bool) -> void:
+	if not button_pressed and _key_is_invalid:
+		_needs_revision_cb.button_pressed = true
+		return
 	needs_revision = button_pressed
 	_emit_data_changed()
 
