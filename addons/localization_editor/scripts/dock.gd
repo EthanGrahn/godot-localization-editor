@@ -29,6 +29,11 @@ const _data_file_name: String = ".gle-data"
 var _is_config_initialized := false
 var _save_pressed := false
 var _save_warning_dialog: ConfirmationDialog
+var _autosave_timer: Timer
+var _recovery_dialog: ConfirmationDialog
+var _pending_recovery_temp: String = ""
+var _pending_open_path: String = ""
+var _pending_open_delimiter: String = ""
 
 var _current_data: Dictionary
 var _translations: Dictionary:
@@ -87,6 +92,20 @@ func _ready() -> void:
 	_save_warning_dialog.title = "Save with Issues?"
 	_save_warning_dialog.confirmed.connect(_do_save)
 	add_child(_save_warning_dialog)
+
+	_autosave_timer = Timer.new()
+	_autosave_timer.wait_time = 2.0
+	_autosave_timer.one_shot = true
+	_autosave_timer.timeout.connect(_write_temp_file)
+	add_child(_autosave_timer)
+
+	_recovery_dialog = ConfirmationDialog.new()
+	_recovery_dialog.title = "Recover Unsaved Changes"
+	_recovery_dialog.confirmed.connect(_apply_recovery)
+	_recovery_dialog.canceled.connect(_discard_recovery)
+	add_child(_recovery_dialog)
+	_recovery_dialog.get_ok_button().text = "Recover"
+	_recovery_dialog.get_cancel_button().text = "Discard"
 
 	get_node("%MenuFile").get_popup().id_pressed.connect(_on_file_menu_id_pressed)
 	get_node("%MenuEdit").get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
@@ -234,6 +253,8 @@ func _on_help_menu_id_pressed(id:int) -> void:
 			_credits_popup.popup_centered()
 
 func _close_all() -> void:
+	if is_instance_valid(_autosave_timer):
+		_autosave_timer.stop()
 	_opened_files = []
 	_load_recent_files_list()
 	_clear_search()
@@ -265,42 +286,53 @@ func _open_file(full_path: String, delimiter := "") -> void:
 	_config_manager.set_new_file(full_path)
 	_current_file = full_path.get_file()
 	_current_path = full_path.get_base_dir()
-	
+
 	if delimiter.is_empty():
 		delimiter = _config_manager.get_file_value("delimiter", ",")
-	
+
+	_autosave_timer.stop()
+
+	var temp_path := _get_temp_file_path(full_path)
+	if FileAccess.file_exists(temp_path):
+		_pending_open_path = full_path
+		_pending_open_delimiter = delimiter
+		_pending_recovery_temp = temp_path
+		_recovery_dialog.dialog_text = (
+			"Unsaved changes were found for \"%s\".\nWould you like to recover them?" % full_path.get_file()
+		)
+		_recovery_dialog.popup_centered()
+		return
+
+	_do_open_file(full_path, delimiter)
+
+
+func _do_open_file(full_path: String, delimiter: String) -> void:
 	# get dictionary with keys mapped to language translations
 	# e.g. {STRGOODBYE:{en:Goodbye!, es:Adiós!}, STRHELLO:{en:Hello!, es:Hola!}}
 	_current_data = _csv_loader.load_translations(full_path, delimiter)
-	
+
 	# handle potential errors
 	if _current_data.keys().has("ERROR"):
-		var err_msg:String = _current_data["ERROR"]
+		var err_msg: String = _current_data["ERROR"]
 		_close_all()
 		alert(err_msg, "Translation Manager - Error")
 		return
-	# get updated data
-	#_translations = _current_data["translations"]
-	#_langs = _current_data["languages"]
-	
+
 	# there is nothing to show
 	if _translations.size() == 0 and _langs.size() == 0:
 		_close_all()
 		return
-	
-	_config_manager.set_file_value(
-		"first_cell",
-		_current_data["first_cell"]
-	)
-	
+
+	_config_manager.set_file_value("first_cell", _current_data["first_cell"])
+
 	# clean lists
 	_ref_lang_option.clear()
 	_target_lang_option.clear()
-	
+
 	# get user's preferred reference language
 	var user_ref_lang: String = _config_manager.get_settings_value("main", "user_ref_lang", "en")
 	# add languages to the reference and target lists
-	var i : int = 0
+	var i: int = 0
 	for l in _langs:
 		_ref_lang_option.add_item(l, i)
 		if not user_ref_lang.is_empty() and user_ref_lang == l:
@@ -308,20 +340,76 @@ func _open_file(full_path: String, delimiter := "") -> void:
 		_target_lang_option.add_item(l, i)
 		i += 1
 
-	# if both languages are the same, but there is more than one language
-	# select the subsequent language in TargetLangItemList
+	# if both languages are the same but there is more than one, select the next
 	if (
 		(_ref_lang_option.get_selected_id() == _target_lang_option.get_selected_id())
 		and _langs.size() > 1
 	):
 		_target_lang_option.select(1)
-		
-	#_on_language_item_selected(0)
-	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
+
+	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
 	get_node("%VBxTranslations").init_list(_translations)
 	_update_opened_file_list()
 	_set_visible_content(true)
 	_add_recent_file(full_path)
+
+
+func _apply_recovery() -> void:
+	var file := FileAccess.open(_pending_recovery_temp, FileAccess.READ)
+	if not file:
+		_pending_recovery_temp = ""
+		_do_open_file(_pending_open_path, _pending_open_delimiter)
+		return
+	var delta = JSON.parse_string(file.get_as_text())
+	file = null
+	_pending_recovery_temp = ""
+
+	var list_node: Node = get_node("%VBxTranslations")
+	list_node.list_ready.connect(
+		_finish_recovery.bind(delta),
+		CONNECT_ONE_SHOT
+	)
+	_do_open_file(_pending_open_path, _pending_open_delimiter)
+
+
+func _finish_recovery(delta: Dictionary) -> void:
+	var list_node: Node = get_node("%VBxTranslations")
+	await list_node.apply_delta(delta)
+	_current_data["translations"] = list_node.get_current_translations()
+	_current_data["key_index"] = list_node.get_key_order()
+	_on_data_dirtied()
+
+
+func _discard_recovery() -> void:
+	var temp := _pending_recovery_temp
+	_pending_recovery_temp = ""
+	if not temp.is_empty() and FileAccess.file_exists(temp):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp))
+	_do_open_file(_pending_open_path, _pending_open_delimiter)
+
+
+func _get_temp_file_path(full_path: String) -> String:
+	return full_path.get_base_dir().path_join(".gle-temp-" + full_path.get_file().get_basename() + ".json")
+
+
+func _write_temp_file() -> void:
+	if _current_full_file.is_empty():
+		return
+	var delta: Dictionary = get_node("%VBxTranslations").get_store_delta()
+	if delta.is_empty():
+		_delete_temp_file()
+		return
+	var file := FileAccess.open(_get_temp_file_path(_current_full_file), FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(delta, "\t"))
+
+
+func _delete_temp_file() -> void:
+	if _current_full_file.is_empty():
+		return
+	var temp_path := _get_temp_file_path(_current_full_file)
+	if FileAccess.file_exists(temp_path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
 
 
 func _update_opened_file_list():
@@ -370,6 +458,8 @@ func _on_data_dirtied():
 	# show indicator of not having saved changes
 	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
 		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
+	if not _current_full_file.is_empty():
+		_autosave_timer.start()
 
 
 # writing data to the csv
@@ -405,7 +495,10 @@ func _do_save() -> void:
 		_config_manager.get_file_value("delimiter", ",")
 	)
 	if err == OK:
-		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
+		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
+		_autosave_timer.stop()
+		_delete_temp_file()
+		get_node("%VBxTranslations").reset_baseline()
 
 	scan_files_requested.emit()
 

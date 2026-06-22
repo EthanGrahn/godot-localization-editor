@@ -4,6 +4,7 @@ extends Node
 signal entry_updated(new_data: Dictionary)
 signal entry_added(new_data: Dictionary)
 signal entry_deleted(key: String)
+signal list_ready
 
 @export var _translation_entry_scene: PackedScene
 @export var _reference_lang_option: OptionButton
@@ -20,6 +21,10 @@ var _google_translate: Node
 # Ordered array of all entry data. Index in this array = the entry's data_index.
 # Each element: { key, translations, notes, needs_revision, [old_key] }
 var _data_store: Array = []
+
+# Deep copy of _data_store as it was when the file was last loaded or saved.
+# Used to compute the delta for the temp file.
+var _baseline_store: Array = []
 
 # Indices into _data_store that pass the current search filter, in visual order.
 var _filtered_indices: Array = []
@@ -78,6 +83,10 @@ func init_list(translation_data: Dictionary) -> void:
 			"needs_revision": cfg.get_key_value(key, "needs_revision", false) if cfg else false,
 		})
 
+	_baseline_store = []
+	for d in _data_store:
+		_baseline_store.append(d.duplicate(true))
+
 	_ref_lang = _reference_lang_option.get_item_text(_reference_lang_option.selected)
 	_target_lang = _translated_lang_option.get_item_text(_translated_lang_option.selected)
 
@@ -96,6 +105,7 @@ func init_list(translation_data: Dictionary) -> void:
 	# wait a frame for entries to be loaded
 	await get_tree().process_frame
 	_measure_entry_height()
+	list_ready.emit()
 
 
 func update_reference_language(new_lang: String) -> void:
@@ -426,6 +436,178 @@ func get_key_issue_counts() -> Dictionary:
 		if not key.is_empty() and _key_counts[key] > 1:
 			duplicate_count += _key_counts[key]
 	return {"empty": empty_count, "duplicates": duplicate_count}
+
+
+func get_store_delta() -> Dictionary:
+	_sync_all_visible_to_store()
+
+	var baseline_by_key: Dictionary = {}
+	for entry in _baseline_store:
+		baseline_by_key[entry["key"]] = entry
+
+	var order: Array = []
+	var changes: Dictionary = {}
+	var added: Dictionary = {}
+	var deleted: Array = []
+
+	var current_orig_keys: Dictionary = {}
+	for d in _data_store:
+		var orig_key: String = d.get("old_key", d["key"])
+		current_orig_keys[orig_key] = d
+		order.append(d["key"])
+
+	for key in baseline_by_key:
+		if not current_orig_keys.has(key):
+			deleted.append(key)
+
+	for orig_key in current_orig_keys:
+		var current: Dictionary = current_orig_keys[orig_key]
+		if not baseline_by_key.has(orig_key):
+			added[current["key"]] = {
+				"translations": current["translations"].duplicate(true),
+				"notes": current.get("notes", ""),
+				"needs_revision": current.get("needs_revision", false),
+			}
+		else:
+			var baseline: Dictionary = baseline_by_key[orig_key]
+			var diff: Dictionary = {}
+
+			if current["key"] != orig_key:
+				diff["key"] = current["key"]
+
+			var cur_trans: Dictionary = current["translations"]
+			var base_trans: Dictionary = baseline["translations"]
+			var trans_diff: Dictionary = {}
+			for lang in cur_trans:
+				if cur_trans[lang] != base_trans.get(lang, ""):
+					trans_diff[lang] = cur_trans[lang]
+			if not trans_diff.is_empty():
+				diff["translations"] = trans_diff
+
+			if current.get("notes", "") != baseline.get("notes", ""):
+				diff["notes"] = current.get("notes", "")
+
+			if current.get("needs_revision", false) != baseline.get("needs_revision", false):
+				diff["needs_revision"] = current.get("needs_revision", false)
+
+			if not diff.is_empty():
+				changes[orig_key] = diff
+
+	var baseline_order: Array = []
+	for entry in _baseline_store:
+		baseline_order.append(entry["key"])
+	var order_changed: bool = order != baseline_order
+
+	if changes.is_empty() and added.is_empty() and deleted.is_empty() and not order_changed:
+		return {}
+
+	var result: Dictionary = {"order": order}
+	if not changes.is_empty():
+		result["changes"] = changes
+	if not added.is_empty():
+		result["added"] = added
+	if not deleted.is_empty():
+		result["deleted"] = deleted
+	return result
+
+
+func apply_delta(delta: Dictionary) -> void:
+	if delta.is_empty():
+		return
+	var store_by_key: Dictionary = {}
+	for d in _data_store:
+		store_by_key[d["key"]] = d
+
+	for del_key in delta.get("deleted", []):
+		for i in range(_data_store.size() - 1, -1, -1):
+			if _data_store[i]["key"] == del_key:
+				_data_store.remove_at(i)
+				store_by_key.erase(del_key)
+				break
+
+	for orig_key in delta.get("changes", {}):
+		var diff: Dictionary = delta["changes"][orig_key]
+		var entry: Dictionary = store_by_key.get(orig_key, {})
+		if entry.is_empty():
+			continue
+		if diff.has("key"):
+			store_by_key.erase(orig_key)
+			entry["old_key"] = orig_key
+			entry["key"] = diff["key"]
+			store_by_key[diff["key"]] = entry
+		if diff.has("translations"):
+			for lang in diff["translations"]:
+				entry["translations"][lang] = diff["translations"][lang]
+		if diff.has("notes"):
+			entry["notes"] = diff["notes"]
+		if diff.has("needs_revision"):
+			entry["needs_revision"] = diff["needs_revision"]
+
+	for new_key in delta.get("added", {}):
+		var add_data: Dictionary = delta["added"][new_key]
+		var new_entry := {
+			"key": new_key,
+			"translations": add_data.get("translations", {}),
+			"notes": add_data.get("notes", ""),
+			"needs_revision": add_data.get("needs_revision", false),
+		}
+		_data_store.append(new_entry)
+		store_by_key[new_key] = new_entry
+
+	var order: Array = delta.get("order", [])
+	if not order.is_empty():
+		var ordered: Array = []
+		for key in order:
+			if store_by_key.has(key):
+				ordered.append(store_by_key[key])
+		for d in _data_store:
+			if not order.has(d["key"]):
+				ordered.append(d)
+		_data_store = ordered
+
+	for child in get_children():
+		if child.has_method("remove"):
+			child.remove(true)
+
+	await get_tree().process_frame
+
+	_loaded_start = 0
+	_loaded_end = 0
+	_rebuild_filtered_indices()
+	_rebuild_key_counts()
+
+	if _scroll_container:
+		_scroll_container.scroll_vertical = 0
+
+	var initial_count: int = mini(
+		_BUFFER * 2 + int(_get_viewport_height() / _entry_height) + 1,
+		_filtered_indices.size()
+	)
+	_load_range(0, initial_count)
+	_update_spacers()
+
+	await get_tree().process_frame
+	_measure_entry_height()
+
+
+func reset_baseline() -> void:
+	_baseline_store = []
+	for d in _data_store:
+		_baseline_store.append(d.duplicate(true))
+
+
+func get_current_translations() -> Dictionary:
+	var result: Dictionary = {}
+	for d in _data_store:
+		result[d["key"]] = d["translations"]
+	return result
+
+
+func get_key_order() -> Array:
+	var result: Array = []
+	for d in _data_store:
+		result.append(d["key"])
+	return result
 
 
 func _rebuild_key_counts() -> void:
