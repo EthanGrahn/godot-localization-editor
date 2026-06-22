@@ -5,7 +5,7 @@
 [node name="Preferences" type="Popup" node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file", "_delete_confirmation")]
 title = "Preferences"
 initial_position = 2
-size = Vector2i(393, 252)
+size = Vector2i(395, 252)
 visible = true
 borderless = false
 script = ExtResource("1_q5kei")

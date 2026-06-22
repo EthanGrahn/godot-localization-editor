@@ -8,6 +8,11 @@ var dock_instance
 
 func _enter_tree() -> void:
 	dock_instance = dock.instantiate()
+	# ConfigManager is provided by Main.tscn in standalone mode; create it here for editor mode.
+	var config_manager = load("res://addons/localization_editor/scripts/config_manager.gd").new()
+	config_manager.name = "ConfigManager"
+	dock_instance.add_child(config_manager)
+	dock_instance._config_manager = config_manager
 	dock_instance.connect("scan_files_requested", Callable(self, "_on_scan_files_requested"))
 	# Add the main panel to the editor's main viewport.
 	get_editor_interface().get_editor_main_screen().add_child(dock_instance)

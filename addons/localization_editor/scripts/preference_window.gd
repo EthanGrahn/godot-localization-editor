@@ -7,7 +7,7 @@ extends Popup
 @export var _reopen_file: CheckBox
 @export var _delete_confirmation: CheckBox
 
-@onready var _config_manager: Node = get_node("/root/Main/ConfigManager")
+@onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
 
 func _save_and_close() -> void:

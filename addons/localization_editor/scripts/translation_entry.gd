@@ -33,7 +33,7 @@ signal removed(key: String)
 @export var _inc_index_button: TextureButton
 
 @onready var _default_translation_color: Color = _target_lang_line_edit.modulate
-@onready var _config_manager: Node = get_node("/root/Main/ConfigManager")
+@onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
 var key: String = "Translation Key":
 	set(new_value):
@@ -90,7 +90,12 @@ var _entry_data: Dictionary = {}
 var _grab_focus: bool = false
 
 func _enter_tree() -> void:
-	get_parent().child_order_changed.connect(_on_order_changed)
+	if not get_parent().child_order_changed.is_connected(_on_order_changed):
+		get_parent().child_order_changed.connect(_on_order_changed)
+
+func _exit_tree() -> void:
+	if get_parent() != null and get_parent().child_order_changed.is_connected(_on_order_changed):
+		get_parent().child_order_changed.disconnect(_on_order_changed)
 
 func _ready():
 	if _grab_focus:
@@ -258,7 +263,7 @@ func _on_order_changed():
 	var new_index: int = get_index()
 	_update_arrows()
 	# check if index has changed
-	if new_index == -1 or _entry_data["index"] == new_index:
+	if new_index == -1 or _entry_data.get("index", new_index) == new_index:
 		return
 	_index_line_edit.text = str(new_index)
 	_entry_data["index"] = new_index
