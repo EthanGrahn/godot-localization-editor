@@ -59,7 +59,8 @@ var ref_text: String = "Reference Translation":
 var target_text: String = "Translated Text":
 	set(new_value):
 		target_text = new_value
-		_target_lang_line_edit.text = new_value
+		if is_instance_valid(_target_lang_line_edit) and _target_lang_line_edit.text != new_value:
+			_target_lang_line_edit.text = new_value
 
 var notes: String = "":
 	set(new_value):
