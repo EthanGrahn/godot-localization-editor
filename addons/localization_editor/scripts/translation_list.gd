@@ -37,6 +37,7 @@ var _ref_lang: String = ""
 var _target_lang: String = ""
 var _search_text: String = ""
 var _search_filters: Dictionary = {}
+var _key_counts: Dictionary = {}
 
 
 func _ready() -> void:
@@ -81,6 +82,7 @@ func init_list(translation_data: Dictionary) -> void:
 	_target_lang = _translated_lang_option.get_item_text(_translated_lang_option.selected)
 
 	_rebuild_filtered_indices()
+	_rebuild_key_counts()
 	if _scroll_container:
 		_scroll_container.scroll_vertical = 0
 
@@ -118,6 +120,9 @@ func add_entry(key: String, ref_text: String, target_text: String) -> void:
 		"needs_revision": false,
 	}
 	_data_store.append(new_data)
+	_key_counts[key] = _key_counts.get(key, 0) + 1
+	if _key_counts[key] == 2:
+		_refresh_key_status(key)
 
 	var emit_data := new_data.duplicate()
 	emit_data["index"] = d_idx
@@ -161,6 +166,7 @@ func clear_list() -> void:
 			child.remove(true)
 	_data_store = []
 	_filtered_indices = []
+	_key_counts = {}
 	_loaded_start = 0
 	_loaded_end = 0
 	_update_spacers()
@@ -184,6 +190,10 @@ func flush(ref_lang: String, target_lang: String,
 			out_translations[k][target_lang] = d["translations"].get(target_lang, "")
 			out_translations[k][ref_lang] = d["translations"].get(ref_lang, "")
 		out_key_index.append(k)
+		if is_instance_valid(_config_manager):
+			_config_manager.write_key_metadata(k, d.get("notes", ""), d.get("needs_revision", false))
+	if is_instance_valid(_config_manager):
+		_config_manager.save_directory_config()
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
@@ -300,6 +310,8 @@ func _create_entry(f_idx: int) -> Node:
 		_google_translate != null
 	)
 	entry.set_position_metadata(d_idx, f_idx, _filtered_indices.size())
+	var k: String = data["key"]
+	entry.set_key_status(k.is_empty(), _key_counts.get(k, 0))
 	return entry
 
 
@@ -407,16 +419,49 @@ func _handle_reorder(entry: Node, direction: int) -> void:
 		)
 
 
+func get_key_issue_counts() -> Dictionary:
+	var empty_count: int = _key_counts.get("", 0)
+	var duplicate_count: int = 0
+	for key in _key_counts:
+		if not key.is_empty() and _key_counts[key] > 1:
+			duplicate_count += _key_counts[key]
+	return {"empty": empty_count, "duplicates": duplicate_count}
+
+
+func _rebuild_key_counts() -> void:
+	_key_counts = {}
+	for d in _data_store:
+		var k: String = d["key"]
+		_key_counts[k] = _key_counts.get(k, 0) + 1
+
+
+func _refresh_key_status(key: String) -> void:
+	var count: int = _key_counts.get(key, 0)
+	for i in range(1, get_child_count() - 1):
+		var node = get_child(i)
+		if is_instance_valid(node) and node.key == key:
+			node.set_key_status(key.is_empty(), count)
+
+
 func _on_entry_data_changed(new_data: Dictionary) -> void:
 	var d_idx: int = new_data.get("index", -1)
 	if d_idx >= 0 and d_idx < _data_store.size():
-		_data_store[d_idx]["key"] = new_data["key"]
+		var old_key: String = _data_store[d_idx]["key"]
+		var new_key: String = new_data["key"]
+		_data_store[d_idx]["key"] = new_key
 		if new_data.has("translations"):
 			_data_store[d_idx]["translations"] = new_data["translations"].duplicate()
 		if new_data.has("needs_revision"):
 			_data_store[d_idx]["needs_revision"] = new_data["needs_revision"]
 		if new_data.has("notes"):
 			_data_store[d_idx]["notes"] = new_data["notes"]
+		if old_key != new_key:
+			_key_counts[old_key] = _key_counts.get(old_key, 1) - 1
+			if _key_counts[old_key] <= 0:
+				_key_counts.erase(old_key)
+			_key_counts[new_key] = _key_counts.get(new_key, 0) + 1
+			_refresh_key_status(old_key)
+			_refresh_key_status(new_key)
 	entry_updated.emit(new_data)
 
 
@@ -435,6 +480,9 @@ func _on_entry_deleted(key: String) -> void:
 	var f_idx: int = _filtered_indices.find(d_idx)
 
 	_data_store.remove_at(d_idx)
+	_key_counts[key] = _key_counts.get(key, 1) - 1
+	if _key_counts[key] <= 0:
+		_key_counts.erase(key)
 
 	# Remove from filtered_indices and shift all values above d_idx down by 1.
 	if f_idx != -1:
@@ -460,6 +508,7 @@ func _on_entry_deleted(key: String) -> void:
 		var new_f_idx: int = node.filter_index - 1 if (f_idx != -1 and node.filter_index > f_idx) else node.filter_index
 		node.set_position_metadata(new_d_idx, new_f_idx, _filtered_indices.size())
 
+	_refresh_key_status(key)
 	_update_spacers()
 	entry_deleted.emit(key)
 

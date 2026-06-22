@@ -53,10 +53,23 @@ func set_key_value(translation_key: String, config_key: String, value: Variant) 
 func replace_key(old_key: String, new_key: String) -> void:
 	var old_section_key := "%s/%s" % [_current_file.get_file(), old_key]
 	var new_section_key := "%s/%s" % [_current_file.get_file(), new_key]
-	for key in _directory_config.get_section_keys(old_section_key):
-		var old_value = _directory_config.get_value(old_section_key, key)
-		_directory_config.set_value(new_section_key, key, old_value)
-	_directory_config.erase_section(old_section_key)
+	if _directory_config.has_section(old_section_key):
+		for key in _directory_config.get_section_keys(old_section_key):
+			var old_value = _directory_config.get_value(old_section_key, key)
+			_directory_config.set_value(new_section_key, key, old_value)
+		_directory_config.erase_section(old_section_key)
+		_save_directory_config()
+
+func write_key_metadata(translation_key: String, notes: String, needs_revision: bool) -> void:
+	var section_key := "%s/%s" % [_current_file.get_file(), translation_key]
+	if notes.is_empty() and not needs_revision:
+		if _directory_config.has_section(section_key):
+			_directory_config.erase_section(section_key)
+	else:
+		_directory_config.set_value(section_key, "notes", notes)
+		_directory_config.set_value(section_key, "needs_revision", needs_revision)
+
+func save_directory_config() -> void:
 	_save_directory_config()
 
 func get_file_value(key: String, default: Variant = null) -> Variant:

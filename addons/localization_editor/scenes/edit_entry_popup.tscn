@@ -57,7 +57,7 @@ layout_mode = 2
 [node name="CTBtnSaveKey" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 modulate = Color(0.0862745, 1, 0.701961, 1)
 layout_mode = 2
-text = "Save all changes"
+text = "Confirm"
 
 [node name="VSeparator2" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 visible = false
