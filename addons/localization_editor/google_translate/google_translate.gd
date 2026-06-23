@@ -3,17 +3,17 @@ extends Node
 
 signal text_translated(id, from_lang, to_lang, original_text, translated_text)
 
-func translate(from_lang:String, to_lang:String, text:String, callback: Callable) -> void:
+
+func translate(from_lang: String, to_lang: String, text: String, callback: Callable) -> void:
 	var url = _create_url(from_lang, to_lang, text)
 	var http_request = HTTPRequest.new()
 	http_request.timeout = 5
 	add_child(http_request)
-	http_request.request_completed.connect(
-		_http_request_completed.bindv([http_request, callback])
-	)
+	http_request.request_completed.connect(_http_request_completed.bindv([http_request, callback]))
 	http_request.request(url, [], HTTPClient.METHOD_GET)
 
-func _create_url(from_lang:String, to_lang:String, text:String) -> String:
+
+func _create_url(from_lang: String, to_lang: String, text: String) -> String:
 	var url = "https://translate.googleapis.com/translate_a/single?client=gtx"
 	url += "&sl=" + from_lang
 	url += "&tl=" + to_lang
@@ -21,12 +21,12 @@ func _create_url(from_lang:String, to_lang:String, text:String) -> String:
 	url += "&q=" + text.uri_encode()
 	return url
 
-func _http_request_completed(result, _response_code, _headers, body, http_request,
-	callback: Callable):
+
+func _http_request_completed(
+	result, _response_code, _headers, body, http_request, callback: Callable
+):
 	if result != HTTPRequest.RESULT_SUCCESS:
-		OS.alert(
-			"ApiTranslate error #" + str(result), "HttpRequest Error"
-		)
+		OS.alert("ApiTranslate error #" + str(result), "HttpRequest Error")
 		return
 
 	var result_body = JSON.new()

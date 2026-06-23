@@ -1,14 +1,14 @@
 @tool
 extends Popup
 
-signal translation_added(key: String, ref_text: String,
-	target_text: String, key_is_uppercase: bool)
+signal translation_added(key: String, ref_text: String, target_text: String, key_is_uppercase: bool)
 
 @export var _key_text: LineEdit
 @export var _ref_text: LineEdit
 @export var _target_text: LineEdit
 @export var _uppercase_check_box: CheckBox
 @export var _add_translation_button: Button
+
 
 func request_popup(ref_lang: String, target_lang: String, key_is_uppercase: bool):
 	_uppercase_check_box.button_pressed = key_is_uppercase
@@ -32,10 +32,7 @@ func _on_key_text_changed(new_text: String) -> void:
 
 func _on_add_translation_button_pressed():
 	translation_added.emit(
-		_key_text.text,
-		_ref_text.text,
-		_target_text.text,
-		_uppercase_check_box.button_pressed
+		_key_text.text, _ref_text.text, _target_text.text, _uppercase_check_box.button_pressed
 	)
 	self.hide()
 

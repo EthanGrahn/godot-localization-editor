@@ -7,16 +7,19 @@ var _prev_text: String
 var _prev_column: int
 var _pre_focus_text: String
 
+
 func _ready():
 	_pre_focus_text = self.text
 	_prev_text = self.text
 	_prev_column = self.text.length() - 1
 	_regex.compile("[^0-9]")
 
+
 func _process(_delta) -> void:
 	if self.has_focus() && Input.is_key_pressed(KEY_ESCAPE):
 		self.text = _pre_focus_text
 		self.release_focus()
+
 
 func _on_text_changed(_new_text: String) -> void:
 	var curr_column := self.caret_column
@@ -28,12 +31,15 @@ func _on_text_changed(_new_text: String) -> void:
 	_prev_column = self.caret_column
 	_prev_text = self.text
 
+
 func _on_text_submitted(_new_text: String) -> void:
 	self.release_focus()
+
 
 func _on_focus_exited():
 	_pre_focus_text = self.text
 	text_ready.emit(self, self.text)
+
 
 func _on_focus_entered():
 	_pre_focus_text = self.text

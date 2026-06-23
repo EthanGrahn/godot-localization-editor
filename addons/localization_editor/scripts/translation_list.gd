@@ -12,8 +12,9 @@ signal list_ready
 
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
-const _GOOGLE_TRANSLATE_PATH: String = "res://addons/localization_editor" \
-	+ "/google_translate/google_translate.tscn"
+const _GOOGLE_TRANSLATE_PATH: String = (
+	"res://addons/localization_editor/google_translate/google_translate.tscn"
+)
 const _BUFFER: int = 5
 const _ESTIMATED_HEIGHT: float = 100.0
 
@@ -77,12 +78,18 @@ func init_list(translation_data: Dictionary) -> void:
 
 	var cfg := _config_manager if is_instance_valid(_config_manager) else null
 	for key in translation_data:
-		_data_store.append({
-			"key": key,
-			"translations": translation_data[key],
-			"notes": cfg.get_key_value(key, "notes", "") if cfg else "",
-			"needs_revision": cfg.get_key_value(key, "needs_revision", false) if cfg else false,
-		})
+		(
+			_data_store
+			. append(
+				{
+					"key": key,
+					"translations": translation_data[key],
+					"notes": cfg.get_key_value(key, "notes", "") if cfg else "",
+					"needs_revision":
+					cfg.get_key_value(key, "needs_revision", false) if cfg else false,
+				}
+			)
+		)
 
 	_baseline_store = []
 	for d in _data_store:
@@ -97,8 +104,7 @@ func init_list(translation_data: Dictionary) -> void:
 		_scroll_container.scroll_vertical = 0
 
 	var initial_count: int = mini(
-		_BUFFER * 2 + int(_get_viewport_height() / _entry_height) + 1,
-		_filtered_indices.size()
+		_BUFFER * 2 + int(_get_viewport_height() / _entry_height) + 1, _filtered_indices.size()
 	)
 	_load_range(0, initial_count)
 	_update_spacers()
@@ -122,7 +128,7 @@ func update_target_language(new_lang: String) -> void:
 
 
 func add_entry(key: String, ref_text: String, target_text: String) -> void:
-	var translations: Dictionary = { _ref_lang: ref_text, _target_lang: target_text }
+	var translations: Dictionary = {_ref_lang: ref_text, _target_lang: target_text}
 	var d_idx: int = _data_store.size()
 	var new_data: Dictionary = {
 		"key": key,
@@ -185,8 +191,9 @@ func clear_list() -> void:
 
 # Syncs all visible nodes to _data_store, rebuilds out_key_index from _data_store,
 # and propagates any pending key renames and text changes into out_translations.
-func flush(ref_lang: String, target_lang: String,
-		out_translations: Dictionary, out_key_index: Array) -> void:
+func flush(
+	ref_lang: String, target_lang: String, out_translations: Dictionary, out_key_index: Array
+) -> void:
 	_sync_all_visible_to_store()
 
 	out_key_index.clear()
@@ -210,6 +217,7 @@ func flush(ref_lang: String, target_lang: String,
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
+
 
 func _load_range(start: int, end_exclusive: int) -> void:
 	_loaded_start = start
@@ -244,10 +252,12 @@ func _passes_filter(data: Dictionary) -> bool:
 		var search_target: bool = _search_filters.get("search_target_text", true)
 
 		var key_match: bool = search_key and _search_text in data["key"].to_lower()
-		var ref_match: bool = search_ref and _search_text in data["translations"].get(
-			_ref_lang, "").to_lower()
-		var target_match: bool = search_target and _search_text in data["translations"].get(
-			_target_lang, "").to_lower()
+		var ref_match: bool = (
+			search_ref and _search_text in data["translations"].get(_ref_lang, "").to_lower()
+		)
+		var target_match: bool = (
+			search_target and _search_text in data["translations"].get(_target_lang, "").to_lower()
+		)
 
 		return key_match or ref_match or target_match
 
@@ -266,8 +276,7 @@ func _update_visible_range(scroll_y: float) -> void:
 	var viewport_h: float = _get_viewport_height()
 	var first_needed: int = max(0, int(scroll_y / _entry_height) - _BUFFER)
 	var last_needed: int = mini(
-		_filtered_indices.size(),
-		int((scroll_y + viewport_h) / _entry_height) + _BUFFER + 1
+		_filtered_indices.size(), int((scroll_y + viewport_h) / _entry_height) + _BUFFER + 1
 	)
 
 	if first_needed == _loaded_start and last_needed == _loaded_end:
@@ -374,8 +383,9 @@ func _update_spacers() -> void:
 	if not is_instance_valid(_top_spacer) or not is_instance_valid(_bottom_spacer):
 		return
 	_top_spacer.custom_minimum_size.y = _loaded_start * _entry_height
-	_bottom_spacer.custom_minimum_size.y = max(0, _filtered_indices.size() - _loaded_end) \
-		* _entry_height
+	_bottom_spacer.custom_minimum_size.y = (
+		max(0, _filtered_indices.size() - _loaded_end) * _entry_height
+	)
 
 
 func _measure_entry_height() -> void:
@@ -413,9 +423,7 @@ func _handle_reorder(entry: Node, direction: int) -> void:
 	_data_store[d_idx_a] = _data_store[d_idx_b]
 	_data_store[d_idx_b] = temp_data
 
-	var target_is_loaded: bool = (
-		target_f_idx >= _loaded_start and target_f_idx < _loaded_end
-	)
+	var target_is_loaded: bool = target_f_idx >= _loaded_start and target_f_idx < _loaded_end
 
 	if target_is_loaded:
 		var target_child_idx: int = target_f_idx - _loaded_start + 1
@@ -430,9 +438,7 @@ func _handle_reorder(entry: Node, direction: int) -> void:
 		# The swap partner is off-screen - sync current entry and refresh.
 		_sync_node_to_store(entry, d_idx_b)
 		entry.update_display_index(d_idx_b, target_f_idx, _filtered_indices.size())
-		_update_visible_range(
-			_scroll_container.scroll_vertical if _scroll_container else 0.0
-		)
+		_update_visible_range(_scroll_container.scroll_vertical if _scroll_container else 0.0)
 
 
 func get_key_issue_counts() -> Dictionary:
@@ -586,8 +592,7 @@ func apply_delta(delta: Dictionary) -> void:
 		_scroll_container.scroll_vertical = 0
 
 	var initial_count: int = mini(
-		_BUFFER * 2 + int(_get_viewport_height() / _entry_height) + 1,
-		_filtered_indices.size()
+		_BUFFER * 2 + int(_get_viewport_height() / _entry_height) + 1, _filtered_indices.size()
 	)
 	_load_range(0, initial_count)
 	_update_spacers()
@@ -693,8 +698,11 @@ func _on_entry_deleted(key: String) -> void:
 		if not is_instance_valid(node) or node.key == key:
 			continue
 		var new_d_idx: int = node.data_index - 1 if node.data_index > d_idx else node.data_index
-		var new_f_idx: int = node.filter_index - 1 \
-			if (f_idx != -1 and node.filter_index > f_idx) else node.filter_index
+		var new_f_idx: int = (
+			node.filter_index - 1
+			if (f_idx != -1 and node.filter_index > f_idx)
+			else node.filter_index
+		)
 		node.set_position_metadata(new_d_idx, new_f_idx, _filtered_indices.size())
 
 	_refresh_key_status(key)
@@ -702,7 +710,8 @@ func _on_entry_deleted(key: String) -> void:
 	entry_deleted.emit(key)
 
 
-func _on_translate_requested(source_lang: String, source_text: String,
-		target_lang: String, callback: Callable) -> void:
+func _on_translate_requested(
+	source_lang: String, source_text: String, target_lang: String, callback: Callable
+) -> void:
 	if _google_translate != null:
 		_google_translate.translate(source_lang, target_lang, source_text, callback)

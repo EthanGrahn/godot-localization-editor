@@ -9,14 +9,12 @@ signal removed(filename: String)
 
 var filename: String
 
+
 func _ready() -> void:
 	_link.disabled = not FileAccess.file_exists(filename)
 	_link.text = filename.get_file()
 
-	_link.tooltip_text = "%s%s" % [
-		"[NOT FOUND] " if _link.disabled else "",
-		filename
-	]
+	_link.tooltip_text = "%s%s" % ["[NOT FOUND] " if _link.disabled else "", filename]
 
 
 func _on_remove_pressed():

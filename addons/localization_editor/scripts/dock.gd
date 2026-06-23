@@ -4,7 +4,7 @@ extends Control
 signal scan_files_requested
 
 # where user preferences are stored
-const _SETTINGS_FILE : String = "user://settings.ini"
+const _SETTINGS_FILE: String = "user://settings.ini"
 
 @export var _recent_file_button_scene: PackedScene
 @export var _preferences_window: Popup
@@ -63,10 +63,7 @@ var _current_path_config := ConfigFile.new()
 var _recent_files: PackedStringArray = []
 var _opened_files: PackedStringArray = []
 var _google_translate: Node
-var _search_filters := {
-	"need_translation": false,
-	"need_revision": false
-}
+var _search_filters := {"need_translation": false, "need_revision": false}
 
 
 func _ready() -> void:
@@ -79,11 +76,9 @@ func _ready() -> void:
 		if not list is OptionButton:
 			continue
 		(list as OptionButton).clear()
-		var i : int = 0
+		var i: int = 0
 		for l in locales.LOCALES:
-			list.add_item(
-				"%s, %s" % [l["name"], l["code"]], i
-			)
+			list.add_item("%s, %s" % [l["name"], l["code"]], i)
 			i += 1
 
 	_save_warning_dialog = ConfirmationDialog.new()
@@ -117,7 +112,7 @@ func _ready() -> void:
 			continue
 		if Engine.is_editor_hint():
 			dialog.access = FileDialog.ACCESS_RESOURCES
-		else: # if running standalone, allow full filesystem
+		else:  # if running standalone, allow full filesystem
 			dialog.access = FileDialog.ACCESS_FILESYSTEM
 
 	if not is_instance_valid(_config_manager):
@@ -132,9 +127,11 @@ func _ready() -> void:
 	_is_config_initialized = true
 
 	if Engine.is_editor_hint() == false:
-		get_window().mode = Window.MODE_MAXIMIZED \
-			if (_config_manager.get_settings_value("main","maximized", false)) \
+		get_window().mode = (
+			Window.MODE_MAXIMIZED
+			if (_config_manager.get_settings_value("main", "maximized", false))
 			else Window.MODE_WINDOWED
+		)
 
 	_recent_files = _config_manager.get_settings_value("main", "recent_files", [])
 	_load_recent_files_list()
@@ -145,13 +142,14 @@ func _ready() -> void:
 			if FileAccess.file_exists(_recent_files[0]):
 				_open_file(_recent_files[0])
 
+
 func _process(_delta):
-	if (not _save_pressed and Input.is_key_pressed(KEY_CTRL)
-	and Input.is_key_pressed(KEY_S)):
+	if not _save_pressed and Input.is_key_pressed(KEY_CTRL) and Input.is_key_pressed(KEY_S):
 		_save_file()
 		_save_pressed = true
 	elif _save_pressed and not Input.is_key_pressed(KEY_S):
 		_save_pressed = false
+
 
 func _load_recent_files_list() -> void:
 	for n in get_node("%VBxRecentFiles").get_children():
@@ -167,18 +165,21 @@ func _load_recent_files_list() -> void:
 	# show message if list is empty
 	get_node("%LblNoRecentFiles").visible = _recent_files.is_empty()
 
+
 func _on_recent_file_removed(file_path: String) -> void:
 	_recent_files.remove_at(_recent_files.find(file_path))
 	_config_manager.set_settings_value("main", "recent_files", _recent_files)
 
+
 func _start_search() -> void:
-	var search_text:String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
-	var hide_translated:bool = _search_filters["need_translation"]
-	var hide_no_need_rev:bool = _search_filters["need_revision"]
+	var search_text: String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
+	var hide_translated: bool = _search_filters["need_translation"]
+	var hide_no_need_rev: bool = _search_filters["need_revision"]
 	_search_filters["search_key"] = get_node("%CheckBoxSearchKeyID").button_pressed
 	_search_filters["search_ref_text"] = get_node("%CheckBoxSearchRefText").button_pressed
 	_search_filters["search_target_text"] = get_node("%CheckBoxSearchTransText").button_pressed
 	get_node("%VBxTranslations").search(search_text, _search_filters)
+
 
 func _clear_search() -> void:
 	get_node("%BtnClearSearch").disabled = true
@@ -191,7 +192,8 @@ func _clear_search() -> void:
 	for i in range(0, _search_filter_popup.item_count):
 		_search_filter_popup.set_item_checked(i, false)
 
-func alert(txt:String,title:String="Alert!") -> void:
+
+func alert(txt: String, title: String = "Alert!") -> void:
 	_alert_window.title = title
 	_alert_window.get_node("Label").text = txt
 	_alert_window.size = Vector2.ZERO
@@ -201,19 +203,22 @@ func alert(txt:String,title:String="Alert!") -> void:
 func _get_opened_file() -> String:
 	return _current_path + "/" + _current_file
 
+
 # get the selected language (ref or trans)
-func get_selected_lang(mode:String="ref") -> String:
-	var node : OptionButton = _ref_lang_option
+func get_selected_lang(mode: String = "ref") -> String:
+	var node: OptionButton = _ref_lang_option
 	if mode != "ref":
 		node = _target_lang_option
 	return node.get_item_text(node.selected)
 
-func _set_visible_content(vis:bool=true) -> void:
+
+func _set_visible_content(vis: bool = true) -> void:
 	get_node("%HBxFileAndLangSelect").visible = vis
 	get_node("%HBxContentFile").visible = vis
-	get_node("%ControlNoOpenedFiles").visible = ! vis
+	get_node("%ControlNoOpenedFiles").visible = !vis
 
-func _on_file_menu_id_pressed(id:int) -> void:
+
+func _on_file_menu_id_pressed(id: int) -> void:
 	match id:
 		1:
 			create_file_popup()
@@ -222,8 +227,10 @@ func _on_file_menu_id_pressed(id:int) -> void:
 		3:
 			_close_all()
 
+
 func open_file_popup():
 	_open_file_popup.popup_centered()
+
 
 func create_file_popup():
 	_create_file_popup.request_popup(
@@ -231,7 +238,8 @@ func create_file_popup():
 		_config_manager.get_settings_value("main", "delimiter", ",")
 	)
 
-func _on_edit_menu_id_pressed(id:int) -> void:
+
+func _on_edit_menu_id_pressed(id: int) -> void:
 	match id:
 		1:
 			# add new language
@@ -245,15 +253,19 @@ func _on_edit_menu_id_pressed(id:int) -> void:
 			# open program settings
 			_preferences_window.popup_centered()
 
-func _on_help_menu_id_pressed(id:int) -> void:
+
+func _on_help_menu_id_pressed(id: int) -> void:
 	match id:
 		1:
 			OS.shell_open(
-				"https://github.com/EthanGrahn/godot-localization-editor" +
-				"?tab=readme-ov-file#usage-guide"
+				(
+					"https://github.com/EthanGrahn/godot-localization-editor"
+					+ "?tab=readme-ov-file#usage-guide"
+				)
 			)
 		2:
 			_credits_popup.popup_centered()
+
 
 func _close_all() -> void:
 	if is_instance_valid(_autosave_timer):
@@ -270,11 +282,15 @@ func _close_all() -> void:
 	get_node("%VBxTranslations").clear_list()
 	_current_data = {}
 
+
 # Show or hide a popup
 func _on_Popup_about_to_show() -> void:
 	get_node("%PopupBG").visible = true
+
+
 func _on_Popup_hide() -> void:
 	get_node("%PopupBG").visible = false
+
 
 # a file was selected from the list
 func _on_opened_file_item_selected(index: int) -> void:
@@ -301,7 +317,7 @@ func _open_file(full_path: String, delimiter := "") -> void:
 		_pending_open_delimiter = delimiter
 		_pending_recovery_temp = temp_path
 		_recovery_dialog.dialog_text = (
-			"Unsaved changes were found for \"%s\".\nWould you like to recover them?" \
+			'Unsaved changes were found for "%s".\nWould you like to recover them?'
 			% full_path.get_file()
 		)
 		_recovery_dialog.popup_centered()
@@ -369,10 +385,7 @@ func _apply_recovery() -> void:
 	_pending_recovery_temp = ""
 
 	var list_node: Node = get_node("%VBxTranslations")
-	list_node.list_ready.connect(
-		_finish_recovery.bind(delta),
-		CONNECT_ONE_SHOT
-	)
+	list_node.list_ready.connect(_finish_recovery.bind(delta), CONNECT_ONE_SHOT)
 	_do_open_file(_pending_open_path, _pending_open_delimiter)
 
 
@@ -393,8 +406,9 @@ func _discard_recovery() -> void:
 
 
 func _get_temp_file_path(full_path: String) -> String:
-	return full_path.get_base_dir().path_join(".gle-temp-" \
-		+ full_path.get_file().get_basename() + ".json")
+	return full_path.get_base_dir().path_join(
+		".gle-temp-" + full_path.get_file().get_basename() + ".json"
+	)
 
 
 func _write_temp_file() -> void:
@@ -431,32 +445,25 @@ func _update_opened_file_list():
 
 func _on_language_item_selected() -> void:
 	_clear_search()
-	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)","")
+	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
+
 
 func _on_ref_lang_item_selected(index):
 	get_node("%VBxTranslations").update_reference_language(_ref_lang_option.get_item_text(index))
 	_on_language_item_selected()
+
 
 func _on_target_lang_item_selected(index):
 	get_node("%VBxTranslations").update_target_language(_target_lang_option.get_item_text(index))
 	_on_language_item_selected()
 
 
-
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
 	var section_key := "%s/%s" % [_current_file, updated_config["key"]]
 	if updated_config["old_key"] != updated_config["key"]:
 		_current_path_config.erase_section("%s/%s" % [_current_file, updated_config["old_key"]])
-	_current_path_config.set_value(
-		section_key,
-		"notes",
-		updated_config["notes"]
-	)
-	_current_path_config.set_value(
-		section_key,
-		"needs_revision",
-		updated_config["needs_revision"]
-	)
+	_current_path_config.set_value(section_key, "notes", updated_config["notes"])
+	_current_path_config.set_value(section_key, "needs_revision", updated_config["needs_revision"])
 
 
 func _on_data_dirtied():
@@ -476,13 +483,16 @@ func _save_file() -> void:
 	if empty_count > 0 or duplicate_count > 0:
 		var lines: PackedStringArray = []
 		if empty_count > 0:
-			lines.append("%d entr%s with an empty key" % [
-				empty_count, "ies" if empty_count != 1 else "y"
-			])
+			lines.append(
+				"%d entr%s with an empty key" % [empty_count, "ies" if empty_count != 1 else "y"]
+			)
 		if duplicate_count > 0:
-			lines.append("%d entr%s with a duplicate key" % [
-				duplicate_count, "ies" if duplicate_count != 1 else "y"
-			])
+			lines.append(
+				(
+					"%d entr%s with a duplicate key"
+					% [duplicate_count, "ies" if duplicate_count != 1 else "y"]
+				)
+			)
 		_save_warning_dialog.dialog_text = (
 			"The following issues were found:\n\n%s\n\nSave anyway?" % "\n".join(lines)
 		)
@@ -493,12 +503,11 @@ func _save_file() -> void:
 
 
 func _do_save() -> void:
-	get_node("%VBxTranslations").flush(get_selected_lang("ref"),
-		get_selected_lang("trans"), _translations, _key_index)
+	get_node("%VBxTranslations").flush(
+		get_selected_lang("ref"), get_selected_lang("trans"), _translations, _key_index
+	)
 	var err = _csv_loader.save_translations(
-		_get_opened_file(),
-		_current_data,
-		_config_manager.get_file_value("delimiter", ",")
+		_get_opened_file(), _current_data, _config_manager.get_file_value("delimiter", ",")
 	)
 	if err == OK:
 		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
@@ -525,7 +534,7 @@ func _on_language_removed(selected_lang: String) -> void:
 	for t in _translations:
 		_translations[t].erase(selected_lang)
 
-	var i:int = 0
+	var i: int = 0
 	for l in _langs:
 		if l == selected_lang:
 			_ref_lang_option.remove_item(i)
@@ -561,7 +570,6 @@ func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
 
 # pressed any checkbox from the search bar
 func _on_CheckBoxSearch_pressed() -> void:
-
 	# at least one of the checks must be pressed
 	if (
 		get_node("%CheckBoxSearchKeyID").button_pressed == false
@@ -589,17 +597,12 @@ func _on_BtnClearSearch_pressed() -> void:
 func _on_Dock_resized() -> void:
 	if Engine.is_editor_hint() == false and _is_config_initialized:
 		_config_manager.set_settings_value(
-			"main",
-			"maximized",
-			(get_window().mode == Window.MODE_MAXIMIZED)
+			"main", "maximized", get_window().mode == Window.MODE_MAXIMIZED
 		)
 
 
 func _on_BtnCloseFile_pressed() -> void:
-
-	get_node("%OpenedFilesList").remove_item(
-		get_node("%OpenedFilesList").selected
-	)
+	get_node("%OpenedFilesList").remove_item(get_node("%OpenedFilesList").selected)
 
 	# if there are no more files, close everything
 	if get_node("%OpenedFilesList").get_item_count() == 0:
@@ -640,9 +643,7 @@ func _on_new_file_created(filename: String, first_cell: String, delimiter: Strin
 
 
 func _on_add_lang_button_pressed():
-	var lang_to_add:String = _add_lang_option.get_item_text(
-		_add_lang_option.selected
-	)
+	var lang_to_add: String = _add_lang_option.get_item_text(_add_lang_option.selected)
 	lang_to_add = lang_to_add.split(",")[1].strip_edges()
 
 	if lang_to_add in _langs:
@@ -657,26 +658,21 @@ func _on_add_lang_button_pressed():
 		if _translations[t_entry].keys().has(lang_to_add) == false:
 			_translations[t_entry][lang_to_add] = ""
 
-	_ref_lang_option.add_item(
-		lang_to_add, _ref_lang_option.get_item_count()
-	)
-	_target_lang_option.add_item(
-		lang_to_add, _target_lang_option.get_item_count()
-	)
+	_ref_lang_option.add_item(lang_to_add, _ref_lang_option.get_item_count())
+	_target_lang_option.add_item(lang_to_add, _target_lang_option.get_item_count())
 
 	_save_file()
 
 	_new_lang_popup.hide()
 
 
-func _on_translation_added(key: String, ref_text: String, target_text: String,
-	key_is_uppercase: bool):
+func _on_translation_added(
+	key: String, ref_text: String, target_text: String, key_is_uppercase: bool
+):
 	_config_manager.set_file_value("uppercase_keys", key_is_uppercase)
 
 	if _translations.keys().has(key) == true:
-		alert(
-			"The String key: %s already exists." % [key]
-		)
+		alert("The String key: %s already exists." % [key])
 		return
 
 	_translations[key] = {}
