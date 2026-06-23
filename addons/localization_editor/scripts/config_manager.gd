@@ -4,9 +4,9 @@ extends Node
 signal initialized
 
 # where user preferences are stored
-const _settings_file : String = "user://settings.ini"
+const _SETTINGS_FILE : String = "user://settings.ini"
 # where file specific data is stored
-const _data_file_name: String = ".gle-data"
+const _DATA_FILE_NAME: String = ".gle-data"
 
 var is_initialized := false
 
@@ -16,19 +16,19 @@ var _directory_config := ConfigFile.new()
 var _current_file : String
 var _directory_config_path: String:
 	get:
-		return "%s/%s" % [_current_file.get_base_dir(), _data_file_name]
+		return "%s/%s" % [_current_file.get_base_dir(), _DATA_FILE_NAME]
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	if FileAccess.file_exists(_settings_file):
-		_user_config.load(_settings_file)
+	if FileAccess.file_exists(_SETTINGS_FILE):
+		_user_config.load(_SETTINGS_FILE)
 	is_initialized = true
 	initialized.emit()
 
 func _save_settings_config(_is_init_step := false) -> void:
 	if not is_initialized and not _is_init_step:
 		return
-	_user_config.save(_settings_file)
+	_user_config.save(_SETTINGS_FILE)
 
 func _save_directory_config() -> void:
 	_directory_config.save(_directory_config_path)

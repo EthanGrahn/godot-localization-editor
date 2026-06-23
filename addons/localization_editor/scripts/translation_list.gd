@@ -12,7 +12,8 @@ signal list_ready
 
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
-const _google_translate_path: String = "res://addons/localization_editor/google_translate/google_translate.tscn"
+const _GOOGLE_TRANSLATE_PATH: String = "res://addons/localization_editor" \
+	+ "/google_translate/google_translate.tscn"
 const _BUFFER: int = 5
 const _ESTIMATED_HEIGHT: float = 100.0
 
@@ -55,8 +56,8 @@ func _ready() -> void:
 	if _scroll_container:
 		_scroll_container.get_v_scroll_bar().value_changed.connect(_on_scroll_changed)
 
-	if ResourceLoader.exists(_google_translate_path) and _google_translate == null:
-		_google_translate = load(_google_translate_path).instantiate()
+	if ResourceLoader.exists(_GOOGLE_TRANSLATE_PATH) and _google_translate == null:
+		_google_translate = load(_GOOGLE_TRANSLATE_PATH).instantiate()
 		var target := owner if is_instance_valid(owner) else self
 		target.add_child.call_deferred(_google_translate)
 
@@ -201,7 +202,9 @@ func flush(ref_lang: String, target_lang: String,
 			out_translations[k][ref_lang] = d["translations"].get(ref_lang, "")
 		out_key_index.append(k)
 		if is_instance_valid(_config_manager):
-			_config_manager.write_key_metadata(k, d.get("notes", ""), d.get("needs_revision", false))
+			_config_manager.write_key_metadata(
+				k, d.get("notes", ""), d.get("needs_revision", false)
+			)
 	if is_instance_valid(_config_manager):
 		_config_manager.save_directory_config()
 
@@ -241,8 +244,10 @@ func _passes_filter(data: Dictionary) -> bool:
 		var search_target: bool = _search_filters.get("search_target_text", true)
 
 		var key_match: bool = search_key and _search_text in data["key"].to_lower()
-		var ref_match: bool = search_ref and _search_text in data["translations"].get(_ref_lang, "").to_lower()
-		var target_match: bool = search_target and _search_text in data["translations"].get(_target_lang, "").to_lower()
+		var ref_match: bool = search_ref and _search_text in data["translations"].get(
+			_ref_lang, "").to_lower()
+		var target_match: bool = search_target and _search_text in data["translations"].get(
+			_target_lang, "").to_lower()
 
 		return key_match or ref_match or target_match
 
@@ -369,7 +374,8 @@ func _update_spacers() -> void:
 	if not is_instance_valid(_top_spacer) or not is_instance_valid(_bottom_spacer):
 		return
 	_top_spacer.custom_minimum_size.y = _loaded_start * _entry_height
-	_bottom_spacer.custom_minimum_size.y = max(0, _filtered_indices.size() - _loaded_end) * _entry_height
+	_bottom_spacer.custom_minimum_size.y = max(0, _filtered_indices.size() - _loaded_end) \
+		* _entry_height
 
 
 func _measure_entry_height() -> void:
@@ -687,7 +693,8 @@ func _on_entry_deleted(key: String) -> void:
 		if not is_instance_valid(node) or node.key == key:
 			continue
 		var new_d_idx: int = node.data_index - 1 if node.data_index > d_idx else node.data_index
-		var new_f_idx: int = node.filter_index - 1 if (f_idx != -1 and node.filter_index > f_idx) else node.filter_index
+		var new_f_idx: int = node.filter_index - 1 \
+			if (f_idx != -1 and node.filter_index > f_idx) else node.filter_index
 		node.set_position_metadata(new_d_idx, new_f_idx, _filtered_indices.size())
 
 	_refresh_key_status(key)

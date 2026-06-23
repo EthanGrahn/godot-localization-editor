@@ -16,7 +16,8 @@ func _save_and_close() -> void:
 	var ref_lang: String = _ref_lang.get_item_text(_ref_lang.get_selected_id()).split(", ")[1]
 	_config_manager.set_settings_value("main", "user_ref_lang", ref_lang)
 	_config_manager.set_settings_value("main", "reopen_last_file", _reopen_file.button_pressed)
-	_config_manager.set_settings_value("main", "no_confirm_delete", _delete_confirmation.button_pressed)
+	_config_manager.set_settings_value("main", "no_confirm_delete",
+		_delete_confirmation.button_pressed)
 	self.hide()
 
 
@@ -44,5 +45,7 @@ func _on_about_to_popup():
 			_delimiter.select(2)
 		_:
 			_delimiter.select(0)
-	_reopen_file.button_pressed = _config_manager.get_settings_value("main", "reopen_last_file", true)
-	_delete_confirmation.button_pressed = _config_manager.get_settings_value("main", "no_confirm_delete", false)
+	_reopen_file.button_pressed = _config_manager.get_settings_value("main",
+		"reopen_last_file", true)
+	_delete_confirmation.button_pressed = _config_manager.get_settings_value("main",
+		"no_confirm_delete", false)
