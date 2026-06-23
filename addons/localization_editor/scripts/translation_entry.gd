@@ -252,6 +252,7 @@ func update_display_index(new_data_idx: int, new_filter_idx: int, total: int) ->
 
 
 func _translation_callback(new_target_text: String) -> void:
+	_entry_data["translations"][target_lang] = new_target_text
 	if target_text != new_target_text:
 		_emit_data_changed()
 	target_text = new_target_text
@@ -274,6 +275,8 @@ func _on_translation_text_changed(new_text: String) -> void:
 	else:
 		_target_lang_line_edit.modulate = _default_translation_color
 
+	if _entry_data.has("translations"):
+		_entry_data["translations"][target_lang] = new_text
 	if target_text != new_text:
 		_emit_data_changed()
 	target_text = new_text
