@@ -21,6 +21,19 @@ jobs:
       - name: Run gdlint
         run: gdlint addons/localization_editor/
 
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install gdtoolkit
+        run: pip install 'gdtoolkit==4.*'
+
+      - name: Run gdformat --check
+        run: gdformat --check addons/localization_editor/
+
   validate:
     name: Validate Scripts
     runs-on: ubuntu-latest
