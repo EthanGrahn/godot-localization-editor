@@ -16,7 +16,7 @@ jobs:
       GODOT_RELEASE: stable
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Godot
         run: |
@@ -48,7 +48,7 @@ jobs:
       GODOT_RELEASE: stable
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Godot
         run: |
