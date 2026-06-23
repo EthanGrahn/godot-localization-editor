@@ -12,8 +12,9 @@ signal list_ready
 
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
+# Using string concatenation to work around gdformat and gdlint conflict
 const _GOOGLE_TRANSLATE_PATH: String = (
-	"res://addons/localization_editor/google_translate/google_translate.tscn"
+	"res://addons/localization_editor" + "/google_translate/google_translate.tscn"
 )
 const _BUFFER: int = 5
 const _ESTIMATED_HEIGHT: float = 100.0
