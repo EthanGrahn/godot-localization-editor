@@ -12,7 +12,7 @@ jobs:
     name: Export Linux
     runs-on: ubuntu-latest
     env:
-      GODOT_VERSION: 4.2.2
+      GODOT_VERSION: 4.3
       GODOT_RELEASE: stable
 
     steps:
@@ -44,7 +44,7 @@ jobs:
     name: Export Windows
     runs-on: ubuntu-latest
     env:
-      GODOT_VERSION: 4.2.2
+      GODOT_VERSION: 4.3
       GODOT_RELEASE: stable
 
     steps:
