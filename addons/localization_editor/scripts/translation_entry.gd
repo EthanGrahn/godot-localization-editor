@@ -16,11 +16,11 @@ extends Node
 # }
 
 signal data_changed(new_data: Dictionary)
-signal translation_requested(source_lang: String, source_text: String,
-	target_lang: String, callback: Callable)
+signal translation_requested(
+	source_lang: String, source_text: String, target_lang: String, callback: Callable
+)
 signal removed(key: String)
 signal reorder_requested(direction: int)
-
 
 @export var _edit_translation_popup: Popup
 @export var _ref_lang_label: Label
@@ -71,7 +71,7 @@ var notes: String = "":
 	get:
 		return _entry_data["notes"]
 
-var needs_revision : bool = false:
+var needs_revision: bool = false:
 	set(new_value):
 		_entry_data["needs_revision"] = new_value
 	get:
@@ -103,20 +103,32 @@ func _ready():
 		_target_lang_line_edit.caret_column = _target_lang_line_edit.text.length()
 		_grab_focus = false
 
+
 func has_translation() -> bool:
 	return !_target_lang_line_edit.text.is_empty()
+
 
 func _emit_data_changed():
 	if not _is_ready_for_emit_signals:
 		return
 	data_changed.emit(_entry_data)
 
+
 func get_entry_data() -> Dictionary:
 	return _entry_data
 
-func set_translation_data(key: String, ref_lang: String, target_lang: String,
-	translations: Dictionary, notes: String,
-	needs_revision: bool, p_data_index: int = 0, start_focused := false, has_google := false) -> void:
+
+func set_translation_data(
+	key: String,
+	ref_lang: String,
+	target_lang: String,
+	translations: Dictionary,
+	notes: String,
+	needs_revision: bool,
+	p_data_index: int = 0,
+	start_focused := false,
+	has_google := false
+) -> void:
 	self.key = key
 	self.ref_lang = ref_lang
 	self.ref_text = translations[ref_lang]
@@ -134,31 +146,23 @@ func set_translation_data(key: String, ref_lang: String, target_lang: String,
 	_needs_revision_cb.button_pressed = needs_revision
 	_translate_button.visible = has_google
 	_on_needs_revision_toggled(_needs_revision_cb.button_pressed)
-	old_config = {
-		"key": key,
-		"notes": notes,
-		"needs_revision": needs_revision
-	}
+	old_config = {"key": key, "notes": notes, "needs_revision": needs_revision}
+
 
 func set_init_complete() -> void:
 	_is_ready_for_emit_signals = true
 
+
 func get_translation_data() -> Dictionary:
 	var output: Dictionary = {
-		"ref_text": ref_text,
-		"target_text": target_text,
-		"key": key,
-		"old_key": _previous_key
+		"ref_text": ref_text, "target_text": target_text, "key": key, "old_key": _previous_key
 	}
 	_previous_key = key
 	return output
 
+
 func get_config_data() -> Dictionary:
-	new_config = {
-		"key": key,
-		"notes": notes,
-		"needs_revision": needs_revision
-	}
+	new_config = {"key": key, "notes": notes, "needs_revision": needs_revision}
 	var config_changed: bool = new_config != old_config
 	var output_config := new_config.duplicate(true)
 	output_config["updated"] = config_changed
@@ -166,13 +170,16 @@ func get_config_data() -> Dictionary:
 	old_config = new_config.duplicate(true)
 	return output_config
 
+
 func update_reference_language(new_lang: String) -> void:
 	ref_lang = new_lang
 	ref_text = _entry_data["translations"][new_lang]
 
+
 func update_target_language(new_lang: String) -> void:
 	target_lang = new_lang
 	target_text = _entry_data["translations"][new_lang]
+
 
 func remove(quiet := false) -> void:
 	_is_ready_for_emit_signals = false
@@ -181,6 +188,7 @@ func remove(quiet := false) -> void:
 	if get_parent():
 		get_parent().remove_child(self)
 	queue_free()
+
 
 func filter(search_text: String, filters: Dictionary) -> void:
 	var hide_translated: bool = filters["need_translation"]
@@ -191,18 +199,16 @@ func filter(search_text: String, filters: Dictionary) -> void:
 
 	self.visible = true
 
-	if (hide_translated and has_translation() or
-	hide_no_need_rev and not needs_revision):
+	if hide_translated and has_translation() or hide_no_need_rev and not needs_revision:
 		self.visible = false
 		return
 
 	if not search_text.is_empty():
 		var key_match: bool = search_key and search_text in key.to_lower()
-		var ref_match: bool = (search_ref_text and
-			search_text in ref_text.to_lower())
-		var target_match: bool = (search_target_text and
-			search_text in target_text.to_lower())
+		var ref_match: bool = search_ref_text and search_text in ref_text.to_lower()
+		var target_match: bool = search_target_text and search_text in target_text.to_lower()
 		self.visible = key_match or ref_match or target_match
+
 
 func set_key_status(is_empty: bool, duplicate_count: int) -> void:
 	_key_is_invalid = is_empty or duplicate_count > 1
@@ -223,6 +229,7 @@ func set_key_status(is_empty: bool, duplicate_count: int) -> void:
 		_revision_forced_by_key = false
 		_needs_revision_cb.button_pressed = false
 
+
 # Called by translation_list to update position metadata without emitting signals.
 func set_position_metadata(new_data_idx: int, new_filter_idx: int, total: int) -> void:
 	data_index = new_data_idx
@@ -231,6 +238,7 @@ func set_position_metadata(new_data_idx: int, new_filter_idx: int, total: int) -
 	_entry_data["index"] = new_data_idx
 	_index_line_edit.text = str(new_data_idx)
 	_update_arrows()
+
 
 # Called by translation_list after a reorder - updates metadata and notifies dock.
 func update_display_index(new_data_idx: int, new_filter_idx: int, total: int) -> void:
@@ -242,6 +250,7 @@ func update_display_index(new_data_idx: int, new_filter_idx: int, total: int) ->
 	_update_arrows()
 	_emit_data_changed()
 
+
 func _translation_callback(new_target_text: String) -> void:
 	if target_text != new_target_text:
 		_emit_data_changed()
@@ -250,12 +259,14 @@ func _translation_callback(new_target_text: String) -> void:
 		_target_lang_line_edit.caret_column = _target_lang_line_edit.text.length()
 	_on_translation_text_changed(new_target_text)
 
+
 func _on_needs_revision_toggled(button_pressed: bool) -> void:
 	if not button_pressed and _key_is_invalid:
 		_needs_revision_cb.button_pressed = true
 		return
 	needs_revision = button_pressed
 	_emit_data_changed()
+
 
 func _on_translation_text_changed(new_text: String) -> void:
 	if new_text.is_empty():
@@ -267,15 +278,12 @@ func _on_translation_text_changed(new_text: String) -> void:
 		_emit_data_changed()
 	target_text = new_text
 
+
 func _on_translate_button_pressed() -> void:
 	target_text = "Translating: [%s] please wait..." % [ref_text]
 	_target_lang_line_edit.text = target_text
-	translation_requested.emit(
-		ref_lang,
-		ref_text,
-		target_lang,
-		_translation_callback
-	)
+	translation_requested.emit(ref_lang, ref_text, target_lang, _translation_callback)
+
 
 func _on_entry_updated(key, ref_text, target_text, notes) -> void:
 	if self.ref_text != ref_text or self.target_text != target_text:
@@ -287,18 +295,14 @@ func _on_entry_updated(key, ref_text, target_text, notes) -> void:
 	_target_lang_line_edit.caret_column = _target_lang_line_edit.text.length()
 	self.notes = notes
 
+
 func _on_edit_button_pressed() -> void:
-	_edit_translation_popup.request_edit(
-		key,
-		ref_lang,
-		target_lang,
-		ref_text,
-		target_text,
-		notes
-	)
+	_edit_translation_popup.request_edit(key, ref_lang, target_lang, ref_text, target_text, notes)
+
 
 func _on_change_index_pressed(is_up: bool) -> void:
 	reorder_requested.emit(-1 if is_up else 1)
+
 
 func _update_arrows() -> void:
 	if filter_index == 0:
@@ -314,6 +318,7 @@ func _update_arrows() -> void:
 	else:
 		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		_inc_index_button.disabled = false
+
 
 func _on_delete_confirmed(remember_choice: bool) -> void:
 	_config_manager.set_settings_value("main", "no_confirm_delete", remember_choice)

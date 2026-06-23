@@ -38,17 +38,15 @@ func _on_folder_dialog_dir_selected(dir: String) -> void:
 
 
 func _on_add_lang_button_pressed():
-	var new_text : String
-	var new_lang : String = _lang_option.get_item_text(_lang_option.selected)
+	var new_text: String
+	var new_lang: String = _lang_option.get_item_text(_lang_option.selected)
 	new_lang = new_lang.split(", ")[1]
 
 	if new_lang in _added_langs.text:
 		return
 
 	_create_new_file_button.disabled = false
-	new_text = "%s%s %s" % [
-		_added_langs.text, _delimiter, new_lang
-	]
+	new_text = "%s%s %s" % [_added_langs.text, _delimiter, new_lang]
 
 	new_text = new_text.trim_prefix(_delimiter).strip_edges()
 
@@ -60,10 +58,10 @@ func _on_btn_new_file_explore_path_pressed():
 
 
 func _on_create_new_file_button_pressed():
-	var filename : String = _filename_line_edit.text.strip_edges()
-	var filepath : String = _filepath_line_edit.text
-	var langs_txt : String = _added_langs.text.replace(" ","")
-	var headers_list : Array = langs_txt.split(_delimiter, false)
+	var filename: String = _filename_line_edit.text.strip_edges()
+	var filepath: String = _filepath_line_edit.text
+	var langs_txt: String = _added_langs.text.replace(" ", "")
+	var headers_list: Array = langs_txt.split(_delimiter, false)
 
 	if filepath.is_empty() == true:
 		OS.alert("Please choose a file path.")
@@ -74,12 +72,12 @@ func _on_create_new_file_button_pressed():
 		return
 
 	if headers_list.size() == 0:
-		headers_list.append("en") # TODO: get reference lang instead
+		headers_list.append("en")  # TODO: get reference lang instead
 
 	# add the first cell
 	headers_list.push_front(_first_cell)
 
-	var full_path: String = "%s/%s.csv" % [filepath,filename]
+	var full_path: String = "%s/%s.csv" % [filepath, filename]
 	var out_file = FileAccess.open(full_path, FileAccess.WRITE)
 
 	if out_file.get_open_error() == Error.OK:
@@ -94,7 +92,7 @@ func _on_create_new_file_button_pressed():
 		on_new_file_created.emit(full_path, _first_cell, _delimiter)
 		self.hide()
 	else:
-		OS.alert("Error creating file. Error #"+str(out_file.get_open_error()))
+		OS.alert("Error creating file. Error #" + str(out_file.get_open_error()))
 		out_file.close()
 
 

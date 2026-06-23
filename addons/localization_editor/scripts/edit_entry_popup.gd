@@ -12,8 +12,14 @@ signal entry_updated(key: String, source_text: String, target_text: String, note
 @export var _difference_bar: TextureProgressBar
 
 
-func request_edit(key: String, source_lang: String, target_lang: String,
-source_text: String, target_text: String, notes: String) -> void:
+func request_edit(
+	key: String,
+	source_lang: String,
+	target_lang: String,
+	source_text: String,
+	target_text: String,
+	notes: String
+) -> void:
 	_key_line_edit.text = key
 	_source_lang_label.text = "[%s] Original Text" % source_lang
 	_target_lang_label.text = "[%s] Translation" % target_lang
@@ -26,10 +32,7 @@ source_text: String, target_text: String, notes: String) -> void:
 
 func _on_save_button_pressed():
 	entry_updated.emit(
-		_key_line_edit.text,
-		_source_lang_text.text,
-		_target_lang_text.text,
-		_note_text.text
+		_key_line_edit.text, _source_lang_text.text, _target_lang_text.text, _note_text.text
 	)
 	self.hide()
 
@@ -43,5 +46,6 @@ func _on_text_changed() -> void:
 
 	_difference_bar.value = abs(diff_percent)
 	_difference_bar.tint_progress = Color.LIME_GREEN.lerp(Color.RED, abs(diff_percent))
-	_difference_bar.tooltip_text = "%s%% difference in character count" % \
-		[int(abs(diff_percent) * float(100))]
+	_difference_bar.tooltip_text = (
+		"%s%% difference in character count" % [int(abs(diff_percent) * float(100))]
+	)

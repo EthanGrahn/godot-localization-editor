@@ -6,6 +6,7 @@ const DOCK = preload("res://addons/localization_editor/scenes/dock.tscn")
 
 var dock_instance
 
+
 func _enter_tree() -> void:
 	dock_instance = DOCK.instantiate()
 	# ConfigManager is provided by Main.tscn in standalone mode; create it here for editor mode.
@@ -19,22 +20,28 @@ func _enter_tree() -> void:
 	# Hide the main panel. Very much required.
 	_make_visible(false)
 
+
 func _exit_tree():
 	if dock_instance:
 		dock_instance.queue_free()
 
+
 func _has_main_screen():
 	return true
+
 
 func _make_visible(visible):
 	if dock_instance:
 		dock_instance.visible = visible
 
+
 func _get_plugin_name():
 	return "Translations"
 
+
 func _get_plugin_icon():
 	return ICON
+
 
 func _on_scan_files_requested() -> void:
 	if Engine.is_editor_hint() == true:

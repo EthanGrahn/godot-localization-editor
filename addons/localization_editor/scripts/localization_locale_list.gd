@@ -2,7 +2,7 @@
 # @author Vladimir Petrenko
 extends Object
 
-const LOCALES: = [
+const LOCALES := [
 	{"code": "aa", "name": "Afar"},
 	{"code": "aa_DJ", "name": "Afar (Djibouti)"},
 	{"code": "aa_ER", "name": "Afar (Eritrea)"},
@@ -369,11 +369,13 @@ const LOCALES: = [
 	{"code": "zu_ZA", "name": "Zulu (South Africa)"},
 ]
 
+
 static func label_by_code(code: String) -> String:
 	for locale in LOCALES:
 		if locale.code == code:
 			return locale.code + " " + locale.name
 	return ""
+
 
 static func has_code(code: String) -> bool:
 	for locale in LOCALES:
