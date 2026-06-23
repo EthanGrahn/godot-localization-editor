@@ -38,7 +38,7 @@ jobs:
     name: Validate Scripts
     runs-on: ubuntu-latest
     env:
-      GODOT_VERSION: 4.2.2
+      GODOT_VERSION: 4.3
       GODOT_RELEASE: stable
 
     steps:
