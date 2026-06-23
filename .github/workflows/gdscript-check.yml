@@ -1,0 +1,48 @@
+name: GDScript Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'v[0-9]*'
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gdtoolkit
+        run: pip install 'gdtoolkit==4.*'
+
+      - name: Run gdlint
+        run: gdlint addons/localization_editor/
+
+  validate:
+    name: Validate Scripts
+    runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: 4.2.2
+      GODOT_RELEASE: stable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot
+        run: |
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64"
+          sudo mv "Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64" /usr/local/bin/godot
+
+      - name: Validate GDScript
+        run: |
+          OUTPUT=$(godot --headless --import 2>&1)
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -q "SCRIPT ERROR"; then
+            echo "Script errors detected"
+            exit 1
+          fi

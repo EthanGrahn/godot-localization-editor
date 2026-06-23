@@ -13,7 +13,8 @@ func request_popup(langs: Array):
 	self.popup_centered()
 
 func _on_remove_button_pressed():
-	_confirmation.dialog_text = "Are you sure you want to remove all [%s] translations?" % _option_button.get_item_text(_option_button.selected)
+	_confirmation.dialog_text = "Are you sure you want to remove all [%s] translations?" % \
+		_option_button.get_item_text(_option_button.selected)
 	_confirmation.show()
 
 func _on_remove_confirmed():

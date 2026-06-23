@@ -2,7 +2,7 @@
 .godot/
 .import/
 export.cfg
-export_presets.cfg
+build/
 
 # Mono-specific ignores
 .mono/
@@ -10,3 +10,5 @@ data_*/
 
 # translation config file
 translation_manager_conf.ini
+
+.venv/

@@ -1,0 +1,73 @@
+name: Export Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'v[0-9]*'
+  workflow_dispatch:
+
+jobs:
+  export-linux:
+    name: Export Linux
+    runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: 4.2.2
+      GODOT_RELEASE: stable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot
+        run: |
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64"
+          sudo mv "Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64" /usr/local/bin/godot
+
+      - name: Install export templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz" -O templates.tpz
+          unzip -q templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}/
+
+      - name: Export Linux
+        run: |
+          mkdir -p build
+          godot --headless --export-release "Linux/X11" build/GodotLocalizationEditor.x86_64
+
+      - name: Verify export artifact
+        run: test -f build/GodotLocalizationEditor.x86_64
+
+  export-windows:
+    name: Export Windows
+    runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: 4.2.2
+      GODOT_RELEASE: stable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot
+        run: |
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64"
+          sudo mv "Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64" /usr/local/bin/godot
+
+      - name: Install export templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz" -O templates.tpz
+          unzip -q templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}/
+
+      - name: Export Windows
+        run: |
+          mkdir -p build
+          godot --headless --export-release "Windows Desktop" build/GodotLocalizationEditor.exe
+
+      - name: Verify export artifact
+        run: test -f build/GodotLocalizationEditor.exe

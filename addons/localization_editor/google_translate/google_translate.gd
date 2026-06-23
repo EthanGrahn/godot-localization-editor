@@ -21,7 +21,8 @@ func _create_url(from_lang:String, to_lang:String, text:String) -> String:
 	url += "&q=" + text.uri_encode()
 	return url
 
-func _http_request_completed(result, response_code, headers, body, http_request, callback: Callable):
+func _http_request_completed(result, _response_code, _headers, body, http_request,
+	callback: Callable):
 	if result != HTTPRequest.RESULT_SUCCESS:
 		OS.alert(
 			"ApiTranslate error #" + str(result), "HttpRequest Error"
