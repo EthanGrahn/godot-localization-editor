@@ -1,13 +1,13 @@
 @tool
 extends EditorPlugin
 
-const icon: Texture2D = preload("res://addons/localization_editor/gle-plugin-icon.svg")
-const dock = preload("res://addons/localization_editor/scenes/dock.tscn")
+const ICON: Texture2D = preload("res://addons/localization_editor/gle-plugin-icon.svg")
+const DOCK = preload("res://addons/localization_editor/scenes/dock.tscn")
 
 var dock_instance
 
 func _enter_tree() -> void:
-	dock_instance = dock.instantiate()
+	dock_instance = DOCK.instantiate()
 	# ConfigManager is provided by Main.tscn in standalone mode; create it here for editor mode.
 	var config_manager = load("res://addons/localization_editor/scripts/config_manager.gd").new()
 	config_manager.name = "ConfigManager"
@@ -34,7 +34,7 @@ func _get_plugin_name():
 	return "Translations"
 
 func _get_plugin_icon():
-	return icon
+	return ICON
 
 func _on_scan_files_requested() -> void:
 	if Engine.is_editor_hint() == true:

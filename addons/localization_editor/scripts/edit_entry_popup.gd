@@ -43,4 +43,5 @@ func _on_text_changed() -> void:
 
 	_difference_bar.value = abs(diff_percent)
 	_difference_bar.tint_progress = Color.LIME_GREEN.lerp(Color.RED, abs(diff_percent))
-	_difference_bar.tooltip_text = "%s%% difference in character count" % [int(abs(diff_percent) * float(100))]
+	_difference_bar.tooltip_text = "%s%% difference in character count" % \
+		[int(abs(diff_percent) * float(100))]

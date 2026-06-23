@@ -13,12 +13,12 @@ func _ready():
 	_prev_column = self.text.length() - 1
 	_regex.compile("[^0-9]")
 
-func _process(delta) -> void:
+func _process(_delta) -> void:
 	if self.has_focus() && Input.is_key_pressed(KEY_ESCAPE):
 		self.text = _pre_focus_text
 		self.release_focus()
 
-func _on_text_changed(new_text: String) -> void:
+func _on_text_changed(_new_text: String) -> void:
 	var curr_column := self.caret_column
 	self.text = _regex.sub(self.text, "", true)
 	if _prev_text == self.text:
@@ -28,7 +28,7 @@ func _on_text_changed(new_text: String) -> void:
 	_prev_column = self.caret_column
 	_prev_text = self.text
 
-func _on_text_submitted(new_text: String) -> void:
+func _on_text_submitted(_new_text: String) -> void:
 	self.release_focus()
 
 func _on_focus_exited():
