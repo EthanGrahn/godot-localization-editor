@@ -15,11 +15,26 @@ func translate(from_lang: String, to_lang: String, text: String, callback: Calla
 
 func _create_url(from_lang: String, to_lang: String, text: String) -> String:
 	var url = "https://translate.googleapis.com/translate_a/single?client=gtx"
-	url += "&sl=" + from_lang
-	url += "&tl=" + to_lang
+	url += "&sl=" + _resolve_lang_code(from_lang)
+	url += "&tl=" + _resolve_lang_code(to_lang)
 	url += "&dt=t"
 	url += "&q=" + text.uri_encode()
 	return url
+
+
+func _resolve_lang_code(lang: String) -> String:
+	if ", " in lang:
+		return lang.split(", ")[-1]
+	var locale_list = (
+		load("res://addons/localization_editor/scripts/localization_locale_list.gd").new()
+	)
+	for entry in locale_list.LOCALES:
+		if entry["name"] == lang:
+			var code: String = entry["code"]
+			locale_list.free()
+			return code
+	locale_list.free()
+	return lang
 
 
 func _http_request_completed(
@@ -27,9 +42,26 @@ func _http_request_completed(
 ):
 	if result != HTTPRequest.RESULT_SUCCESS:
 		OS.alert("ApiTranslate error #" + str(result), "HttpRequest Error")
+		remove_child(http_request)
 		return
 
 	var result_body = JSON.new()
-	result_body.parse(body.get_string_from_utf8())
-	callback.call(result_body.get_data()[0][0][0])
+	var parse_error = result_body.parse(body.get_string_from_utf8())
+	if parse_error != OK:
+		OS.alert("ApiTranslate parse error", "HttpRequest Error")
+		remove_child(http_request)
+		return
+
+	var data = result_body.get_data()
+	if not data is Array or data.is_empty() or not data[0] is Array:
+		OS.alert("ApiTranslate unexpected response format", "HttpRequest Error")
+		remove_child(http_request)
+		return
+
+	var translated := ""
+	for segment in data[0]:
+		if segment is Array and not segment.is_empty() and segment[0] is String:
+			translated += segment[0]
+
+	callback.call(translated)
 	remove_child(http_request)
