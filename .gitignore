@@ -10,3 +10,5 @@ data_*/
 
 # translation config file
 translation_manager_conf.ini
+
+.venv/
