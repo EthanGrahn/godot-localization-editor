@@ -25,9 +25,9 @@ func _create_url(from_lang: String, to_lang: String, text: String) -> String:
 func _resolve_lang_code(lang: String) -> String:
 	if ", " in lang:
 		return lang.split(", ")[-1]
-	var locale_list = load(
-		"res://addons/localization_editor/scripts/localization_locale_list.gd"
-	).new()
+	var locale_list = (
+		load("res://addons/localization_editor/scripts/localization_locale_list.gd").new()
+	)
 	for entry in locale_list.LOCALES:
 		if entry["name"] == lang:
 			var code: String = entry["code"]
