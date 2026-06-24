@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cib125ol05x5u"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/edit_entry_popup.gd" id="1_y0y58"]
+[ext_resource type="Script" uid="uid://dc2ov25hhqoqv" path="res://addons/localization_editor/scripts/edit_entry_popup.gd" id="1_y0y58"]
 [ext_resource type="Texture2D" uid="uid://ddp4efbw85k3q" path="res://addons/localization_editor/progress_fill.png" id="2_hc47a"]
 
 [node name="EditEntryPopup" type="Popup" node_paths=PackedStringArray("_key_line_edit", "_source_lang_label", "_source_lang_text", "_target_lang_label", "_target_lang_text", "_note_text", "_difference_bar")]

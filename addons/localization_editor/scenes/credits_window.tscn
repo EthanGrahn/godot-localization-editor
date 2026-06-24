@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bx8sx547rw8d2"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/credits_window.gd" id="1_nebbj"]
+[ext_resource type="Script" uid="uid://dmfo108r5r7xq" path="res://addons/localization_editor/scripts/credits_window.gd" id="1_nebbj"]
 [ext_resource type="Texture2D" uid="uid://cqe3q0l1amxch" path="res://addons/localization_editor/gle-logo.svg" id="2_h8vbl"]
 
 [node name="CreditsWindow" type="Popup" node_paths=PackedStringArray("_engine_label", "_description_label")]

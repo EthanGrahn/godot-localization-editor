@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cm2mjjc6lgmsc"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/preference_window.gd" id="1_q5kei"]
+[ext_resource type="Script" uid="uid://bhro2d70fw0s1" path="res://addons/localization_editor/scripts/preference_window.gd" id="1_q5kei"]
 
 [node name="Preferences" type="Popup" node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file", "_delete_confirmation")]
 title = "Preferences"
