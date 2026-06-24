@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dbub070702fwd"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/remove_lang_popup.gd" id="1_b20kw"]
+[ext_resource type="Script" uid="uid://b0r2ppjd65wnj" path="res://addons/localization_editor/scripts/remove_lang_popup.gd" id="1_b20kw"]
 
 [node name="RemoveLangPopup" type="Popup" node_paths=PackedStringArray("_option_button", "_confirmation")]
 title = "Remove Language"

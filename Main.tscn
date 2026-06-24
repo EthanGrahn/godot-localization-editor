@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bv6qx8tx0i2o2"]
 
 [ext_resource type="PackedScene" uid="uid://b6km6wg3nuskc" path="res://addons/localization_editor/scenes/dock.tscn" id="1"]
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/config_manager.gd" id="2_nf33b"]
+[ext_resource type="Script" uid="uid://fbiyngtubpcm" path="res://addons/localization_editor/scripts/config_manager.gd" id="2_nf33b"]
 
 [node name="Main" type="Control"]
 layout_mode = 3

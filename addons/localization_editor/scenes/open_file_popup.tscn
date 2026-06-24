@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://l1hdowu84hpr"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/open_file_popup.gd" id="1_odm6l"]
+[ext_resource type="Script" uid="uid://cy56qtt8mnxl6" path="res://addons/localization_editor/scripts/open_file_popup.gd" id="1_odm6l"]
 
 [node name="OpenFilePopup" type="Popup" node_paths=PackedStringArray("_file_dialog", "_line_edit", "_open_button", "_delimiter_option")]
 title = "Open File"

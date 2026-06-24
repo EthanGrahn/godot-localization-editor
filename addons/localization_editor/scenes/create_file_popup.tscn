@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://pa2owgm1vi7u"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/create_file_popup.gd" id="1_oomvq"]
+[ext_resource type="Script" uid="uid://bs60k55gqymsj" path="res://addons/localization_editor/scripts/create_file_popup.gd" id="1_oomvq"]
 
 [node name="CreateFilePopup" type="Popup" node_paths=PackedStringArray("_filename_line_edit", "_filepath_line_edit", "_added_langs", "_lang_option", "_folder_dialog", "_delimiter_option", "_create_new_file_button")]
 title = "Create New File"

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cy0rk0nm1nwoi"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/recent_file_button.gd" id="1"]
+[ext_resource type="Script" uid="uid://bog1ahaf002di" path="res://addons/localization_editor/scripts/recent_file_button.gd" id="1"]
 [ext_resource type="FontFile" uid="uid://bj0ystwxlq2je" path="res://addons/localization_editor/Ubuntu-Regular.ttf" id="2"]
 [ext_resource type="Texture2D" uid="uid://c3gtnt4hce7vq" path="res://addons/localization_editor/icons/trash-icon.svg" id="3_3r8y2"]
 

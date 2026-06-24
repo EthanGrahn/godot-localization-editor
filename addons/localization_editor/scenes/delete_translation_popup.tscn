@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://clseq07nnhsan"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/delete_translation_popup.gd" id="1_uwyae"]
+[ext_resource type="Script" uid="uid://b7mcdph3in0ia" path="res://addons/localization_editor/scripts/delete_translation_popup.gd" id="1_uwyae"]
 
 [node name="Popup" type="ConfirmationDialog" node_paths=PackedStringArray("_remember_checkbox")]
 title = "Delete Translation"

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cvkoh3dmerylx"]
 
-[ext_resource type="Script" path="res://addons/localization_editor/scripts/revision_button.gd" id="1_0kep8"]
+[ext_resource type="Script" uid="uid://c84c6dipaaahi" path="res://addons/localization_editor/scripts/revision_button.gd" id="1_0kep8"]
 [ext_resource type="Texture2D" uid="uid://tuk0uwtoonfk" path="res://addons/localization_editor/icons/okay.svg" id="1_w5ccq"]
 [ext_resource type="Texture2D" uid="uid://8fnjr0y3mokc" path="res://addons/localization_editor/icons/alert.svg" id="3_2l2u5"]
 
