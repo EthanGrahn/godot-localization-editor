@@ -12,3 +12,4 @@ data_*/
 translation_manager_conf.ini
 
 .venv/
+samples/.gle-temp-*
