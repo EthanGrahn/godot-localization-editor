@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
     env:
-      GODOT_VERSION: 4.6
+      GODOT_VERSION: 4.7
       GODOT_RELEASE: stable
 
     steps:
