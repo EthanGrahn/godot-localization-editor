@@ -1,0 +1,14 @@
+[gd_resource type="Theme" format=3 uid="uid://dc5p1djh2igaw"]
+
+[ext_resource type="FontFile" uid="uid://b2rqoy4hicby4" path="res://addons/localization_editor/fonts/inter/InterVariable.ttf" id="1_klj1f"]
+[ext_resource type="StyleBox" uid="uid://c71u6e40j2dl" path="res://addons/localization_editor/styles/text_edit_normal.tres" id="1_o80kk"]
+[ext_resource type="StyleBox" uid="uid://bqic55eyjsa2t" path="res://addons/localization_editor/styles/text_edit_readonly.tres" id="2_k2dhj"]
+
+[resource]
+default_font = ExtResource("1_klj1f")
+LineEdit/styles/focus = ExtResource("1_o80kk")
+LineEdit/styles/normal = ExtResource("1_o80kk")
+LineEdit/styles/read_only = ExtResource("2_k2dhj")
+TextEdit/styles/focus = ExtResource("1_o80kk")
+TextEdit/styles/normal = ExtResource("1_o80kk")
+TextEdit/styles/read_only = ExtResource("2_k2dhj")
