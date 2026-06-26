@@ -219,6 +219,7 @@ layout_mode = 2
 
 [node name="HBxFileAndLangSelect" type="HBoxContainer" parent="Dock/VBoxContainer" unique_id=25476775]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="BtnSaveFile" type="Button" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1091379452]
