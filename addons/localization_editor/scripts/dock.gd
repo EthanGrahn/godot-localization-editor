@@ -458,6 +458,20 @@ func _on_target_lang_item_selected(index):
 	_on_language_item_selected()
 
 
+func _on_btn_swap_lang_pressed() -> void:
+	var t_idx: int = _target_lang_option.get_selected_id()
+	var r_idx: int = _ref_lang_option.get_selected_id()
+	_target_lang_option.select(r_idx)
+	_ref_lang_option.select(t_idx)
+	get_node("%VBxTranslations").update_reference_language(
+		_ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	get_node("%VBxTranslations").update_target_language(
+		_target_lang_option.get_item_text(_target_lang_option.selected)
+	)
+	_on_language_item_selected()
+
+
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
 	var section_key := "%s/%s" % [_current_file, updated_config["key"]]
 	if updated_config["old_key"] != updated_config["key"]:
