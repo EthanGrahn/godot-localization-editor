@@ -67,6 +67,10 @@ var _search_filters := {"need_translation": false, "need_revision": false}
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint() and not EditorInterface.is_plugin_enabled("localization_editor"):
+		set_process(false)
+		return
+
 	var plugin_conf := ConfigFile.new()
 	plugin_conf.load("res://addons/localization_editor/plugin.cfg")
 	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
