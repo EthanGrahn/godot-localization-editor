@@ -32,6 +32,22 @@ jobs:
           unzip -q templates.tpz
           mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}/
 
+      - name: Install custom export templates
+        run: |
+          TEMPLATE_DIR=~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          TEMPLATE_TAG=$(gh api repos/${{ github.repository }}/releases \
+            --jq ".[] | select(.name == \"Custom Export Templates (Godot ${GODOT_VERSION})\") | .tag_name")
+          gh release download "$TEMPLATE_TAG" --repo ${{ github.repository }} \
+            --pattern "godot.windows.template_release.x86_64.exe" \
+            --pattern "godot.linuxbsd.template_release.x86_64" \
+            --dir /tmp/custom-templates
+          cp /tmp/custom-templates/godot.windows.template_release.x86_64.exe \
+            $TEMPLATE_DIR/windows_release_x86_64.exe
+          cp /tmp/custom-templates/godot.linuxbsd.template_release.x86_64 \
+            $TEMPLATE_DIR/linux_release_x86_64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Export Linux
         run: |
           mkdir -p build
