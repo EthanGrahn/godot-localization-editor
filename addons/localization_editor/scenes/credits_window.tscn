@@ -1,19 +1,20 @@
-[gd_scene load_steps=3 format=3 uid="uid://bx8sx547rw8d2"]
+[gd_scene format=3 uid="uid://bx8sx547rw8d2"]
 
 [ext_resource type="Script" uid="uid://dmfo108r5r7xq" path="res://addons/localization_editor/scripts/credits_window.gd" id="1_nebbj"]
 [ext_resource type="Texture2D" uid="uid://cqe3q0l1amxch" path="res://addons/localization_editor/gle-logo.svg" id="2_h8vbl"]
 
-[node name="CreditsWindow" type="Popup" node_paths=PackedStringArray("_engine_label", "_description_label")]
+[node name="CreditsWindow" type="Popup" unique_id=265575816 node_paths=PackedStringArray("_engine_label", "_description_label")]
+oversampling_override = 1.0
 title = "Godot Localization Editor - Credits"
 initial_position = 2
-size = Vector2i(465, 211)
+size = Vector2i(465, 180)
 visible = true
 borderless = false
 script = ExtResource("1_nebbj")
 _engine_label = NodePath("MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LblGodotEng")
 _description_label = NodePath("MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LblCreditDescription")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=185142636]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -24,31 +25,32 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1952096472]
 layout_mode = 2
+size_flags_vertical = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=264899436]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=42080385]
 layout_mode = 2
 
-[node name="LblCreditDescription" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="LblCreditDescription" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1310719626]
 modulate = Color(0.741176, 0.741176, 0.741176, 1)
 layout_mode = 2
 text = "Tool for managing Godot localization files."
 
-[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1412248201]
 layout_mode = 2
 text = "Maintained by Ethan Grahn"
 
-[node name="LblGodotEng" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="LblGodotEng" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=17844543]
 modulate = Color(0.666667, 0.666667, 0.666667, 1)
 layout_mode = 2
-text = "Made with Godot Engine 4.1.3 stable"
+text = "Made with Godot Engine 4.7.0 stable"
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=37576861]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -57,23 +59,20 @@ texture = ExtResource("2_h8vbl")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=2024390988]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=688255881]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer"]
-layout_mode = 2
-text = "Links"
-
-[node name="LinkButtonGithub" type="LinkButton" parent="MarginContainer/VBoxContainer/VBoxContainer"]
+[node name="LinkButtonGithub" type="LinkButton" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=56872962]
 layout_mode = 2
 focus_mode = 2
 text = "Github"
 uri = "https://github.com/EthanGrahn/godot-localization-editor"
 
-[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer"]
-modulate = Color(0.666667, 0.666667, 0.666667, 1)
+[node name="LinkButtonAtIcons" type="LinkButton" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=234128705]
 layout_mode = 2
-text = "Icons from svgrepo.com"
+focus_mode = 2
+text = "@icons"
+uri = "https://github.com/Voxybuns/at-icons"
