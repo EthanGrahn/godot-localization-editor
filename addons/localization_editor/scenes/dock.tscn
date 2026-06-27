@@ -218,7 +218,6 @@ visible = false
 layout_mode = 2
 
 [node name="BtnSaveFile" type="Button" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1091379452]
-unique_name_in_owner = true
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -227,6 +226,7 @@ icon = ExtResource("8_hlgqi")
 flat = true
 icon_alignment = 1
 expand_icon = true
+script = ExtResource("7_d03ii")
 
 [node name="VBoxContainer0" type="VBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1286024601]
 layout_mode = 2
