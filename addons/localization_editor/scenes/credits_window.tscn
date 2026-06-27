@@ -7,7 +7,7 @@
 oversampling_override = 1.0
 title = "Godot Localization Editor - Credits"
 initial_position = 2
-size = Vector2i(465, 180)
+size = Vector2i(470, 180)
 visible = true
 borderless = false
 script = ExtResource("1_nebbj")
@@ -27,7 +27,6 @@ theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1952096472]
 layout_mode = 2
-size_flags_vertical = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=264899436]
 layout_mode = 2
@@ -35,13 +34,14 @@ theme_override_constants/separation = 24
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=42080385]
 layout_mode = 2
+alignment = 1
 
 [node name="LblCreditDescription" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1310719626]
-modulate = Color(0.741176, 0.741176, 0.741176, 1)
 layout_mode = 2
-text = "Tool for managing Godot localization files."
+text = "A tool for managing Godot localization files."
 
 [node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1412248201]
+modulate = Color(0.6666667, 0.6666667, 0.6666667, 1)
 layout_mode = 2
 text = "Maintained by Ethan Grahn"
 
@@ -64,6 +64,8 @@ layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=688255881]
 layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
 
 [node name="LinkButtonGithub" type="LinkButton" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=56872962]
 layout_mode = 2
