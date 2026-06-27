@@ -295,6 +295,7 @@ focus_mode = 0
 icon = ExtResource("10_hlgqi")
 flat = true
 expand_icon = true
+script = ExtResource("7_d03ii")
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=240611101]
 custom_minimum_size = Vector2(100, 0)
