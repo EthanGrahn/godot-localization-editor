@@ -21,6 +21,7 @@ signal translation_requested(
 )
 signal removed(key: String)
 signal reorder_requested(direction: int)
+signal jump_requested(target_data_idx: int)
 
 @export var _edit_translation_popup: Popup
 @export var _ref_lang_label: Label
@@ -151,6 +152,12 @@ func set_translation_data(
 
 func set_init_complete() -> void:
 	_is_ready_for_emit_signals = true
+
+
+func prepare_for_reuse() -> void:
+	_is_ready_for_emit_signals = false
+	_key_is_invalid = false
+	_revision_forced_by_key = false
 
 
 func get_translation_data() -> Dictionary:
@@ -301,6 +308,16 @@ func _on_entry_updated(key, ref_text, target_text, notes) -> void:
 
 func _on_edit_button_pressed() -> void:
 	_edit_translation_popup.request_edit(key, ref_lang, target_lang, ref_text, target_text, notes)
+
+
+func _on_index_text_submitted(_line_edit: LineEdit, new_text: String) -> void:
+	if new_text.is_empty():
+		_index_line_edit.text = str(data_index)
+		return
+	var target: int = int(new_text)
+	if target == data_index:
+		return
+	jump_requested.emit(target)
 
 
 func _on_change_index_pressed(is_up: bool) -> void:
