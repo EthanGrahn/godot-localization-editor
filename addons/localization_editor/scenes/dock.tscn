@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://0c5576cyklei" path="res://addons/localization_editor/scripts/localization_locale_list.gd" id="5_njx2k"]
 [ext_resource type="Script" uid="uid://bua34q30lkvwc" path="res://addons/localization_editor/scripts/csv_loader.gd" id="6_5uk4c"]
 [ext_resource type="Texture2D" uid="uid://doa205uvb8ssp" path="res://addons/localization_editor/icons/paper_plus_white.svg" id="6_hlgqi"]
+[ext_resource type="Script" uid="uid://c0j6t8leypavv" path="res://addons/localization_editor/scripts/hover_button.gd" id="7_d03ii"]
 [ext_resource type="Texture2D" uid="uid://ba6g8cjg8q7iv" path="res://addons/localization_editor/icons/paper_pencil_white.svg" id="7_wixxa"]
 [ext_resource type="Texture2D" uid="uid://mnyc5xxeo5ei" path="res://addons/localization_editor/icons/at-icons/floppy_disk_white.svg" id="8_hlgqi"]
 [ext_resource type="PackedScene" uid="uid://l1hdowu84hpr" path="res://addons/localization_editor/scenes/open_file_popup.tscn" id="9_kyshk"]
@@ -63,15 +64,6 @@ _csv_loader = NodePath("CSVLoader")
 [node name="CSVLoader" type="Node" parent="." unique_id=1639619225]
 script = ExtResource("6_5uk4c")
 
-[node name="BG" type="ColorRect" parent="." unique_id=1009147093]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.2, 0.231373, 0.309804, 1)
-
 [node name="Dock" type="MarginContainer" parent="." unique_id=148121013]
 layout_mode = 1
 anchors_preset = 15
@@ -95,6 +87,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 text = "File"
+flat = false
 switch_on_hover = true
 item_count = 3
 popup/item_0/text = "New File"
@@ -104,17 +97,12 @@ popup/item_1/id = 2
 popup/item_2/text = "Close All"
 popup/item_2/id = 3
 
-[node name="VSeparator" type="VSeparator" parent="Dock/VBoxContainer/MenuBar/FileActionsHbx" unique_id=1458435761]
-custom_minimum_size = Vector2(0, 20)
-custom_maximum_size = Vector2(-1, 20)
-layout_mode = 2
-size_flags_vertical = 4
-
 [node name="MenuEdit" type="MenuButton" parent="Dock/VBoxContainer/MenuBar/FileActionsHbx" unique_id=488526923]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 2
 text = "Edit"
+flat = false
 switch_on_hover = true
 item_count = 3
 popup/item_0/text = "Add Language"
@@ -124,17 +112,12 @@ popup/item_1/id = 2
 popup/item_2/text = "Preferences"
 popup/item_2/id = 3
 
-[node name="VSeparator2" type="VSeparator" parent="Dock/VBoxContainer/MenuBar/FileActionsHbx" unique_id=1837860707]
-custom_minimum_size = Vector2(0, 20)
-custom_maximum_size = Vector2(-1, 20)
-layout_mode = 2
-size_flags_vertical = 4
-
 [node name="MenuHelp" type="MenuButton" parent="Dock/VBoxContainer/MenuBar/FileActionsHbx" unique_id=1040884198]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 2
 text = "Help"
+flat = false
 switch_on_hover = true
 item_count = 2
 popup/item_0/text = "How To Use"
@@ -165,35 +148,47 @@ size_flags_vertical = 3
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer" unique_id=868964547]
+[node name="NewFileVBox" type="VBoxContainer" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer" unique_id=868964547]
 layout_mode = 2
 
-[node name="NewFileButton" type="Button" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/VBoxContainer" unique_id=842824336]
+[node name="NewFileButton" type="Button" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox" unique_id=842824336]
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
 icon = ExtResource("6_hlgqi")
 icon_alignment = 1
 expand_icon = true
+script = ExtResource("7_d03ii")
 
-[node name="Label" type="Label" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/VBoxContainer" unique_id=562249349]
+[node name="NewFileLabel" type="Label" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox" unique_id=562249349]
 modulate = Color(0.737255, 0.737255, 0.737255, 1)
 layout_mode = 2
 text = "New File"
+horizontal_alignment = 1
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer" unique_id=2126106900]
+[node name="OpenFileVBox" type="VBoxContainer" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer" unique_id=2126106900]
 layout_mode = 2
 
-[node name="OpenFileButton" type="Button" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/VBoxContainer2" unique_id=567832626]
+[node name="OpenFileButton" type="Button" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox" unique_id=567832626]
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
 icon = ExtResource("7_wixxa")
 icon_alignment = 1
 expand_icon = true
+script = ExtResource("7_d03ii")
 
-[node name="Label" type="Label" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/VBoxContainer2" unique_id=1421673138]
+[node name="OpenFileLabel" type="Label" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox" unique_id=1421673138]
 modulate = Color(0.737255, 0.737255, 0.737255, 1)
 layout_mode = 2
 text = "Open File"
+horizontal_alignment = 1
 
 [node name="RecentFilesContainer" type="VBoxContainer" parent="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer" unique_id=997964956]
 layout_mode = 2
@@ -1267,8 +1262,8 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [connection signal="resized" from="." to="." method="_on_Dock_resized"]
-[connection signal="pressed" from="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/VBoxContainer/NewFileButton" to="." method="create_file_popup"]
-[connection signal="pressed" from="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/VBoxContainer2/OpenFileButton" to="." method="open_file_popup"]
+[connection signal="pressed" from="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox/NewFileButton" to="." method="create_file_popup"]
+[connection signal="pressed" from="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox/OpenFileButton" to="." method="open_file_popup"]
 [connection signal="pressed" from="Dock/VBoxContainer/HBxFileAndLangSelect/BtnSaveFile" to="." method="_save_file"]
 [connection signal="pressed" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer/BtnCloseFile" to="." method="_close_current_file"]
 [connection signal="item_selected" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/OpenedFilesList" to="." method="_on_opened_file_item_selected"]
