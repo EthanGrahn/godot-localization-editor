@@ -62,7 +62,6 @@ custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 10
-mouse_default_cursor_shape = 2
 flat = true
 script = ExtResource("10_n18x3")
 use_child_texture = true

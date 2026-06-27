@@ -325,19 +325,8 @@ func _on_change_index_pressed(is_up: bool) -> void:
 
 
 func _update_arrows() -> void:
-	if filter_index == 0:
-		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
-		_dec_index_button.disabled = true
-	else:
-		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_dec_index_button.disabled = false
-
-	if filter_total == 0 or filter_index >= filter_total - 1:
-		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
-		_inc_index_button.disabled = true
-	else:
-		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_inc_index_button.disabled = false
+	_dec_index_button.disabled = filter_index == 0
+	_inc_index_button.disabled = filter_total == 0 or filter_index >= filter_total - 1
 
 
 func _on_delete_confirmed(remember_choice: bool) -> void:
