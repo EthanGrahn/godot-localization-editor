@@ -16,7 +16,9 @@ var _delimiter := ","
 
 
 func _ready() -> void:
-	_folder_dialog.access = FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
+	_folder_dialog.access = (
+		FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
+	)
 
 
 func request_popup(first_cell := "keys", delimiter := ",") -> void:

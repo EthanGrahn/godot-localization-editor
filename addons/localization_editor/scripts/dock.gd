@@ -113,7 +113,6 @@ func _ready() -> void:
 
 	_close_all()
 
-
 	if not is_instance_valid(_config_manager):
 		_config_manager = get_tree().root.find_child("ConfigManager", true, false)
 

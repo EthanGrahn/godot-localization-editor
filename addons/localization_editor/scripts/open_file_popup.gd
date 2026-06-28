@@ -13,7 +13,9 @@ var _delimiter := ","
 
 
 func _ready() -> void:
-	_file_dialog.access = FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
+	_file_dialog.access = (
+		FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
+	)
 
 
 func _on_file_dialog_file_selected(path: String) -> void:
