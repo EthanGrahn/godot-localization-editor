@@ -31,7 +31,7 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_preferences_window", "_open_file_popup", "_create_file_popup", "_credits_popup", "_version_label", "_new_lang_popup", "_add_lang_option", "_ref_lang_option", "_target_lang_option", "_remove_lang_popup", "_add_translation_popup", "_alert_window", "_search_filter_popup", "_csv_loader", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text")]
+[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_preferences_window", "_open_file_popup", "_create_file_popup", "_credits_popup", "_version_label", "_new_lang_popup", "_add_lang_option", "_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option", "_remove_lang_popup", "_add_translation_popup", "_alert_window", "_search_filter_popup", "_csv_loader", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -50,6 +50,8 @@ _credits_popup = NodePath("CreditsWindow")
 _version_label = NodePath("Dock/VBoxContainer/LblTextBottom")
 _new_lang_popup = NodePath("NewLangPopup")
 _add_lang_option = NodePath("NewLangPopup/MarginContainer/VBoxContainer/AddLangOptionButton")
+_create_file_lang_option = NodePath("CreateFilePopup/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/OptionButtonLangsNewFile")
+_prefs_lang_option = NodePath("Preferences/MarginContainer/VBoxContainer/RefLangItemList")
 _ref_lang_option = NodePath("Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer/RefLangItemList")
 _target_lang_option = NodePath("Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer2/TargetLangItemList")
 _remove_lang_popup = NodePath("RemoveLangPopup")
@@ -482,7 +484,7 @@ alignment = 1
 layout_mode = 2
 text = "Select the new lang:"
 
-[node name="AddLangOptionButton" type="OptionButton" parent="NewLangPopup/MarginContainer/VBoxContainer" unique_id=598900439 groups=["language_options"]]
+[node name="AddLangOptionButton" type="OptionButton" parent="NewLangPopup/MarginContainer/VBoxContainer" unique_id=598900439]
 layout_mode = 2
 selected = 0
 item_count = 364

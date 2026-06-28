@@ -14,7 +14,7 @@ _line_edit = NodePath("MarginContainer/VBoxContainer/HBoxContainer/LineEdit")
 _open_button = NodePath("MarginContainer/VBoxContainer/Button")
 _delimiter_option = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/OptionButton")
 
-[node name="FileDialog" type="FileDialog" parent="." groups=["file_access"]]
+[node name="FileDialog" type="FileDialog" parent="."]
 mode = 1
 title = "Open a File"
 initial_position = 2

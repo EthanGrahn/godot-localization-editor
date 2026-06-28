@@ -18,7 +18,7 @@ _folder_dialog = NodePath("FolderDialog")
 _delimiter_option = NodePath("MarginContainer/VBoxContainer/HBoxContainer3/DelimiterOption")
 _create_new_file_button = NodePath("MarginContainer/VBoxContainer/CreateNewFileButton")
 
-[node name="FolderDialog" type="FileDialog" parent="." groups=["file_access"]]
+[node name="FolderDialog" type="FileDialog" parent="."]
 mode = 2
 title = "Open a Directory"
 initial_position = 2
@@ -106,7 +106,7 @@ layout_mode = 2
 layout_mode = 2
 text = "Language:"
 
-[node name="OptionButtonLangsNewFile" type="OptionButton" parent="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" groups=["language_options"]]
+[node name="OptionButtonLangsNewFile" type="OptionButton" parent="MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 item_count = 364

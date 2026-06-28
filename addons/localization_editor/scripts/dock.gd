@@ -14,6 +14,8 @@ const _SETTINGS_FILE: String = "user://settings.ini"
 @export var _version_label: Label
 @export var _new_lang_popup: Popup
 @export var _add_lang_option: OptionButton
+@export var _create_file_lang_option: OptionButton
+@export var _prefs_lang_option: OptionButton
 @export var _ref_lang_option: OptionButton
 @export var _target_lang_option: OptionButton
 @export var _remove_lang_popup: Popup
@@ -79,10 +81,8 @@ func _ready() -> void:
 	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
 
 	var locales = _locale_list.new()
-	for list in get_tree().get_nodes_in_group("language_options"):
-		if not list is OptionButton:
-			continue
-		(list as OptionButton).clear()
+	for list: OptionButton in [_add_lang_option, _create_file_lang_option, _prefs_lang_option]:
+		list.clear()
 		var i: int = 0
 		for l in locales.LOCALES:
 			list.add_item("%s, %s" % [l["name"], l["code"]], i)
@@ -113,14 +113,6 @@ func _ready() -> void:
 
 	_close_all()
 
-	# if running in editor, only use res://
-	for dialog in get_tree().get_nodes_in_group("file_access"):
-		if not dialog is FileDialog:
-			continue
-		if Engine.is_editor_hint():
-			dialog.access = FileDialog.ACCESS_RESOURCES
-		else:  # if running standalone, allow full filesystem
-			dialog.access = FileDialog.ACCESS_FILESYSTEM
 
 	if not is_instance_valid(_config_manager):
 		_config_manager = get_tree().root.find_child("ConfigManager", true, false)
