@@ -31,8 +31,8 @@ signal jump_requested(target_data_idx: int)
 @export var _empty_translation_color: Color
 @export var _translate_button: Button
 @export var _index_line_edit: LineEdit
-@export var _dec_index_button: HoverButton
-@export var _inc_index_button: HoverButton
+@export var _dec_index_button: Button
+@export var _inc_index_button: Button
 
 @onready var _default_translation_color: Color = _target_lang_line_edit.modulate
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)

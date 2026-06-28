@@ -69,7 +69,7 @@ popup/item_2/id = 2
 layout_mode = 2
 text = "Reference Language"
 
-[node name="RefLangItemList" type="OptionButton" parent="MarginContainer/VBoxContainer" groups=["language_options"]]
+[node name="RefLangItemList" type="OptionButton" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 item_count = 364

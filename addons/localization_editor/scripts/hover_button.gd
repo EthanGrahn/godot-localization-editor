@@ -1,5 +1,4 @@
 @tool
-class_name HoverButton
 extends Button
 
 @export var use_child_texture: bool = false:

@@ -12,6 +12,12 @@ var _selected_file: String
 var _delimiter := ","
 
 
+func _ready() -> void:
+	_file_dialog.access = (
+		FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
+	)
+
+
 func _on_file_dialog_file_selected(path: String) -> void:
 	_selected_file = path
 	_line_edit.placeholder_text = ".../%s" % path.get_file()
