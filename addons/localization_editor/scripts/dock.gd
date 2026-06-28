@@ -231,6 +231,8 @@ func _on_file_menu_id_pressed(id: int) -> void:
 		2:
 			open_file_popup()
 		3:
+			_save_file()
+		4:
 			_close_all()
 
 

@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://doa205uvb8ssp" path="res://addons/localization_editor/icons/paper_plus_white.svg" id="6_hlgqi"]
 [ext_resource type="Script" uid="uid://c0j6t8leypavv" path="res://addons/localization_editor/scripts/hover_button.gd" id="7_d03ii"]
 [ext_resource type="Texture2D" uid="uid://ba6g8cjg8q7iv" path="res://addons/localization_editor/icons/paper_pencil_white.svg" id="7_wixxa"]
-[ext_resource type="Texture2D" uid="uid://mnyc5xxeo5ei" path="res://addons/localization_editor/icons/at-icons/floppy_disk_white.svg" id="8_hlgqi"]
 [ext_resource type="PackedScene" uid="uid://l1hdowu84hpr" path="res://addons/localization_editor/scenes/open_file_popup.tscn" id="9_kyshk"]
 [ext_resource type="Texture2D" uid="uid://dj72dj7ejf1q4" path="res://addons/localization_editor/icons/at-icons/cross_white.svg" id="9_wixxa"]
 [ext_resource type="PackedScene" uid="uid://cm2mjjc6lgmsc" path="res://addons/localization_editor/scenes/preferences.tscn" id="9_yrapk"]
@@ -91,13 +90,15 @@ layout_mode = 2
 text = "File"
 flat = false
 switch_on_hover = true
-item_count = 3
-popup/item_0/text = "New File"
+item_count = 4
+popup/item_0/text = "New"
 popup/item_0/id = 1
-popup/item_1/text = "Open File"
+popup/item_1/text = "Open"
 popup/item_1/id = 2
-popup/item_2/text = "Close All"
+popup/item_2/text = "Save"
 popup/item_2/id = 3
+popup/item_3/text = "Close All"
+popup/item_3/id = 4
 
 [node name="MenuEdit" type="MenuButton" parent="Dock/VBoxContainer/MenuBar/FileActionsHbx" unique_id=488526923]
 unique_name_in_owner = true
@@ -219,20 +220,9 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="BtnSaveFile" type="Button" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1091379452]
-custom_minimum_size = Vector2(60, 0)
+[node name="BufferLeft" type="Control" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1813623441]
+custom_minimum_size = Vector2(4, 0)
 layout_mode = 2
-size_flags_horizontal = 0
-focus_mode = 0
-theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
-theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
-icon = ExtResource("8_hlgqi")
-flat = true
-icon_alignment = 1
-expand_icon = true
-script = ExtResource("7_d03ii")
 
 [node name="VBoxContainer0" type="VBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1286024601]
 layout_mode = 2
@@ -242,7 +232,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 
 [node name="BtnCloseFile" type="Button" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer" unique_id=1473683807]
-custom_minimum_size = Vector2(34, 0)
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 focus_mode = 0
 icon = ExtResource("9_wixxa")
@@ -327,7 +317,7 @@ popup/item_1/id = 1
 popup/item_2/text = "en_US"
 popup/item_2/id = 2
 
-[node name="Spacer" type="Control" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=464191444]
+[node name="BufferRight" type="Control" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=464191444]
 custom_minimum_size = Vector2(4, 0)
 layout_mode = 2
 
@@ -1266,7 +1256,6 @@ autowrap_mode = 2
 [connection signal="resized" from="." to="." method="_on_Dock_resized"]
 [connection signal="pressed" from="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox/NewFileButton" to="." method="create_file_popup"]
 [connection signal="pressed" from="Dock/VBoxContainer/ControlNoOpenedFiles/HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox/OpenFileButton" to="." method="open_file_popup"]
-[connection signal="pressed" from="Dock/VBoxContainer/HBxFileAndLangSelect/BtnSaveFile" to="." method="_save_file"]
 [connection signal="pressed" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer/BtnCloseFile" to="." method="_close_current_file"]
 [connection signal="item_selected" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/OpenedFilesList" to="." method="_on_opened_file_item_selected"]
 [connection signal="item_selected" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer/RefLangItemList" to="." method="_on_ref_lang_item_selected"]
