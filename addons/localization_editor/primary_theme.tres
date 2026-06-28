@@ -3,12 +3,20 @@
 [ext_resource type="FontFile" uid="uid://b2rqoy4hicby4" path="res://addons/localization_editor/fonts/inter/InterVariable.ttf" id="1_klj1f"]
 [ext_resource type="StyleBox" uid="uid://c71u6e40j2dl" path="res://addons/localization_editor/styles/text_edit_normal.tres" id="1_o80kk"]
 [ext_resource type="StyleBox" uid="uid://bqic55eyjsa2t" path="res://addons/localization_editor/styles/text_edit_readonly.tres" id="2_k2dhj"]
+[ext_resource type="StyleBox" uid="uid://ux404b4b4ysy" path="res://addons/localization_editor/styles/menu_button_hover.tres" id="3_1w41c"]
+[ext_resource type="StyleBox" uid="uid://383axi8wyi1k" path="res://addons/localization_editor/styles/menu_button_normal.tres" id="4_35qem"]
+[ext_resource type="StyleBox" uid="uid://tjvwovmaqlxv" path="res://addons/localization_editor/styles/popup_menu_panel.tres" id="5_35qem"]
+[ext_resource type="StyleBox" uid="uid://cvaxhgab88r8g" path="res://addons/localization_editor/styles/menu_button_pressed.tres" id="5_d0fjh"]
 
 [resource]
 default_font = ExtResource("1_klj1f")
 LineEdit/styles/focus = ExtResource("1_o80kk")
 LineEdit/styles/normal = ExtResource("1_o80kk")
 LineEdit/styles/read_only = ExtResource("2_k2dhj")
+MenuButton/styles/hover = ExtResource("3_1w41c")
+MenuButton/styles/normal = ExtResource("4_35qem")
+MenuButton/styles/pressed = ExtResource("5_d0fjh")
+PopupMenu/styles/panel = ExtResource("5_35qem")
 TextEdit/styles/focus = ExtResource("1_o80kk")
 TextEdit/styles/normal = ExtResource("1_o80kk")
 TextEdit/styles/read_only = ExtResource("2_k2dhj")

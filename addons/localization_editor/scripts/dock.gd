@@ -23,6 +23,9 @@ const _SETTINGS_FILE: String = "user://settings.ini"
 @export var _search_filter_popup: PopupMenu
 @export var _csv_loader: Node
 @export var _config_manager: Node
+@export var _cb_search_key: CheckBox
+@export var _cb_search_ref_text: CheckBox
+@export var _cb_search_target_text: CheckBox
 
 var _is_config_initialized := false
 var _save_pressed := false
@@ -179,18 +182,17 @@ func _start_search() -> void:
 	var search_text: String = get_node("%LineEditSearchBox").text.strip_edges().to_lower()
 	var hide_translated: bool = _search_filters["need_translation"]
 	var hide_no_need_rev: bool = _search_filters["need_revision"]
-	_search_filters["search_key"] = get_node("%CheckBoxSearchKeyID").button_pressed
-	_search_filters["search_ref_text"] = get_node("%CheckBoxSearchRefText").button_pressed
-	_search_filters["search_target_text"] = get_node("%CheckBoxSearchTransText").button_pressed
+	_search_filters["search_key"] = _cb_search_key.button_pressed
+	_search_filters["search_ref_text"] = _cb_search_ref_text.button_pressed
+	_search_filters["search_target_text"] = _cb_search_target_text.button_pressed
 	get_node("%VBxTranslations").search(search_text, _search_filters)
 
 
 func _clear_search() -> void:
-	get_node("%BtnClearSearch").disabled = true
 	get_node("%LineEditSearchBox").text = ""
-	get_node("%CheckBoxSearchKeyID").button_pressed = true
-	get_node("%CheckBoxSearchRefText").button_pressed = true
-	get_node("%CheckBoxSearchTransText").button_pressed = true
+	_cb_search_key.button_pressed = true
+	_cb_search_ref_text.button_pressed = true
+	_cb_search_target_text.button_pressed = true
 	_search_filters["need_translation"] = false
 	_search_filters["need_revision"] = false
 	for i in range(0, _search_filter_popup.item_count):
@@ -229,6 +231,8 @@ func _on_file_menu_id_pressed(id: int) -> void:
 		2:
 			open_file_popup()
 		3:
+			_save_file()
+		4:
 			_close_all()
 
 
@@ -577,12 +581,10 @@ func _on_filter_changed(index: int) -> void:
 			_search_filters["need_revision"] = !_search_filters["need_revision"]
 		_:
 			return
-	get_node("%BtnClearSearch").disabled = false
 	_start_search()
 
 
-func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
-	get_node("%BtnClearSearch").disabled = new_text.strip_edges().is_empty()
+func _on_LineEditSearchBox_text_changed(_new_text: String) -> void:
 	_start_search()
 
 
@@ -590,25 +592,12 @@ func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
 func _on_CheckBoxSearch_pressed() -> void:
 	# at least one of the checks must be pressed
 	if (
-		get_node("%CheckBoxSearchKeyID").button_pressed == false
-		and get_node("%CheckBoxSearchRefText").button_pressed == false
-		and get_node("%CheckBoxSearchTransText").button_pressed == false
+		_cb_search_key.button_pressed == false
+		and _cb_search_ref_text.button_pressed == false
+		and _cb_search_target_text.button_pressed == false
 	):
-		get_node("%CheckBoxSearchKeyID").button_pressed = true
+		_cb_search_key.button_pressed = true
 
-	# if at least one of the checks is disabled
-	if (
-		get_node("%CheckBoxSearchKeyID").button_pressed == false
-		or get_node("%CheckBoxSearchRefText").button_pressed == false
-		or get_node("%CheckBoxSearchTransText").button_pressed == false
-	):
-		get_node("%BtnClearSearch").disabled = false
-
-	_start_search()
-
-
-func _on_BtnClearSearch_pressed() -> void:
-	_clear_search()
 	_start_search()
 
 

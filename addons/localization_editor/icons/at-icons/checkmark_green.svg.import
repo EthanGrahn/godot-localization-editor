@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deebc2je63r8b"
-path="res://.godot/imported/checkmark_white.svg-abc3b52148055e7532d4186ec614951b.ctex"
+uid="uid://20dktqge5q2o"
+path="res://.godot/imported/checkmark_green.svg-f3f5e919e47b40e743f84016c3611d08.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/localization_editor/icons/at-icons/checkmark_white.svg"
-dest_files=["res://.godot/imported/checkmark_white.svg-abc3b52148055e7532d4186ec614951b.ctex"]
+source_file="res://addons/localization_editor/icons/at-icons/checkmark_green.svg"
+dest_files=["res://.godot/imported/checkmark_green.svg-f3f5e919e47b40e743f84016c3611d08.ctex"]
 
 [params]
 

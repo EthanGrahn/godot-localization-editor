@@ -322,6 +322,7 @@ func _create_entry(f_idx: int) -> Node:
 	entry.data_changed.connect(_on_entry_data_changed)
 	entry.removed.connect(_on_entry_deleted)
 	entry.reorder_requested.connect(func(dir: int): _handle_reorder(entry, dir))
+	entry.jump_requested.connect(func(target_d_idx: int): _handle_jump_to(entry, target_d_idx))
 
 	entry.set_translation_data(
 		data["key"],
@@ -440,6 +441,97 @@ func _handle_reorder(entry: Node, direction: int) -> void:
 		_sync_node_to_store(entry, d_idx_b)
 		entry.update_display_index(d_idx_b, target_f_idx, _filtered_indices.size())
 		_update_visible_range(_scroll_container.scroll_vertical if _scroll_container else 0.0)
+
+
+func _handle_jump_to(entry: Node, target_d_idx: int) -> void:
+	if not is_instance_valid(entry) or _data_store.is_empty():
+		return
+
+	target_d_idx = clampi(target_d_idx, 0, _data_store.size() - 1)
+	var current_d_idx: int = entry.data_index
+
+	if current_d_idx == target_d_idx:
+		return
+
+	_sync_all_visible_to_store()
+
+	var item = _data_store[current_d_idx]
+	_data_store.remove_at(current_d_idx)
+	_data_store.insert(target_d_idx, item)
+
+	_rebuild_filtered_indices()
+
+	var target_f_idx: int = _filtered_indices.find(target_d_idx)
+	var new_scroll_y: float = _scroll_container.scroll_vertical if _scroll_container else 0.0
+	if target_f_idx >= 0:
+		new_scroll_y = clampf(
+			target_f_idx * _entry_height - _get_viewport_height() / 2.0,
+			0.0,
+			max(0.0, (_filtered_indices.size() - 1) * _entry_height)
+		)
+
+	var first: int = max(0, int(new_scroll_y / _entry_height) - _BUFFER)
+	var last: int = mini(
+		_filtered_indices.size(),
+		int((new_scroll_y + _get_viewport_height()) / _entry_height) + _BUFFER + 1
+	)
+	var new_count: int = last - first
+
+	# Collect the currently visible entry nodes to reuse in-place.
+	var existing: Array = []
+	for i in range(1, get_child_count() - 1):
+		existing.append(get_child(i))
+
+	# Grow: instantiate only the extra nodes required.
+	while existing.size() < new_count:
+		var new_node = _translation_entry_scene.instantiate()
+		if _google_translate != null:
+			new_node.translation_requested.connect(_on_translate_requested)
+		new_node.data_changed.connect(_on_entry_data_changed)
+		new_node.removed.connect(_on_entry_deleted)
+		new_node.reorder_requested.connect(func(dir: int): _handle_reorder(new_node, dir))
+		new_node.jump_requested.connect(func(t: int): _handle_jump_to(new_node, t))
+		add_child(new_node)
+		move_child(new_node, get_child_count() - 2)
+		existing.append(new_node)
+
+	# Shrink: free nodes no longer needed.
+	while existing.size() > new_count:
+		var extra = existing.pop_back()
+		remove_child(extra)
+		extra.queue_free()
+
+	# Update each node's data in-place — avoids re-instantiating the scene.
+	for i in range(new_count):
+		var f_idx: int = first + i
+		var d_idx: int = _filtered_indices[f_idx]
+		var data: Dictionary = _data_store[d_idx]
+		var k: String = data["key"]
+		var node = existing[i]
+		node.prepare_for_reuse()
+		node.set_translation_data(
+			k,
+			_ref_lang,
+			_target_lang,
+			data["translations"],
+			data.get("notes", ""),
+			data.get("needs_revision", false),
+			d_idx,
+			false,
+			_google_translate != null
+		)
+		node.set_position_metadata(d_idx, f_idx, _filtered_indices.size())
+		node.set_key_status(k.is_empty(), _key_counts.get(k, 0))
+		node.set_init_complete()
+
+	_loaded_start = first
+	_loaded_end = last
+	_update_spacers()
+
+	if _scroll_container:
+		_scroll_container.scroll_vertical = new_scroll_y
+
+	entry_updated.emit({})
 
 
 func get_key_issue_counts() -> Dictionary:
