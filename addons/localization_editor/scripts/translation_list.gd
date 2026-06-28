@@ -510,9 +510,15 @@ func _handle_jump_to(entry: Node, target_d_idx: int) -> void:
 		var node = existing[i]
 		node.prepare_for_reuse()
 		node.set_translation_data(
-			k, _ref_lang, _target_lang, data["translations"],
-			data.get("notes", ""), data.get("needs_revision", false),
-			d_idx, false, _google_translate != null
+			k,
+			_ref_lang,
+			_target_lang,
+			data["translations"],
+			data.get("notes", ""),
+			data.get("needs_revision", false),
+			d_idx,
+			false,
+			_google_translate != null
 		)
 		node.set_position_metadata(d_idx, f_idx, _filtered_indices.size())
 		node.set_key_status(k.is_empty(), _key_counts.get(k, 0))

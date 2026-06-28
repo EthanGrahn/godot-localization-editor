@@ -584,7 +584,7 @@ func _on_filter_changed(index: int) -> void:
 	_start_search()
 
 
-func _on_LineEditSearchBox_text_changed(new_text: String) -> void:
+func _on_LineEditSearchBox_text_changed(_new_text: String) -> void:
 	_start_search()
 
 
