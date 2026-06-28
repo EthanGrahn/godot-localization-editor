@@ -182,13 +182,15 @@ custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 tooltip_text = "Delete translation"
 theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
-theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_pressed_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
+theme_override_colors/icon_hover_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
 theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
 icon = ExtResource("10_bvo0t")
 icon_alignment = 1
 expand_icon = true
 script = ExtResource("10_n18x3")
+icon_hover_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
+icon_pressed_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
 
 [node name="EditButton" type="Button" parent="VBoxContainer/HBox/VBxString1/HBoxContainer" unique_id=1763563349]
 custom_minimum_size = Vector2(30, 0)
