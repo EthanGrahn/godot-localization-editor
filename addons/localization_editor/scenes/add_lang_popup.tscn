@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://q7mxr4kp9dj2n"]
+
+[ext_resource type="Script" uid="uid://c75runr2yh2g1" path="res://addons/localization_editor/scripts/add_lang_popup.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://0c5576cyklei" path="res://addons/localization_editor/scripts/localization_locale_list.gd" id="2_locale"]
+
+[node name="AddLangPopup" type="Popup" node_paths=PackedStringArray("_option_button")]
+title = "Add New Language"
+initial_position = 2
+size = Vector2i(341, 130)
+borderless = false
+script = ExtResource("1_script")
+_locale_list = ExtResource("2_locale")
+_option_button = NodePath("MarginContainer/VBoxContainer/AddLangOptionButton")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Select the new lang:"
+
+[node name="AddLangOptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AddLangButton" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Add"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/AddLangButton" to="." method="_on_add_button_pressed"]
