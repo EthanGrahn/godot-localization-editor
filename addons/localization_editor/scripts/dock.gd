@@ -21,7 +21,7 @@ const _SETTINGS_FILE: String = "user://settings.ini"
 @export var _add_translation_popup: Popup
 @export var _alert_window: AcceptDialog
 @export var _locale_list: Script
-@export var _search_filter_popup: PopupMenu
+var _search_filter_popup: PopupMenu
 @export var _csv_loader: Node
 @export var _config_manager: Node
 @export var _cb_search_key: CheckBox
@@ -64,7 +64,8 @@ var _current_full_file: String
 var _current_file: String
 var _current_path: String
 var _current_path_config := ConfigFile.new()
-var _opened_files: PackedStringArray = []
+var _file_states: Dictionary = {}  # path -> { data, ref_lang_idx, target_lang_idx, is_dirty }
+var _switching_tabs: bool = false
 var _google_translate: Node
 var _search_filters := {"need_translation": false, "need_revision": false}
 
@@ -108,6 +109,15 @@ func _ready() -> void:
 	get_node("%MenuFile").get_popup().id_pressed.connect(_on_file_menu_id_pressed)
 	get_node("%MenuEdit").get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
 	get_node("%MenuHelp").get_popup().id_pressed.connect(_on_help_menu_id_pressed)
+
+	_search_filter_popup = get_node("%FilterMenu").get_popup()
+	_search_filter_popup.hide_on_item_selection = false
+	_search_filter_popup.hide_on_checkable_item_selection = false
+	_search_filter_popup.allow_search = false
+	_search_filter_popup.add_check_item("Needs translation", 0)
+	_search_filter_popup.add_check_item("Needs revision", 1)
+	_search_filter_popup.index_pressed.connect(_on_filter_changed)
+	_search_filter_popup.index_pressed.connect(_search_filter_popup.toggle_item_checked)
 
 	_close_all()
 
@@ -187,7 +197,7 @@ func get_selected_lang(mode: String = "ref") -> String:
 
 
 func _set_visible_content(vis: bool = true) -> void:
-	get_node("%HBxFileAndLangSelect").visible = vis
+	get_node("%FileAndLangSelect").visible = vis
 	get_node("%HBxContentFile").visible = vis
 	get_node("%ControlNoOpenedFiles").visible = !vis
 
@@ -246,14 +256,19 @@ func _on_help_menu_id_pressed(id: int) -> void:
 func _close_all() -> void:
 	if is_instance_valid(_autosave_timer):
 		_autosave_timer.stop()
-	_opened_files = []
+	_file_states = {}
+	_current_full_file = ""
+	_current_file = ""
+	_current_path = ""
 	_no_files_panel.refresh_list()
 	_clear_search()
 	_set_visible_content(false)
 	_on_Popup_hide()
-	_current_file = ""
-	_current_path = ""
-	get_node("%OpenedFilesList").clear()
+	var tab_bar: TabBar = get_node("%FileTabBar")
+	_switching_tabs = true
+	for i in range(tab_bar.tab_count - 1, -1, -1):
+		tab_bar.remove_tab(i)
+	_switching_tabs = false
 	get_node("%ControlNoOpenedFiles").visible = true
 	get_node("%VBxTranslations").clear_list()
 	_current_data = {}
@@ -268,15 +283,100 @@ func _on_Popup_hide() -> void:
 	get_node("%PopupBG").visible = false
 
 
-# a file was selected from the list
-func _on_opened_file_item_selected(index: int) -> void:
-	_open_file(get_node("%OpenedFilesList").get_item_tooltip(index))
+func _on_file_tab_changed(tab_idx: int) -> void:
+	if _switching_tabs:
+		return
+	_switching_tabs = true
+
+	if not _current_full_file.is_empty() and _file_states.has(_current_full_file):
+		_save_current_file_state()
+		if _file_states[_current_full_file]["is_dirty"]:
+			_write_temp_file()
+		_autosave_timer.stop()
+
+	var tab_bar: TabBar = get_node("%FileTabBar")
+	var new_path: String = tab_bar.get_tab_metadata(tab_idx)
+	_current_full_file = new_path
+	_current_file = new_path.get_file()
+	_current_path = new_path.get_base_dir()
+	_config_manager.set_new_file(new_path)
+
+	await _restore_file_state(new_path)
+	_switching_tabs = false
+
+
+func _on_file_tab_close_pressed(tab_idx: int) -> void:
+	var tab_bar: TabBar = get_node("%FileTabBar")
+	var file_to_close: String = tab_bar.get_tab_metadata(tab_idx)
+	var is_current: bool = file_to_close == _current_full_file
+
+	_file_states.erase(file_to_close)
+	_delete_temp_file(file_to_close)
+
+	_switching_tabs = true
+	tab_bar.remove_tab(tab_idx)
+
+	if tab_bar.tab_count == 0:
+		_switching_tabs = false
+		_close_all()
+		return
+
+	if is_current:
+		_current_full_file = ""
+		_autosave_timer.stop()
+		_clear_search()
+		var new_idx: int = mini(tab_idx, tab_bar.tab_count - 1)
+		tab_bar.current_tab = new_idx
+		_switching_tabs = false
+		await _on_file_tab_changed(new_idx)
+	else:
+		_switching_tabs = false
+
+
+func _save_current_file_state() -> void:
+	if _current_full_file.is_empty() or not _file_states.has(_current_full_file):
+		return
+	var list_node: Node = get_node("%VBxTranslations")
+	list_node.sync_to_store()
+	_current_data["translations"] = list_node.get_current_translations()
+	_current_data["key_index"] = list_node.get_key_order()
+	_file_states[_current_full_file]["data"] = _current_data.duplicate(true)
+	_file_states[_current_full_file]["ref_lang_idx"] = _ref_lang_option.selected
+	_file_states[_current_full_file]["target_lang_idx"] = _target_lang_option.selected
+
+
+func _restore_file_state(file_path: String) -> void:
+	if not _file_states.has(file_path):
+		return
+	var state: Dictionary = _file_states[file_path]
+	_current_data = state["data"].duplicate(true)
+
+	_ref_lang_option.clear()
+	_target_lang_option.clear()
+	var i: int = 0
+	for l in _langs:
+		_ref_lang_option.add_item(l, i)
+		_target_lang_option.add_item(l, i)
+		i += 1
+	_ref_lang_option.select(state["ref_lang_idx"])
+	_target_lang_option.select(state["target_lang_idx"])
+
+	_clear_search()
+	get_node("%VBxTranslations").init_list(_translations)
+	await get_node("%VBxTranslations").list_ready
+
+	if state["is_dirty"]:
+		_autosave_timer.start()
 
 
 func _open_file(full_path: String, delimiter := "") -> void:
-	if _opened_files.has(full_path):
-		_opened_files.remove_at(_opened_files.find(full_path))
-	_opened_files.append(full_path)
+	if _file_states.has(full_path):
+		var tab_bar: TabBar = get_node("%FileTabBar")
+		for i in range(tab_bar.tab_count):
+			if tab_bar.get_tab_metadata(i) == full_path:
+				tab_bar.current_tab = i
+				return
+		return
 	_current_full_file = full_path
 	_config_manager.set_new_file(full_path)
 	_current_file = full_path.get_file()
@@ -343,9 +443,14 @@ func _do_open_file(full_path: String, delimiter: String) -> void:
 	):
 		_target_lang_option.select(1)
 
-	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
+	_file_states[full_path] = {
+		"data": _current_data,
+		"ref_lang_idx": _ref_lang_option.selected,
+		"target_lang_idx": _target_lang_option.selected,
+		"is_dirty": false,
+	}
 	get_node("%VBxTranslations").init_list(_translations)
-	_update_opened_file_list()
+	_update_file_tabs()
 	_set_visible_content(true)
 	_no_files_panel.add_recent_file(full_path)
 
@@ -399,29 +504,36 @@ func _write_temp_file() -> void:
 		file.store_string(JSON.stringify(delta, "\t"))
 
 
-func _delete_temp_file() -> void:
-	if _current_full_file.is_empty():
+func _delete_temp_file(file_path: String = "") -> void:
+	var path := file_path if not file_path.is_empty() else _current_full_file
+	if path.is_empty():
 		return
-	var temp_path := _get_temp_file_path(_current_full_file)
+	var temp_path := _get_temp_file_path(path)
 	if FileAccess.file_exists(temp_path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
 
 
-func _update_opened_file_list():
-	var file_list: OptionButton = get_node("%OpenedFilesList") as OptionButton
-	file_list.clear()
-	var i := 0
-	for file in _opened_files:
-		file_list.add_item(file.get_file())
-		file_list.set_item_tooltip(i, file)
-		if file == _current_full_file:
-			file_list.select(i)
-		i += 1
+func _update_file_tabs() -> void:
+	var tab_bar: TabBar = get_node("%FileTabBar")
+	_switching_tabs = true
+	var tabbed_paths: Array = []
+	for i in range(tab_bar.tab_count):
+		tabbed_paths.append(tab_bar.get_tab_metadata(i))
+	for path in _file_states:
+		if path not in tabbed_paths:
+			tab_bar.add_tab(path.get_file())
+			var new_idx: int = tab_bar.tab_count - 1
+			tab_bar.set_tab_metadata(new_idx, path)
+			tab_bar.set_tab_tooltip(new_idx, path)
+	for i in range(tab_bar.tab_count):
+		if tab_bar.get_tab_metadata(i) == _current_full_file:
+			tab_bar.current_tab = i
+			break
+	_switching_tabs = false
 
 
 func _on_language_item_selected() -> void:
 	_clear_search()
-	get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
 
 
 func _on_ref_lang_item_selected(index):
@@ -456,11 +568,17 @@ func _parse_updated_translation_config(updated_config: Dictionary) -> void:
 	_current_path_config.set_value(section_key, "needs_revision", updated_config["needs_revision"])
 
 
-func _on_data_dirtied():
-	# show indicator of not having saved changes
-	if get_node("%LblCurrentFTitle").text.begins_with("(*)") == false:
-		get_node("%LblCurrentFTitle").text = "(*)" + get_node("%LblCurrentFTitle").text
+func _on_data_dirtied() -> void:
 	if not _current_full_file.is_empty():
+		if _file_states.has(_current_full_file):
+			_file_states[_current_full_file]["is_dirty"] = true
+		var tab_bar: TabBar = get_node("%FileTabBar")
+		for i in range(tab_bar.tab_count):
+			if tab_bar.get_tab_metadata(i) == _current_full_file:
+				var title: String = tab_bar.get_tab_title(i)
+				if not title.begins_with("*"):
+					tab_bar.set_tab_title(i, "*" + title)
+				break
 		_autosave_timer.start()
 
 
@@ -500,7 +618,13 @@ func _do_save() -> void:
 		_get_opened_file(), _current_data, _config_manager.get_file_value("delimiter", ",")
 	)
 	if err == OK:
-		get_node("%LblCurrentFTitle").text = get_node("%LblCurrentFTitle").text.replace("(*)", "")
+		if _file_states.has(_current_full_file):
+			_file_states[_current_full_file]["is_dirty"] = false
+		var tab_bar: TabBar = get_node("%FileTabBar")
+		for i in range(tab_bar.tab_count):
+			if tab_bar.get_tab_metadata(i) == _current_full_file:
+				tab_bar.set_tab_title(i, tab_bar.get_tab_title(i).lstrip("*"))
+				break
 		_autosave_timer.stop()
 		_delete_temp_file()
 		get_node("%VBxTranslations").reset_baseline()
@@ -574,31 +698,6 @@ func _on_Dock_resized() -> void:
 		_config_manager.set_settings_value(
 			"main", "maximized", get_window().mode == Window.MODE_MAXIMIZED
 		)
-
-
-func _on_BtnCloseFile_pressed() -> void:
-	get_node("%OpenedFilesList").remove_item(get_node("%OpenedFilesList").selected)
-
-	# if there are no more files, close everything
-	if get_node("%OpenedFilesList").get_item_count() == 0:
-		_close_all()
-	# select the first
-	else:
-		get_node("%OpenedFilesList").select(0)
-		#_on_opened_file_item_selected(0)
-
-
-func _close_current_file() -> void:
-	var opened_files_list: OptionButton = get_node("%OpenedFilesList") as OptionButton
-	var selected_index: int = opened_files_list.selected
-	var file_to_remove: String = opened_files_list.get_item_tooltip(selected_index)
-	_opened_files.remove_at(_opened_files.find(file_to_remove))
-	opened_files_list.remove_item(selected_index)
-	if opened_files_list.get_item_count() == 0:
-		_close_all()
-	else:
-		opened_files_list.select(0)
-		_on_opened_file_item_selected(0)
 
 
 func _on_new_file_created(filename: String, first_cell: String, delimiter: String) -> void:

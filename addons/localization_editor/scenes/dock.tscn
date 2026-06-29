@@ -5,9 +5,9 @@
 [ext_resource type="PackedScene" uid="uid://cy0rk0nm1nwoi" path="res://addons/localization_editor/scenes/recent_file_button.tscn" id="3_n4uw5"]
 [ext_resource type="Script" uid="uid://0c5576cyklei" path="res://addons/localization_editor/scripts/localization_locale_list.gd" id="5_njx2k"]
 [ext_resource type="Script" uid="uid://bua34q30lkvwc" path="res://addons/localization_editor/scripts/csv_loader.gd" id="6_5uk4c"]
+[ext_resource type="Texture2D" uid="uid://cft5uslqhlknx" path="res://addons/localization_editor/icons/at-icons/filter_white.svg" id="7_7epi0"]
 [ext_resource type="Script" uid="uid://c0j6t8leypavv" path="res://addons/localization_editor/scripts/hover_button.gd" id="7_d03ii"]
 [ext_resource type="PackedScene" uid="uid://l1hdowu84hpr" path="res://addons/localization_editor/scenes/open_file_popup.tscn" id="9_kyshk"]
-[ext_resource type="Texture2D" uid="uid://dj72dj7ejf1q4" path="res://addons/localization_editor/icons/at-icons/cross_white.svg" id="9_wixxa"]
 [ext_resource type="PackedScene" uid="uid://cm2mjjc6lgmsc" path="res://addons/localization_editor/scenes/preferences.tscn" id="9_yrapk"]
 [ext_resource type="PackedScene" uid="uid://bx8sx547rw8d2" path="res://addons/localization_editor/scenes/credits_window.tscn" id="10_2j1w5"]
 [ext_resource type="Texture2D" uid="uid://bxvvbrj86w7gd" path="res://addons/localization_editor/icons/at-icons/arrow_right_arrow_left_white.svg" id="10_hlgqi"]
@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://pa2owgm1vi7u" path="res://addons/localization_editor/scenes/create_file_popup.tscn" id="12_1jwuh"]
 [ext_resource type="PackedScene" uid="uid://b6m6y7sdy4y4p" path="res://addons/localization_editor/scenes/translation_list.tscn" id="12_kil2l"]
 [ext_resource type="PackedScene" uid="uid://c30katweecxtg" path="res://addons/localization_editor/scenes/add_translation_popup.tscn" id="13_ewfcm"]
-[ext_resource type="PackedScene" uid="uid://q7mxr4kp9dj2n" path="res://addons/localization_editor/scenes/add_lang_popup.tscn" id="14_addlang"]
+[ext_resource type="PackedScene" uid="uid://bq0hfvvp0j11l" path="res://addons/localization_editor/scenes/add_lang_popup.tscn" id="14_addlang"]
 [ext_resource type="PackedScene" uid="uid://b26vs71xk1rcq" path="res://addons/localization_editor/scenes/no_files_panel.tscn" id="15_nofiles"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hlgqi"]
@@ -31,7 +31,7 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_preferences_window", "_open_file_popup", "_create_file_popup", "_credits_popup", "_version_label", "_add_lang_popup", "_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option", "_remove_lang_popup", "_add_translation_popup", "_alert_window", "_search_filter_popup", "_csv_loader", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text", "_no_files_panel")]
+[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_no_files_panel", "_preferences_window", "_open_file_popup", "_create_file_popup", "_credits_popup", "_version_label", "_add_lang_popup", "_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option", "_remove_lang_popup", "_add_translation_popup", "_alert_window", "_csv_loader", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,6 +42,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_hlgqi")
 script = ExtResource("2_clgin")
+_no_files_panel = NodePath("Dock/VBoxContainer/ControlNoOpenedFiles")
 _preferences_window = NodePath("Preferences")
 _open_file_popup = NodePath("OpenFilePopup")
 _create_file_popup = NodePath("CreateFilePopup")
@@ -50,18 +51,16 @@ _version_label = NodePath("Dock/VBoxContainer/LblTextBottom")
 _add_lang_popup = NodePath("AddLangPopup")
 _create_file_lang_option = NodePath("CreateFilePopup/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/OptionButtonLangsNewFile")
 _prefs_lang_option = NodePath("Preferences/MarginContainer/VBoxContainer/RefLangItemList")
-_ref_lang_option = NodePath("Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer/RefLangItemList")
-_target_lang_option = NodePath("Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer2/TargetLangItemList")
+_ref_lang_option = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer/RefLangItemList")
+_target_lang_option = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2/TargetLangItemList")
 _remove_lang_popup = NodePath("RemoveLangPopup")
 _add_translation_popup = NodePath("AddTranslationPopup")
 _alert_window = NodePath("AlertWindow")
 _locale_list = ExtResource("5_njx2k")
-_search_filter_popup = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/MenuBar/Filter")
 _csv_loader = NodePath("CSVLoader")
 _cb_search_key = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchKey")
 _cb_search_ref_text = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchRefText")
 _cb_search_target_text = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchTargetText")
-_no_files_panel = NodePath("Dock/VBoxContainer/ControlNoOpenedFiles")
 
 [node name="CSVLoader" type="Node" parent="." unique_id=1639619225]
 script = ExtResource("6_5uk4c")
@@ -129,118 +128,44 @@ popup/item_0/id = 1
 popup/item_1/text = "Credits"
 popup/item_1/id = 2
 
-[node name="HSeparator" type="HSeparator" parent="Dock/VBoxContainer" unique_id=1352162312]
-layout_mode = 2
-
-[node name="ControlNoOpenedFiles" parent="Dock/VBoxContainer" instance=ExtResource("15_nofiles")]
+[node name="ControlNoOpenedFiles" parent="Dock/VBoxContainer" unique_id=577744822 instance=ExtResource("15_nofiles")]
 unique_name_in_owner = true
-layout_mode = 2
 _recent_file_button_scene = ExtResource("3_n4uw5")
 
-[node name="HBxFileAndLangSelect" type="HBoxContainer" parent="Dock/VBoxContainer" unique_id=25476775]
+[node name="FileAndLangSelect" type="HBoxContainer" parent="Dock/VBoxContainer" unique_id=521611008]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="BufferLeft" type="Control" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1813623441]
-custom_minimum_size = Vector2(4, 0)
+[node name="FileTabBar" type="TabBar" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=685294753]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+tab_close_display_policy = 2
+drag_to_rearrange_enabled = true
 
-[node name="VBoxContainer0" type="VBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1286024601]
+[node name="Control" type="Control" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=404061191]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0" unique_id=2126208489]
+[node name="FilterMenu" type="MenuButton" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=115984746]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
-
-[node name="BtnCloseFile" type="Button" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer" unique_id=1473683807]
-custom_minimum_size = Vector2(32, 0)
-layout_mode = 2
-focus_mode = 0
-icon = ExtResource("9_wixxa")
-flat = true
+size_flags_horizontal = 8
+tooltip_text = "Filter entries"
+theme_override_colors/font_color = Color(0, 0, 0, 0)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 0)
+theme_override_colors/font_hover_pressed_color = Color(0, 0, 0, 0)
+theme_override_colors/font_disabled_color = Color(0, 0, 0, 0)
+icon = ExtResource("7_7epi0")
 icon_alignment = 1
 expand_icon = true
 
-[node name="LblCurrentFTitle" type="Label" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer" unique_id=1804806809]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Current file"
-
-[node name="LblOpenedPath" type="Label" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer" unique_id=373889174]
-unique_name_in_owner = true
-modulate = Color(0.686275, 0.686275, 0.686275, 1)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "[F:/GodotProjects/godot-localization-editor/samples]"
-clip_text = true
-
-[node name="OpenedFilesList" type="OptionButton" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0" unique_id=685294753]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="VSeparator2" type="VSeparator" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1497413227]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=1785522816]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer" unique_id=262944414]
-layout_mode = 2
-text = "Reference"
-horizontal_alignment = 1
-
-[node name="RefLangItemList" type="OptionButton" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer" unique_id=1675497510]
-layout_mode = 2
-selected = 1
-item_count = 3
-popup/item_0/text = "es"
-popup/item_0/id = 0
-popup/item_1/text = "en"
-popup/item_1/id = 1
-popup/item_2/text = "en_US"
-popup/item_2/id = 2
-
-[node name="BtnSwapLang" type="Button" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=331176439]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_vertical = 4
-tooltip_text = "Swap reference and target language"
-focus_mode = 0
-theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
-theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
-icon = ExtResource("10_hlgqi")
-flat = true
-expand_icon = true
-script = ExtResource("7_d03ii")
-
-[node name="VBoxContainer2" type="VBoxContainer" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=240611101]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer2" unique_id=199059795]
-layout_mode = 2
-text = "Target"
-horizontal_alignment = 1
-
-[node name="TargetLangItemList" type="OptionButton" parent="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer2" unique_id=1909757595]
-layout_mode = 2
-selected = 0
-item_count = 3
-popup/item_0/text = "es"
-popup/item_0/id = 0
-popup/item_1/text = "en"
-popup/item_1/id = 1
-popup/item_2/text = "en_US"
-popup/item_2/id = 2
-
-[node name="BufferRight" type="Control" parent="Dock/VBoxContainer/HBxFileAndLangSelect" unique_id=464191444]
-custom_minimum_size = Vector2(4, 0)
+[node name="Control2" type="Control" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=2114099749]
+custom_minimum_size = Vector2(8, 0)
 layout_mode = 2
 
 [node name="HSeparator2" type="HSeparator" parent="Dock/VBoxContainer" unique_id=1597057385]
@@ -270,8 +195,8 @@ vertical_scroll_mode = 2
 [node name="VBxTranslations" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerTranslationsPanels" unique_id=1545613821 node_paths=PackedStringArray("_reference_lang_option", "_translated_lang_option") instance=ExtResource("12_kil2l")]
 unique_name_in_owner = true
 layout_mode = 2
-_reference_lang_option = NodePath("../../../../../HBxFileAndLangSelect/VBoxContainer/RefLangItemList")
-_translated_lang_option = NodePath("../../../../../HBxFileAndLangSelect/VBoxContainer2/TargetLangItemList")
+_reference_lang_option = NodePath("../../HBoxContainer/VBoxContainer/RefLangItemList")
+_translated_lang_option = NodePath("../../HBoxContainer/VBoxContainer2/TargetLangItemList")
 
 [node name="HSeparator3" type="HSeparator" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain" unique_id=1140733985]
 layout_mode = 2
@@ -279,30 +204,69 @@ layout_mode = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain" unique_id=1290875336]
 layout_mode = 2
 
-[node name="Buffer2" type="Control" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=952987649]
+[node name="Buffer1" type="Control" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=952987649]
 custom_minimum_size = Vector2(4, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 0.01
 
-[node name="MenuBar" type="MenuBar" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=400703117]
+[node name="VBoxContainer" type="HBoxContainer" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=306717585]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-prefer_global_menu = false
+alignment = 2
 
-[node name="Filter" type="PopupMenu" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/MenuBar" unique_id=1719227392]
-oversampling_override = 1.0
-size = Vector2i(169, 100)
-hide_on_item_selection = false
-hide_on_checkable_item_selection = false
-allow_search = false
-item_count = 2
-item_0/text = "Need Translation"
-item_0/checkable = 1
-item_0/id = 0
-item_1/text = "Need Revision"
-item_1/checkable = 1
-item_1/id = 1
+[node name="Label" type="Label" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer" unique_id=262944414]
+layout_mode = 2
+text = "Reference"
+horizontal_alignment = 1
 
-[node name="Buffer" type="Control" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=954559220]
+[node name="RefLangItemList" type="OptionButton" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer" unique_id=1675497510]
+layout_mode = 2
+selected = 1
+item_count = 3
+popup/item_0/text = "es"
+popup/item_0/id = 0
+popup/item_1/text = "en"
+popup/item_1/id = 1
+popup/item_2/text = "en_US"
+popup/item_2/id = 2
+
+[node name="BtnSwapLang" type="Button" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=331176439]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Swap reference and target language"
+focus_mode = 0
+theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
+icon = ExtResource("10_hlgqi")
+flat = true
+expand_icon = true
+script = ExtResource("7_d03ii")
+
+[node name="VBoxContainer2" type="HBoxContainer" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=1024578157]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2" unique_id=199059795]
+layout_mode = 2
+text = "Target"
+horizontal_alignment = 1
+
+[node name="TargetLangItemList" type="OptionButton" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2" unique_id=1909757595]
+layout_mode = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "es"
+popup/item_0/id = 0
+popup/item_1/text = "en"
+popup/item_1/id = 1
+popup/item_2/text = "en_US"
+popup/item_2/id = 2
+
+[node name="Buffer2" type="Control" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer" unique_id=954559220]
+custom_minimum_size = Vector2(24, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -334,9 +298,6 @@ placeholder_text = "Search..."
 clear_button_enabled = true
 caret_blink = true
 caret_blink_interval = 0.5
-
-[node name="VSeparator2" type="VSeparator" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=853002480]
-layout_mode = 2
 
 [node name="CheckBoxSearchKey" type="CheckBox" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=648019270]
 layout_mode = 2
@@ -385,8 +346,7 @@ visible = false
 [node name="CreditsWindow" parent="." unique_id=688860037 instance=ExtResource("10_2j1w5")]
 visible = false
 
-[node name="AddLangPopup" parent="." instance=ExtResource("14_addlang")]
-
+[node name="AddLangPopup" parent="." unique_id=258710514 instance=ExtResource("14_addlang")]
 
 [node name="RemoveLangPopup" parent="." unique_id=449741931 instance=ExtResource("11_rtdpw")]
 visible = false
@@ -422,16 +382,14 @@ autowrap_mode = 2
 [connection signal="create_file_requested" from="Dock/VBoxContainer/ControlNoOpenedFiles" to="." method="create_file_popup"]
 [connection signal="open_file_popup_requested" from="Dock/VBoxContainer/ControlNoOpenedFiles" to="." method="open_file_popup"]
 [connection signal="open_file_requested" from="Dock/VBoxContainer/ControlNoOpenedFiles" to="." method="_open_file"]
-[connection signal="pressed" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/HBoxContainer/BtnCloseFile" to="." method="_close_current_file"]
-[connection signal="item_selected" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer0/OpenedFilesList" to="." method="_on_opened_file_item_selected"]
-[connection signal="item_selected" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer/RefLangItemList" to="." method="_on_ref_lang_item_selected"]
-[connection signal="pressed" from="Dock/VBoxContainer/HBxFileAndLangSelect/BtnSwapLang" to="." method="_on_btn_swap_lang_pressed"]
-[connection signal="item_selected" from="Dock/VBoxContainer/HBxFileAndLangSelect/VBoxContainer2/TargetLangItemList" to="." method="_on_target_lang_item_selected"]
+[connection signal="tab_changed" from="Dock/VBoxContainer/FileAndLangSelect/FileTabBar" to="." method="_on_file_tab_changed"]
+[connection signal="tab_close_pressed" from="Dock/VBoxContainer/FileAndLangSelect/FileTabBar" to="." method="_on_file_tab_close_pressed"]
 [connection signal="entry_added" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerTranslationsPanels/VBxTranslations" to="." method="_on_translation_entry_added"]
 [connection signal="entry_deleted" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerTranslationsPanels/VBxTranslations" to="." method="_on_translation_entry_deleted"]
 [connection signal="entry_updated" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerTranslationsPanels/VBxTranslations" to="." method="_on_translation_entry_updated"]
-[connection signal="index_pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/MenuBar/Filter" to="." method="_on_filter_changed"]
-[connection signal="index_pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/MenuBar/Filter" to="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/MenuBar/Filter" method="toggle_item_checked"]
+[connection signal="item_selected" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer/RefLangItemList" to="." method="_on_ref_lang_item_selected"]
+[connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/BtnSwapLang" to="." method="_on_btn_swap_lang_pressed"]
+[connection signal="item_selected" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2/TargetLangItemList" to="." method="_on_target_lang_item_selected"]
 [connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/BtnAddTranslation" to="." method="_on_add_translation_pressed"]
 [connection signal="text_changed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/LineEditSearchBox" to="." method="_on_LineEditSearchBox_text_changed"]
 [connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchKey" to="." method="_on_CheckBoxSearch_pressed"]

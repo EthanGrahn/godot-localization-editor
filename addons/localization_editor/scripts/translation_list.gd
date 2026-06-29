@@ -694,6 +694,10 @@ func apply_delta(delta: Dictionary) -> void:
 	_measure_entry_height()
 
 
+func sync_to_store() -> void:
+	_sync_all_visible_to_store()
+
+
 func reset_baseline() -> void:
 	_baseline_store = []
 	for d in _data_store:
