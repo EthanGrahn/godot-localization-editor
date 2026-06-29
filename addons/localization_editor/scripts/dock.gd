@@ -6,14 +6,13 @@ signal scan_files_requested
 # where user preferences are stored
 const _SETTINGS_FILE: String = "user://settings.ini"
 
-@export var _recent_file_button_scene: PackedScene
+@export var _no_files_panel: Control
 @export var _preferences_window: Popup
 @export var _open_file_popup: Popup
 @export var _create_file_popup: Popup
 @export var _credits_popup: Popup
 @export var _version_label: Label
-@export var _new_lang_popup: Popup
-@export var _add_lang_option: OptionButton
+@export var _add_lang_popup: Popup
 @export var _create_file_lang_option: OptionButton
 @export var _prefs_lang_option: OptionButton
 @export var _ref_lang_option: OptionButton
@@ -65,7 +64,6 @@ var _current_full_file: String
 var _current_file: String
 var _current_path: String
 var _current_path_config := ConfigFile.new()
-var _recent_files: PackedStringArray = []
 var _opened_files: PackedStringArray = []
 var _google_translate: Node
 var _search_filters := {"need_translation": false, "need_revision": false}
@@ -81,7 +79,7 @@ func _ready() -> void:
 	_version_label.text = "v%s" % plugin_conf.get_value("plugin", "version", "")
 
 	var locales = _locale_list.new()
-	for list: OptionButton in [_add_lang_option, _create_file_lang_option, _prefs_lang_option]:
+	for list: OptionButton in [_create_file_lang_option, _prefs_lang_option]:
 		list.clear()
 		var i: int = 0
 		for l in locales.LOCALES:
@@ -131,14 +129,13 @@ func _ready() -> void:
 			else Window.MODE_WINDOWED
 		)
 
-	_recent_files = _config_manager.get_settings_value("main", "recent_files", [])
-	_load_recent_files_list()
+	_no_files_panel.initialize(_config_manager)
 
 	# reopen the last file
 	if _config_manager.get_settings_value("main", "reopen_last_file", false):
-		if _recent_files.is_empty() == false:
-			if FileAccess.file_exists(_recent_files[0]):
-				_open_file(_recent_files[0])
+		var last_file: String = _no_files_panel.get_most_recent_file()
+		if not last_file.is_empty() and FileAccess.file_exists(last_file):
+			_open_file(last_file)
 
 
 func _process(_delta):
@@ -147,26 +144,6 @@ func _process(_delta):
 		_save_pressed = true
 	elif _save_pressed and not Input.is_key_pressed(KEY_S):
 		_save_pressed = false
-
-
-func _load_recent_files_list() -> void:
-	for n in get_node("%VBxRecentFiles").get_children():
-		n.queue_free()
-
-	for file in _recent_files:
-		var file_button := _recent_file_button_scene.instantiate()
-		file_button.filename = file
-		file_button.opened.connect(_open_file)
-		file_button.removed.connect(_on_recent_file_removed)
-		get_node("%VBxRecentFiles").add_child(file_button)
-
-	# show message if list is empty
-	get_node("%LblNoRecentFiles").visible = _recent_files.is_empty()
-
-
-func _on_recent_file_removed(file_path: String) -> void:
-	_recent_files.remove_at(_recent_files.find(file_path))
-	_config_manager.set_settings_value("main", "recent_files", _recent_files)
 
 
 func _start_search() -> void:
@@ -243,7 +220,7 @@ func _on_edit_menu_id_pressed(id: int) -> void:
 		1:
 			# add new language
 			if get_node("%ControlNoOpenedFiles").visible == false:
-				_new_lang_popup.popup_centered()
+				_add_lang_popup.popup_centered()
 		2:
 			# delete language
 			if get_node("%ControlNoOpenedFiles").visible == false and _langs.size() > 0:
@@ -270,7 +247,7 @@ func _close_all() -> void:
 	if is_instance_valid(_autosave_timer):
 		_autosave_timer.stop()
 	_opened_files = []
-	_load_recent_files_list()
+	_no_files_panel.refresh_list()
 	_clear_search()
 	_set_visible_content(false)
 	_on_Popup_hide()
@@ -370,7 +347,7 @@ func _do_open_file(full_path: String, delimiter: String) -> void:
 	get_node("%VBxTranslations").init_list(_translations)
 	_update_opened_file_list()
 	_set_visible_content(true)
-	_add_recent_file(full_path)
+	_no_files_panel.add_recent_file(full_path)
 
 
 func _apply_recovery() -> void:
@@ -624,34 +601,19 @@ func _close_current_file() -> void:
 		_on_opened_file_item_selected(0)
 
 
-func _add_recent_file(filename: String) -> void:
-	if _recent_files.has(filename):
-		_recent_files.remove_at(_recent_files.find(filename))
-
-	_recent_files.insert(0, filename)
-	# limit to 10 recent files
-	_recent_files = _recent_files.slice(0, 10)
-	_config_manager.set_settings_value("main", "recent_files", _recent_files)
-
-
 func _on_new_file_created(filename: String, first_cell: String, delimiter: String) -> void:
 	_config_manager.set_file_value("first_cell", first_cell)
 	_config_manager.set_file_value("delimiter", delimiter)
 	_open_file(filename)
 
 
-func _on_add_lang_button_pressed():
-	var lang_to_add: String = _add_lang_option.get_item_text(_add_lang_option.selected)
-	lang_to_add = lang_to_add.split(",")[1].strip_edges()
-
+func _on_lang_add_requested(lang_to_add: String) -> void:
 	if lang_to_add in _langs:
 		alert("The chosen language already exists in the file.")
 		return
 
 	_langs.append(lang_to_add)
 
-	# looping each item (the strkeys)
-	# if the entry doesn't have the language, add it
 	for t_entry in _translations:
 		if _translations[t_entry].keys().has(lang_to_add) == false:
 			_translations[t_entry][lang_to_add] = ""
@@ -660,8 +622,6 @@ func _on_add_lang_button_pressed():
 	_target_lang_option.add_item(lang_to_add, _target_lang_option.get_item_count())
 
 	_save_file()
-
-	_new_lang_popup.hide()
 
 
 func _on_translation_added(

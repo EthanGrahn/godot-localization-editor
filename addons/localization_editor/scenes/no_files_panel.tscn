@@ -1,0 +1,93 @@
+[gd_scene format=3 uid="uid://b26vs71xk1rcq"]
+
+[ext_resource type="Script" uid="uid://di56wpwqrpg4j" path="res://addons/localization_editor/scripts/no_files_panel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://doa205uvb8ssp" path="res://addons/localization_editor/icons/paper_plus_white.svg" id="2_newicon"]
+[ext_resource type="Texture2D" uid="uid://ba6g8cjg8q7iv" path="res://addons/localization_editor/icons/paper_pencil_white.svg" id="3_openicon"]
+[ext_resource type="Script" uid="uid://c0j6t8leypavv" path="res://addons/localization_editor/scripts/hover_button.gd" id="4_hoverbtn"]
+
+[node name="ControlNoOpenedFiles" type="Control"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="OpenFileContainer" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/OpenFileContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="NewFileVBox" type="VBoxContainer" parent="HBoxContainer/OpenFileContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="NewFileButton" type="Button" parent="HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
+icon = ExtResource("2_newicon")
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("4_hoverbtn")
+
+[node name="NewFileLabel" type="Label" parent="HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox"]
+modulate = Color(0.737255, 0.737255, 0.737255, 1)
+layout_mode = 2
+text = "New File"
+horizontal_alignment = 1
+
+[node name="OpenFileVBox" type="VBoxContainer" parent="HBoxContainer/OpenFileContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="OpenFileButton" type="Button" parent="HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
+icon = ExtResource("3_openicon")
+icon_alignment = 1
+expand_icon = true
+script = ExtResource("4_hoverbtn")
+
+[node name="OpenFileLabel" type="Label" parent="HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox"]
+modulate = Color(0.737255, 0.737255, 0.737255, 1)
+layout_mode = 2
+text = "Open File"
+horizontal_alignment = 1
+
+[node name="RecentFilesContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="HBoxContainer/RecentFilesContainer"]
+layout_mode = 2
+text = "Recent Files"
+
+[node name="HSeparator" type="HSeparator" parent="HBoxContainer/RecentFilesContainer"]
+layout_mode = 2
+
+[node name="LblNoRecentFiles" type="Label" parent="HBoxContainer/RecentFilesContainer"]
+unique_name_in_owner = true
+modulate = Color(0.596078, 0.596078, 0.596078, 1)
+layout_mode = 2
+text = "No recent files..."
+
+[node name="VBxRecentFiles" type="VBoxContainer" parent="HBoxContainer/RecentFilesContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="pressed" from="HBoxContainer/OpenFileContainer/HBoxContainer/NewFileVBox/NewFileButton" to="." method="_on_new_file_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/OpenFileContainer/HBoxContainer/OpenFileVBox/OpenFileButton" to="." method="_on_open_file_button_pressed"]
