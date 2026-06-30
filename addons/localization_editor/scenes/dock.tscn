@@ -32,7 +32,7 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text")]
+[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -48,9 +48,6 @@ _create_file_lang_option = NodePath("CreateFilePopup/MarginContainer/VBoxContain
 _prefs_lang_option = NodePath("Preferences/MarginContainer/VBoxContainer/RefLangItemList")
 _ref_lang_option = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer/RefLangItemList")
 _target_lang_option = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2/TargetLangItemList")
-_cb_search_key = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchKey")
-_cb_search_ref_text = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchRefText")
-_cb_search_target_text = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchTargetText")
 
 [node name="CSVLoader" type="Node" parent="." unique_id=1639619225]
 script = ExtResource("6_5uk4c")
@@ -80,7 +77,6 @@ layout_mode = 2
 text = "File"
 flat = false
 switch_on_hover = true
-item_count = 0
 
 [node name="MenuEdit" type="MenuButton" parent="Dock/VBoxContainer/MenuBar/FileActionsHbx" unique_id=488526923]
 unique_name_in_owner = true
@@ -126,16 +122,22 @@ size_flags_horizontal = 3
 tab_close_display_policy = 1
 drag_to_rearrange_enabled = true
 
-[node name="Control" type="Control" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=404061191]
+[node name="LineEditSearchBox" type="LineEdit" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=1645403056]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+placeholder_text = "Search..."
+clear_button_enabled = true
+caret_blink = true
+caret_blink_interval = 0.5
 
 [node name="FilterMenu" type="MenuButton" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=115984746]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 size_flags_horizontal = 8
-tooltip_text = "Filter entries"
+tooltip_text = "Filter"
 theme_override_colors/font_color = Color(0, 0, 0, 0)
 theme_override_colors/font_focus_color = Color(0, 0, 0, 0)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 0)
@@ -276,48 +278,6 @@ custom_minimum_size = Vector2(8, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 0.01
 
-[node name="HSeparator2" type="HSeparator" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain" unique_id=2022426953]
-layout_mode = 2
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain" unique_id=808577003]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="Buffer" type="Control" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=617320995]
-custom_minimum_size = Vector2(4, 0)
-layout_mode = 2
-
-[node name="LineEditSearchBox" type="LineEdit" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=1645403056]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Search..."
-clear_button_enabled = true
-caret_blink = true
-caret_blink_interval = 0.5
-
-[node name="CheckBoxSearchKey" type="CheckBox" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=648019270]
-layout_mode = 2
-focus_mode = 0
-button_pressed = true
-text = "Key"
-
-[node name="CheckBoxSearchRefText" type="CheckBox" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=425986774]
-layout_mode = 2
-focus_mode = 0
-button_pressed = true
-text = "Reference"
-
-[node name="CheckBoxSearchTargetText" type="CheckBox" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=66916254]
-layout_mode = 2
-focus_mode = 0
-button_pressed = true
-text = "Target"
-
-[node name="Buffer2" type="Control" parent="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2" unique_id=1897275013]
-custom_minimum_size = Vector2(4, 0)
-layout_mode = 2
-
 [node name="HBoxContainer" type="HBoxContainer" parent="Dock/VBoxContainer" unique_id=920243651]
 layout_mode = 2
 
@@ -391,6 +351,7 @@ autowrap_mode = 2
 [connection signal="open_file_requested" from="Dock/VBoxContainer/ControlNoOpenedFiles" to="." method="_open_file"]
 [connection signal="tab_changed" from="Dock/VBoxContainer/FileAndLangSelect/FileTabBar" to="." method="_on_file_tab_changed"]
 [connection signal="tab_close_pressed" from="Dock/VBoxContainer/FileAndLangSelect/FileTabBar" to="." method="_on_file_tab_close_pressed"]
+[connection signal="text_changed" from="Dock/VBoxContainer/FileAndLangSelect/LineEditSearchBox" to="." method="_on_LineEditSearchBox_text_changed"]
 [connection signal="entry_added" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerWrapper/ScrollContainerTranslationsPanels/VBxTranslations" to="." method="_on_translation_entry_added"]
 [connection signal="entry_deleted" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerWrapper/ScrollContainerTranslationsPanels/VBxTranslations" to="." method="_on_translation_entry_deleted"]
 [connection signal="entry_updated" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/ScrollContainerWrapper/ScrollContainerTranslationsPanels/VBxTranslations" to="." method="_on_translation_entry_updated"]
@@ -398,10 +359,6 @@ autowrap_mode = 2
 [connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/BtnSwapLang" to="." method="_on_btn_swap_lang_pressed"]
 [connection signal="item_selected" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2/TargetLangItemList" to="." method="_on_target_lang_item_selected"]
 [connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/AddTranslationButton" to="." method="_on_add_translation_pressed"]
-[connection signal="text_changed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/LineEditSearchBox" to="." method="_on_LineEditSearchBox_text_changed"]
-[connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchKey" to="." method="_on_CheckBoxSearch_pressed"]
-[connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchRefText" to="." method="_on_CheckBoxSearch_pressed"]
-[connection signal="pressed" from="Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchTargetText" to="." method="_on_CheckBoxSearch_pressed"]
 [connection signal="file_selected" from="OpenFilePopup" to="." method="_on_open_file_selected"]
 [connection signal="lang_add_requested" from="AddLangPopup" to="." method="_on_lang_add_requested"]
 [connection signal="remove_requested" from="RemoveLangPopup" to="." method="_on_language_removed"]

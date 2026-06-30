@@ -11,9 +11,6 @@ const _SETTINGS_FILE: String = "user://settings.ini"
 @export var _prefs_lang_option: OptionButton
 @export var _ref_lang_option: OptionButton
 @export var _target_lang_option: OptionButton
-@export var _cb_search_key: CheckBox
-@export var _cb_search_ref_text: CheckBox
-@export var _cb_search_target_text: CheckBox
 
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 @onready var _no_files_panel: Control = %ControlNoOpenedFiles
@@ -41,6 +38,7 @@ const _SETTINGS_FILE: String = "user://settings.ini"
 
 var _is_config_initialized := false
 var _save_pressed := false
+var _find_pressed := false
 var _save_warning_dialog: ConfirmationDialog
 var _autosave_timer: Timer
 var _recovery_dialog: ConfirmationDialog
@@ -82,7 +80,7 @@ var _current_path_config := ConfigFile.new()
 var _file_states: Dictionary = {}  # path -> { data, ref_lang_idx, target_lang_idx, is_dirty }
 var _switching_tabs: bool = false
 var _google_translate: Node
-var _search_filters := {"need_translation": false, "need_revision": false}
+var _search_filters := {"need_translation": false, "need_revision": false, "search_key": true, "search_ref_text": true, "search_target_text": true}
 
 
 func _ready() -> void:
@@ -140,10 +138,17 @@ func _ready() -> void:
 	_search_filter_popup.hide_on_item_selection = false
 	_search_filter_popup.hide_on_checkable_item_selection = false
 	_search_filter_popup.allow_search = false
+	_search_filter_popup.add_separator("Display Filters")
 	_search_filter_popup.add_check_item("Needs translation", 0)
 	_search_filter_popup.add_check_item("Needs revision", 1)
+	_search_filter_popup.add_separator("Search Filters")
+	_search_filter_popup.add_check_item("Key", 2)
+	_search_filter_popup.add_check_item("Reference", 3)
+	_search_filter_popup.add_check_item("Target", 4)
+	_search_filter_popup.set_item_checked(4, true)
+	_search_filter_popup.set_item_checked(5, true)
+	_search_filter_popup.set_item_checked(6, true)
 	_search_filter_popup.index_pressed.connect(_on_filter_changed)
-	_search_filter_popup.index_pressed.connect(_search_filter_popup.toggle_item_checked)
 
 	_close_all()
 
@@ -180,26 +185,31 @@ func _process(_delta):
 	elif _save_pressed and not Input.is_key_pressed(KEY_S):
 		_save_pressed = false
 
+	if not _find_pressed and Input.is_key_pressed(KEY_CTRL) and Input.is_key_pressed(KEY_F):
+		_line_edit_search_box.grab_focus()
+		_line_edit_search_box.select_all()
+		_find_pressed = true
+	elif _find_pressed and not Input.is_key_pressed(KEY_F):
+		_find_pressed = false
+
 
 func _start_search() -> void:
 	var search_text: String = _line_edit_search_box.text.strip_edges().to_lower()
-	var hide_translated: bool = _search_filters["need_translation"]
-	var hide_no_need_rev: bool = _search_filters["need_revision"]
-	_search_filters["search_key"] = _cb_search_key.button_pressed
-	_search_filters["search_ref_text"] = _cb_search_ref_text.button_pressed
-	_search_filters["search_target_text"] = _cb_search_target_text.button_pressed
 	_vbx_translations.search(search_text, _search_filters)
 
 
 func _clear_search() -> void:
 	_line_edit_search_box.text = ""
-	_cb_search_key.button_pressed = true
-	_cb_search_ref_text.button_pressed = true
-	_cb_search_target_text.button_pressed = true
 	_search_filters["need_translation"] = false
 	_search_filters["need_revision"] = false
-	for i in range(0, _search_filter_popup.item_count):
-		_search_filter_popup.set_item_checked(i, false)
+	_search_filters["search_key"] = true
+	_search_filters["search_ref_text"] = true
+	_search_filters["search_target_text"] = true
+	_search_filter_popup.set_item_checked(1, false)
+	_search_filter_popup.set_item_checked(2, false)
+	_search_filter_popup.set_item_checked(4, true)
+	_search_filter_popup.set_item_checked(5, true)
+	_search_filter_popup.set_item_checked(6, true)
 
 
 func alert(txt: String, title: String = "Alert!") -> void:
@@ -734,29 +744,36 @@ func _on_language_removed(selected_lang: String) -> void:
 
 func _on_filter_changed(index: int) -> void:
 	match index:
-		0:
-			_search_filters["need_translation"] = !_search_filters["need_translation"]
 		1:
+			_search_filters["need_translation"] = !_search_filters["need_translation"]
+			_search_filter_popup.set_item_checked(1, _search_filters["need_translation"])
+		2:
 			_search_filters["need_revision"] = !_search_filters["need_revision"]
+			_search_filter_popup.set_item_checked(2, _search_filters["need_revision"])
+		4:
+			var new_val: bool = !_search_filters["search_key"]
+			if not new_val and not _search_filters["search_ref_text"] and not _search_filters["search_target_text"]:
+				return
+			_search_filters["search_key"] = new_val
+			_search_filter_popup.set_item_checked(4, new_val)
+		5:
+			var new_val: bool = !_search_filters["search_ref_text"]
+			if not _search_filters["search_key"] and not new_val and not _search_filters["search_target_text"]:
+				return
+			_search_filters["search_ref_text"] = new_val
+			_search_filter_popup.set_item_checked(5, new_val)
+		6:
+			var new_val: bool = !_search_filters["search_target_text"]
+			if not _search_filters["search_key"] and not _search_filters["search_ref_text"] and not new_val:
+				return
+			_search_filters["search_target_text"] = new_val
+			_search_filter_popup.set_item_checked(6, new_val)
 		_:
 			return
 	_start_search()
 
 
 func _on_LineEditSearchBox_text_changed(_new_text: String) -> void:
-	_start_search()
-
-
-# pressed any checkbox from the search bar
-func _on_CheckBoxSearch_pressed() -> void:
-	# at least one of the checks must be pressed
-	if (
-		_cb_search_key.button_pressed == false
-		and _cb_search_ref_text.button_pressed == false
-		and _cb_search_target_text.button_pressed == false
-	):
-		_cb_search_key.button_pressed = true
-
 	_start_search()
 
 
