@@ -57,7 +57,6 @@ layout_mode = 2
 
 [node name="CTBtnSaveKey" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=290190998]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.41568628, 1, 0.4862745, 1)
 text = "Confirm"
 
 [node name="VSeparator2" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=281612487]

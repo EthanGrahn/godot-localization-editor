@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dj72dj7ejf1q4"
-path="res://.godot/imported/cross_white.svg-0ad0f71d44aa0798fe212b6429e6b915.ctex"
+uid="uid://fotr8pmfjwjs"
+path="res://.godot/imported/plus_sign_in_square_white.svg-e90767a3e516322aba8eebf2199104ba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/localization_editor/icons/at-icons/cross_white.svg"
-dest_files=["res://.godot/imported/cross_white.svg-0ad0f71d44aa0798fe212b6429e6b915.ctex"]
+source_file="res://addons/localization_editor/icons/at-icons/plus_sign_in_square_white.svg"
+dest_files=["res://.godot/imported/plus_sign_in_square_white.svg-e90767a3e516322aba8eebf2199104ba.ctex"]
 
 [params]
 
