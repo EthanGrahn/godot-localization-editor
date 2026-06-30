@@ -47,6 +47,8 @@ var _recovery_dialog: ConfirmationDialog
 var _pending_recovery_temp: String = ""
 var _pending_open_path: String = ""
 var _pending_open_delimiter: String = ""
+var _recent_files_submenu: PopupMenu
+var _recent_files_cache: Array = []
 
 const _PLUS_TAB_META = "__plus_tab__"
 
@@ -119,7 +121,19 @@ func _ready() -> void:
 	_recovery_dialog.get_ok_button().text = "Recover"
 	_recovery_dialog.get_cancel_button().text = "Discard"
 
-	_menu_file.get_popup().id_pressed.connect(_on_file_menu_id_pressed)
+	var file_popup := _menu_file.get_popup()
+	file_popup.add_item("New", 1)
+	file_popup.add_item("Open", 2)
+	_recent_files_submenu = PopupMenu.new()
+	_recent_files_submenu.name = "OpenRecentSubmenu"
+	_recent_files_submenu.index_pressed.connect(_on_recent_file_selected)
+	file_popup.add_child(_recent_files_submenu)
+	file_popup.add_submenu_node_item("Open Recent", _recent_files_submenu, 5)
+	file_popup.add_separator()
+	file_popup.add_item("Save", 3)
+	file_popup.add_item("Close All", 4)
+	file_popup.id_pressed.connect(_on_file_menu_id_pressed)
+	file_popup.about_to_popup.connect(_refresh_recent_files_submenu)
 	_menu_edit.get_popup().id_pressed.connect(_on_edit_menu_id_pressed)
 	_menu_help.get_popup().id_pressed.connect(_on_help_menu_id_pressed)
 
@@ -260,6 +274,28 @@ func _on_help_menu_id_pressed(id: int) -> void:
 			)
 		2:
 			_credits_popup.popup_centered()
+
+
+func _refresh_recent_files_submenu() -> void:
+	_recent_files_submenu.clear()
+	if not is_instance_valid(_config_manager) or not _config_manager.is_initialized:
+		_recent_files_submenu.add_item("No recent files")
+		_recent_files_submenu.set_item_disabled(0, true)
+		return
+	var recent: PackedStringArray = _config_manager.get_settings_value("main", "recent_files", [])
+	_recent_files_cache = Array(recent.slice(0, 5))
+	if _recent_files_cache.is_empty():
+		_recent_files_submenu.add_item("No recent files")
+		_recent_files_submenu.set_item_disabled(0, true)
+		return
+	for path: String in _recent_files_cache:
+		_recent_files_submenu.add_item(path.get_file())
+		_recent_files_submenu.set_item_tooltip(_recent_files_submenu.item_count - 1, path)
+
+
+func _on_recent_file_selected(index: int) -> void:
+	if index < _recent_files_cache.size():
+		_open_file(_recent_files_cache[index])
 
 
 func _close_all() -> void:
