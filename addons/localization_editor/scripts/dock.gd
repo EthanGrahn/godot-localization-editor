@@ -164,11 +164,13 @@ func _ready() -> void:
 
 	_no_files_panel.initialize(_config_manager)
 
-	# reopen the last file
+	# reopen files that were open in the last session
 	if _config_manager.get_settings_value("main", "reopen_last_file", false):
-		var last_file: String = _no_files_panel.get_most_recent_file()
-		if not last_file.is_empty() and FileAccess.file_exists(last_file):
-			_open_file(last_file)
+		var open_files: Array = _config_manager.get_settings_value("main", "open_files", [])
+		for file_path: String in open_files:
+			if FileAccess.file_exists(file_path):
+				_open_file(file_path)
+				await _vbx_translations.list_ready
 
 
 func _process(_delta):
@@ -298,10 +300,16 @@ func _on_recent_file_selected(index: int) -> void:
 		_open_file(_recent_files_cache[index])
 
 
+func _save_open_files_state() -> void:
+	if _is_config_initialized:
+		_config_manager.set_settings_value("main", "open_files", Array(_file_states.keys()))
+
+
 func _close_all() -> void:
 	if is_instance_valid(_autosave_timer):
 		_autosave_timer.stop()
 	_file_states = {}
+	_save_open_files_state()
 	_current_full_file = ""
 	_current_file = ""
 	_current_path = ""
@@ -376,6 +384,8 @@ func _on_file_tab_close_pressed(tab_idx: int) -> void:
 		_switching_tabs = false
 		_close_all()
 		return
+
+	_save_open_files_state()
 
 	if is_current:
 		_current_full_file = ""
@@ -507,6 +517,7 @@ func _do_open_file(full_path: String, delimiter: String) -> void:
 	_update_file_tabs()
 	_set_visible_content(true)
 	_no_files_panel.add_recent_file(full_path)
+	_save_open_files_state()
 
 
 func _apply_recovery() -> void:
