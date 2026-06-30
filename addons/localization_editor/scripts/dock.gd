@@ -650,8 +650,12 @@ func _on_btn_swap_lang_pressed() -> void:
 	_vbx_translations.update_target_language(
 		_target_lang_option.get_item_text(_target_lang_option.selected)
 	)
-	_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected))
-	_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(_target_lang_option.selected))
+	_config_manager.set_file_value(
+		"ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"target_lang", _target_lang_option.get_item_text(_target_lang_option.selected)
+	)
 	_on_language_item_selected()
 
 
