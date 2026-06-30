@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bs60k55gqymsj" path="res://addons/localization_editor/scripts/create_file_popup.gd" id="1_oomvq"]
 
-[node name="CreateFilePopup" type="Popup" node_paths=PackedStringArray("_filename_line_edit", "_filepath_line_edit", "_added_langs", "_lang_option", "_folder_dialog", "_delimiter_option", "_create_new_file_button")]
+[node name="CreateFilePopup" type="Popup" node_paths=PackedStringArray("_filename_line_edit", "_filepath_line_edit", "_added_langs", "_lang_option", "_delimiter_option", "_create_new_file_button")]
 title = "Create New File"
 initial_position = 2
 size = Vector2i(519, 309)
@@ -14,7 +14,6 @@ _filename_line_edit = NodePath("MarginContainer/VBoxContainer/HBoxContainer/Line
 _filepath_line_edit = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/LineEditNewFilePath")
 _added_langs = NodePath("MarginContainer/VBoxContainer/VBoxContainer/LangsAdded")
 _lang_option = NodePath("MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/OptionButtonLangsNewFile")
-_folder_dialog = NodePath("FolderDialog")
 _delimiter_option = NodePath("MarginContainer/VBoxContainer/HBoxContainer3/DelimiterOption")
 _create_new_file_button = NodePath("MarginContainer/VBoxContainer/CreateNewFileButton")
 

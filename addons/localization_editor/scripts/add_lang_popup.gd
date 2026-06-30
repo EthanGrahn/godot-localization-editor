@@ -4,12 +4,10 @@ extends Popup
 signal lang_add_requested(lang_code: String)
 
 @export var _locale_list: Script
-@export var _option_button: OptionButton
+@onready var _option_button: OptionButton = $MarginContainer/VBoxContainer/AddLangOptionButton
 
 
 func _ready() -> void:
-	if not is_instance_valid(_option_button):
-		return
 	var locales = _locale_list.new()
 	_option_button.clear()
 	var i: int = 0

@@ -7,6 +7,9 @@ signal open_file_popup_requested
 
 @export var _recent_file_button_scene: PackedScene
 
+@onready var _vbx_recent_files: VBoxContainer = %VBxRecentFiles
+@onready var _lbl_no_recent_files: Label = %LblNoRecentFiles
+
 var _config_manager: Node
 var _recent_files: PackedStringArray = []
 
@@ -18,15 +21,15 @@ func initialize(config_manager: Node) -> void:
 
 
 func refresh_list() -> void:
-	for n in get_node("%VBxRecentFiles").get_children():
+	for n in _vbx_recent_files.get_children():
 		n.queue_free()
 	for file in _recent_files:
 		var btn := _recent_file_button_scene.instantiate()
 		btn.filename = file
 		btn.opened.connect(func(path: String): open_file_requested.emit(path))
 		btn.removed.connect(_on_recent_file_removed)
-		get_node("%VBxRecentFiles").add_child(btn)
-	get_node("%LblNoRecentFiles").visible = _recent_files.is_empty()
+		_vbx_recent_files.add_child(btn)
+	_lbl_no_recent_files.visible = _recent_files.is_empty()
 
 
 func add_recent_file(path: String) -> void:

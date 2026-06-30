@@ -1,7 +1,7 @@
 @tool
 extends Button
 
-@export var _texture: TextureRect
+@onready var _texture: TextureRect = $MarginContainer/TextureRect
 @export var _okay_texture: Texture2D
 @export var _alert_texture: Texture2D
 

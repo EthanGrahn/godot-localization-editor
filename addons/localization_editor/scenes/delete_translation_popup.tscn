@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b7mcdph3in0ia" path="res://addons/localization_editor/scripts/delete_translation_popup.gd" id="1_uwyae"]
 
-[node name="Popup" type="ConfirmationDialog" node_paths=PackedStringArray("_remember_checkbox")]
+[node name="Popup" type="ConfirmationDialog"]
 title = "Delete Translation"
 initial_position = 2
 size = Vector2i(392, 121)
@@ -10,7 +10,6 @@ visible = true
 ok_button_text = "Yes"
 cancel_button_text = "No"
 script = ExtResource("1_uwyae")
-_remember_checkbox = NodePath("VBoxContainer/HBoxContainer/CheckButton")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 offset_left = 8.0

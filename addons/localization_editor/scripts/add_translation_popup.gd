@@ -3,11 +3,11 @@ extends Popup
 
 signal translation_added(key: String, ref_text: String, target_text: String, key_is_uppercase: bool)
 
-@export var _key_text: LineEdit
-@export var _ref_text: LineEdit
-@export var _target_text: LineEdit
-@export var _uppercase_check_box: CheckBox
-@export var _add_translation_button: Button
+@onready var _key_text: LineEdit = $MarginContainer/VBoxContainer/HBoxContainer/KeyText
+@onready var _ref_text: LineEdit = $MarginContainer/VBoxContainer/ReferenceText
+@onready var _target_text: LineEdit = $MarginContainer/VBoxContainer/TargetText
+@onready var _uppercase_check_box: CheckBox = $MarginContainer/VBoxContainer/HBoxContainer/UppercaseCheckBox
+@onready var _add_translation_button: Button = $MarginContainer/VBoxContainer/AddTranslationButton
 
 
 func request_popup(ref_lang: String, target_lang: String, key_is_uppercase: bool):

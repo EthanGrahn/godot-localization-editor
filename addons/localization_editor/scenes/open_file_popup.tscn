@@ -2,17 +2,13 @@
 
 [ext_resource type="Script" uid="uid://cy56qtt8mnxl6" path="res://addons/localization_editor/scripts/open_file_popup.gd" id="1_odm6l"]
 
-[node name="OpenFilePopup" type="Popup" node_paths=PackedStringArray("_file_dialog", "_line_edit", "_open_button", "_delimiter_option")]
+[node name="OpenFilePopup" type="Popup"]
 title = "Open File"
 initial_position = 2
 size = Vector2i(400, 137)
 visible = true
 borderless = false
 script = ExtResource("1_odm6l")
-_file_dialog = NodePath("FileDialog")
-_line_edit = NodePath("MarginContainer/VBoxContainer/HBoxContainer/LineEdit")
-_open_button = NodePath("MarginContainer/VBoxContainer/Button")
-_delimiter_option = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/OptionButton")
 
 [node name="FileDialog" type="FileDialog" parent="."]
 mode = 1

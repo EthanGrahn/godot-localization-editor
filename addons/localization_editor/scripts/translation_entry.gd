@@ -23,7 +23,6 @@ signal removed(key: String)
 signal reorder_requested(direction: int)
 signal jump_requested(target_data_idx: int)
 
-@export var _edit_translation_popup: Popup
 @export var _ref_lang_label: Label
 @export var _target_lang_line_edit: LineEdit
 @export var _key_label: Label
@@ -34,6 +33,8 @@ signal jump_requested(target_data_idx: int)
 @export var _dec_index_button: Button
 @export var _inc_index_button: Button
 
+@onready var _edit_translation_popup: Popup = $EditEntryPopup
+@onready var _delete_popup: ConfirmationDialog = $Popup
 @onready var _default_translation_color: Color = _target_lang_line_edit.modulate
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
@@ -336,6 +337,6 @@ func _on_delete_confirmed(remember_choice: bool) -> void:
 
 func _on_delete_button_pressed():
 	if not _config_manager.get_settings_value("main", "no_confirm_delete", false):
-		get_node("Popup").popup_centered()
+		_delete_popup.popup_centered()
 	else:
 		remove()

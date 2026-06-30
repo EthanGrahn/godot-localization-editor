@@ -4,8 +4,8 @@ extends Control
 signal opened(filename: String)
 signal removed(filename: String)
 
-@export var _link: LinkButton
-@export var _delete_button: Button
+@onready var _link: LinkButton = $Lnk
+@onready var _delete_button: Button = $BtnRemove
 
 var filename: String
 
