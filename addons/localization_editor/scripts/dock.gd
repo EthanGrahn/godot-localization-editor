@@ -48,6 +48,8 @@ var _pending_recovery_temp: String = ""
 var _pending_open_path: String = ""
 var _pending_open_delimiter: String = ""
 
+const _PLUS_TAB_META = "__plus_tab__"
+
 var _current_data: Dictionary
 var _translations: Dictionary:
 	set(new_value):
@@ -292,6 +294,17 @@ func _on_Popup_hide() -> void:
 func _on_file_tab_changed(tab_idx: int) -> void:
 	if _switching_tabs:
 		return
+
+	if _file_tab_bar.get_tab_metadata(tab_idx) == _PLUS_TAB_META:
+		_switching_tabs = true
+		for i in range(_file_tab_bar.tab_count):
+			if _file_tab_bar.get_tab_metadata(i) == _current_full_file:
+				_file_tab_bar.current_tab = i
+				break
+		_switching_tabs = false
+		open_file_popup()
+		return
+
 	_switching_tabs = true
 
 	if not _current_full_file.is_empty() and _file_states.has(_current_full_file):
@@ -311,6 +324,9 @@ func _on_file_tab_changed(tab_idx: int) -> void:
 
 
 func _on_file_tab_close_pressed(tab_idx: int) -> void:
+	if _file_tab_bar.get_tab_metadata(tab_idx) == _PLUS_TAB_META:
+		return
+
 	var file_to_close: String = _file_tab_bar.get_tab_metadata(tab_idx)
 	var is_current: bool = file_to_close == _current_full_file
 
@@ -320,7 +336,7 @@ func _on_file_tab_close_pressed(tab_idx: int) -> void:
 	_switching_tabs = true
 	_file_tab_bar.remove_tab(tab_idx)
 
-	if _file_tab_bar.tab_count == 0:
+	if _file_tab_bar.tab_count == 1:  # only "+" tab remains
 		_switching_tabs = false
 		_close_all()
 		return
@@ -329,7 +345,7 @@ func _on_file_tab_close_pressed(tab_idx: int) -> void:
 		_current_full_file = ""
 		_autosave_timer.stop()
 		_clear_search()
-		var new_idx: int = mini(tab_idx, _file_tab_bar.tab_count - 1)
+		var new_idx: int = mini(tab_idx, _file_tab_bar.tab_count - 2)  # -2 to exclude "+"
 		_file_tab_bar.current_tab = new_idx
 		_switching_tabs = false
 		await _on_file_tab_changed(new_idx)
@@ -515,6 +531,10 @@ func _delete_temp_file(file_path: String = "") -> void:
 
 func _update_file_tabs() -> void:
 	_switching_tabs = true
+	# Remove existing "+" tab so we can re-add it at the end
+	for i in range(_file_tab_bar.tab_count - 1, -1, -1):
+		if _file_tab_bar.get_tab_metadata(i) == _PLUS_TAB_META:
+			_file_tab_bar.remove_tab(i)
 	var tabbed_paths: Array = []
 	for i in range(_file_tab_bar.tab_count):
 		tabbed_paths.append(_file_tab_bar.get_tab_metadata(i))
@@ -524,6 +544,9 @@ func _update_file_tabs() -> void:
 			var new_idx: int = _file_tab_bar.tab_count - 1
 			_file_tab_bar.set_tab_metadata(new_idx, path)
 			_file_tab_bar.set_tab_tooltip(new_idx, path)
+	_file_tab_bar.add_tab("+")
+	var plus_idx: int = _file_tab_bar.tab_count - 1
+	_file_tab_bar.set_tab_metadata(plus_idx, _PLUS_TAB_META)
 	for i in range(_file_tab_bar.tab_count):
 		if _file_tab_bar.get_tab_metadata(i) == _current_full_file:
 			_file_tab_bar.current_tab = i

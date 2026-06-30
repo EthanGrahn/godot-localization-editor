@@ -131,7 +131,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-tab_close_display_policy = 2
+tab_close_display_policy = 1
 drag_to_rearrange_enabled = true
 
 [node name="Control" type="Control" parent="Dock/VBoxContainer/FileAndLangSelect" unique_id=404061191]
