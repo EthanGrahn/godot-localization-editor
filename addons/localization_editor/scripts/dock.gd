@@ -505,15 +505,21 @@ func _do_open_file(full_path: String, delimiter: String) -> void:
 	_ref_lang_option.clear()
 	_target_lang_option.clear()
 
-	# get user's preferred reference language
+	# per-file saved preferences take priority over the global user preference
+	var saved_ref_lang: String = _config_manager.get_file_value("ref_lang", "")
+	var saved_target_lang: String = _config_manager.get_file_value("target_lang", "")
 	var user_ref_lang: String = _config_manager.get_settings_value("main", "user_ref_lang", "en")
 	# add languages to the reference and target lists
 	var i: int = 0
 	for l in _langs:
 		_ref_lang_option.add_item(l, i)
-		if not user_ref_lang.is_empty() and user_ref_lang == l:
+		if not saved_ref_lang.is_empty() and saved_ref_lang == l:
+			_ref_lang_option.select(i)
+		elif saved_ref_lang.is_empty() and not user_ref_lang.is_empty() and user_ref_lang == l:
 			_ref_lang_option.select(i)
 		_target_lang_option.add_item(l, i)
+		if not saved_target_lang.is_empty() and saved_target_lang == l:
+			_target_lang_option.select(i)
 		i += 1
 
 	# if both languages are the same but there is more than one, select the next
@@ -623,11 +629,13 @@ func _on_language_item_selected() -> void:
 
 func _on_ref_lang_item_selected(index):
 	_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(index))
+	_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(index))
 	_on_language_item_selected()
 
 
 func _on_target_lang_item_selected(index):
 	_vbx_translations.update_target_language(_target_lang_option.get_item_text(index))
+	_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(index))
 	_on_language_item_selected()
 
 
@@ -641,6 +649,12 @@ func _on_btn_swap_lang_pressed() -> void:
 	)
 	_vbx_translations.update_target_language(
 		_target_lang_option.get_item_text(_target_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"target_lang", _target_lang_option.get_item_text(_target_lang_option.selected)
 	)
 	_on_language_item_selected()
 
