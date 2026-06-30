@@ -6,7 +6,7 @@
 [ext_resource type="StyleBox" uid="uid://cm3uylsyvhiim" path="res://addons/localization_editor/styles/revision_button_hover_pressed.tres" id="2_og0or"]
 [ext_resource type="Texture2D" uid="uid://rqfmnofqeepw" path="res://addons/localization_editor/icons/at-icons/speech_bubble_exclamation_red.svg" id="3_og0or"]
 
-[node name="Button" type="Button" unique_id=1030568733 node_paths=PackedStringArray("_texture")]
+[node name="Button" type="Button" unique_id=1030568733]
 custom_minimum_size = Vector2(31, 31)
 anchors_preset = 8
 anchor_left = 0.5
@@ -25,7 +25,6 @@ theme_override_styles/pressed = ExtResource("1_dsyrm")
 theme_override_styles/hover_pressed = ExtResource("2_og0or")
 toggle_mode = true
 script = ExtResource("1_0kep8")
-_texture = NodePath("MarginContainer/TextureRect")
 _okay_texture = ExtResource("2_c4wu1")
 _alert_texture = ExtResource("3_og0or")
 

@@ -2,18 +2,13 @@
 
 [ext_resource type="Script" uid="uid://c605wngeofuc6" path="res://addons/localization_editor/scripts/add_translation_popup.gd" id="1_w1i2v"]
 
-[node name="AddTranslationPopup" type="Popup" node_paths=PackedStringArray("_key_text", "_ref_text", "_target_text", "_uppercase_check_box", "_add_translation_button")]
+[node name="AddTranslationPopup" type="Popup"]
 title = "Add Translation Item"
 initial_position = 2
 size = Vector2i(300, 160)
 visible = true
 borderless = false
 script = ExtResource("1_w1i2v")
-_key_text = NodePath("MarginContainer/VBoxContainer/HBoxContainer/KeyText")
-_ref_text = NodePath("MarginContainer/VBoxContainer/ReferenceText")
-_target_text = NodePath("MarginContainer/VBoxContainer/TargetText")
-_uppercase_check_box = NodePath("MarginContainer/VBoxContainer/HBoxContainer/UppercaseCheckBox")
-_add_translation_button = NodePath("MarginContainer/VBoxContainer/AddTranslationButton")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15

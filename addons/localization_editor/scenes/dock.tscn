@@ -31,7 +31,7 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_no_files_panel", "_preferences_window", "_open_file_popup", "_create_file_popup", "_credits_popup", "_version_label", "_add_lang_popup", "_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option", "_remove_lang_popup", "_add_translation_popup", "_alert_window", "_csv_loader", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text")]
+[node name="Dock" type="Control" unique_id=356662980 node_paths=PackedStringArray("_create_file_lang_option", "_prefs_lang_option", "_ref_lang_option", "_target_lang_option", "_cb_search_key", "_cb_search_ref_text", "_cb_search_target_text")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,22 +42,11 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_hlgqi")
 script = ExtResource("2_clgin")
-_no_files_panel = NodePath("Dock/VBoxContainer/ControlNoOpenedFiles")
-_preferences_window = NodePath("Preferences")
-_open_file_popup = NodePath("OpenFilePopup")
-_create_file_popup = NodePath("CreateFilePopup")
-_credits_popup = NodePath("CreditsWindow")
-_version_label = NodePath("Dock/VBoxContainer/LblTextBottom")
-_add_lang_popup = NodePath("AddLangPopup")
 _create_file_lang_option = NodePath("CreateFilePopup/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/OptionButtonLangsNewFile")
 _prefs_lang_option = NodePath("Preferences/MarginContainer/VBoxContainer/RefLangItemList")
 _ref_lang_option = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer/RefLangItemList")
 _target_lang_option = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer/VBoxContainer2/TargetLangItemList")
-_remove_lang_popup = NodePath("RemoveLangPopup")
-_add_translation_popup = NodePath("AddTranslationPopup")
-_alert_window = NodePath("AlertWindow")
 _locale_list = ExtResource("5_njx2k")
-_csv_loader = NodePath("CSVLoader")
 _cb_search_key = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchKey")
 _cb_search_ref_text = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchRefText")
 _cb_search_target_text = NodePath("Dock/VBoxContainer/HBxContentFile/MarginContainer/VBxTranslationMain/HBoxContainer2/CheckBoxSearchTargetText")

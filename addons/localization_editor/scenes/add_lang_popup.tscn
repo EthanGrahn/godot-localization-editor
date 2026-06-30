@@ -3,14 +3,13 @@
 [ext_resource type="Script" uid="uid://c75runr2yh2g1" path="res://addons/localization_editor/scripts/add_lang_popup.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://0c5576cyklei" path="res://addons/localization_editor/scripts/localization_locale_list.gd" id="2_locale"]
 
-[node name="AddLangPopup" type="Popup" node_paths=PackedStringArray("_option_button")]
+[node name="AddLangPopup" type="Popup"]
 title = "Add New Language"
 initial_position = 2
 size = Vector2i(341, 130)
 borderless = false
 script = ExtResource("1_script")
 _locale_list = ExtResource("2_locale")
-_option_button = NodePath("MarginContainer/VBoxContainer/AddLangOptionButton")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15

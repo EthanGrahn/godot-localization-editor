@@ -7,8 +7,8 @@ signal on_new_file_created(filename: String, first_cell: String, delimiter: Stri
 @export var _filepath_line_edit: LineEdit
 @export var _added_langs: TextEdit
 @export var _lang_option: OptionButton
-@export var _folder_dialog: FileDialog
 @export var _delimiter_option: OptionButton
+@onready var _folder_dialog: FileDialog = $FolderDialog
 @export var _create_new_file_button: Button
 
 var _first_cell := "keys"

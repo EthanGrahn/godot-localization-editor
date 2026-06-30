@@ -3,7 +3,8 @@ extends Popup
 
 signal remove_requested(language: String)
 
-@export var _option_button: OptionButton
+@onready
+var _option_button: OptionButton = $MarginContainer/VBoxContainer/HBoxContainer/LangsToRemove
 
 var _confirmation: ConfirmationDialog
 

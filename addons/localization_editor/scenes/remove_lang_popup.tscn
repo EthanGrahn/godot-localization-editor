@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b0r2ppjd65wnj" path="res://addons/localization_editor/scripts/remove_lang_popup.gd" id="1_b20kw"]
 
-[node name="RemoveLangPopup" type="Popup" unique_id=1429879164 node_paths=PackedStringArray("_option_button")]
+[node name="RemoveLangPopup" type="Popup" unique_id=1429879164]
 oversampling_override = 1.0
 title = "Remove Language"
 initial_position = 2
@@ -10,7 +10,6 @@ size = Vector2i(500, 181)
 visible = true
 borderless = false
 script = ExtResource("1_b20kw")
-_option_button = NodePath("MarginContainer/VBoxContainer/HBoxContainer/LangsToRemove")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1380858872]
 anchors_preset = 15

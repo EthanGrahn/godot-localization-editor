@@ -4,15 +4,13 @@
 [ext_resource type="Texture2D" uid="uid://47v3b2qspq78" path="res://addons/localization_editor/icons/at-icons/trash_can_white.svg" id="3_86qxe"]
 [ext_resource type="Script" uid="uid://c0j6t8leypavv" path="res://addons/localization_editor/scripts/hover_button.gd" id="3_tvdyr"]
 
-[node name="LinkButton" type="HBoxContainer" unique_id=1607572580 node_paths=PackedStringArray("_link", "_delete_button")]
+[node name="LinkButton" type="HBoxContainer" unique_id=1607572580]
 offset_right = 114.0
 offset_bottom = 19.0
 size_flags_horizontal = 3
 size_flags_vertical = 2
 alignment = 2
 script = ExtResource("1")
-_link = NodePath("Lnk")
-_delete_button = NodePath("BtnRemove")
 
 [node name="Lnk" type="LinkButton" parent="." unique_id=754386915]
 modulate = Color(0.745098, 0.745098, 0.745098, 1)
