@@ -239,7 +239,7 @@ func _on_edit_menu_id_pressed(id: int) -> void:
 		1:
 			# add new language
 			if _no_files_panel.visible == false:
-				_add_lang_popup.popup_centered()
+				_add_lang_popup.request_popup(_langs)
 		2:
 			# delete language
 			if _no_files_panel.visible == false and _langs.size() > 0:

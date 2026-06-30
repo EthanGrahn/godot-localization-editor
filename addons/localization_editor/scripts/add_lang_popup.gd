@@ -7,13 +7,15 @@ signal lang_add_requested(lang_code: String)
 @onready var _option_button: OptionButton = $MarginContainer/VBoxContainer/AddLangOptionButton
 
 
-func _ready() -> void:
+func request_popup(existing_langs: Array) -> void:
 	var locales = _locale_list.new()
 	_option_button.clear()
 	var i: int = 0
 	for l in locales.LOCALES:
-		_option_button.add_item("%s, %s" % [l["name"], l["code"]], i)
-		i += 1
+		if l["code"] not in existing_langs and l["name"] not in existing_langs:
+			_option_button.add_item("%s, %s" % [l["name"], l["code"]], i)
+			i += 1
+	popup_centered()
 
 
 func _on_add_button_pressed() -> void:
