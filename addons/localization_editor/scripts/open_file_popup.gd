@@ -6,7 +6,8 @@ signal file_selected(filename: String, delimiter: String)
 @onready var _file_dialog: FileDialog = $FileDialog
 @onready var _line_edit: LineEdit = $MarginContainer/VBoxContainer/HBoxContainer/LineEdit
 @onready var _open_button: Button = $MarginContainer/VBoxContainer/Button
-@onready var _delimiter_option: OptionButton = $MarginContainer/VBoxContainer/HBoxContainer2/OptionButton
+@onready
+var _delimiter_option: OptionButton = $MarginContainer/VBoxContainer/HBoxContainer2/OptionButton
 
 var _selected_file: String
 var _delimiter := ","

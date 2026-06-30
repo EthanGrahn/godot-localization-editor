@@ -6,7 +6,8 @@ signal translation_added(key: String, ref_text: String, target_text: String, key
 @onready var _key_text: LineEdit = $MarginContainer/VBoxContainer/HBoxContainer/KeyText
 @onready var _ref_text: LineEdit = $MarginContainer/VBoxContainer/ReferenceText
 @onready var _target_text: LineEdit = $MarginContainer/VBoxContainer/TargetText
-@onready var _uppercase_check_box: CheckBox = $MarginContainer/VBoxContainer/HBoxContainer/UppercaseCheckBox
+@onready
+var _uppercase_check_box: CheckBox = $MarginContainer/VBoxContainer/HBoxContainer/UppercaseCheckBox
 @onready var _add_translation_button: Button = $MarginContainer/VBoxContainer/AddTranslationButton
 
 
