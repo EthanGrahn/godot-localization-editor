@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://c30katweecxtg"]
+[gd_scene format=3 uid="uid://c30katweecxtg"]
 
 [ext_resource type="Script" uid="uid://c605wngeofuc6" path="res://addons/localization_editor/scripts/add_translation_popup.gd" id="1_w1i2v"]
 
-[node name="AddTranslationPopup" type="Popup"]
+[node name="AddTranslationPopup" type="Popup" unique_id=1618333138]
+oversampling_override = 1.0
 title = "Add Translation Item"
 initial_position = 2
 size = Vector2i(300, 160)
@@ -10,7 +11,7 @@ visible = true
 borderless = false
 script = ExtResource("1_w1i2v")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=790204877]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -19,42 +20,44 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=93610410]
 layout_mode = 2
 alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=384417535]
 layout_mode = 2
 
-[node name="KeyText" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="KeyText" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=159530139]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "key"
 caret_blink = true
 
-[node name="UppercaseCheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="UppercaseCheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1960940008]
 layout_mode = 2
 tooltip_text = "Automatically set key to uppercase"
 focus_mode = 0
 button_pressed = true
 text = "Uppercase"
 
-[node name="ReferenceText" type="LineEdit" parent="MarginContainer/VBoxContainer"]
+[node name="ReferenceText" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=25365097]
 layout_mode = 2
 placeholder_text = "[en] text here..."
 caret_blink = true
 
-[node name="TargetText" type="LineEdit" parent="MarginContainer/VBoxContainer"]
+[node name="TargetText" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=1999590853]
 layout_mode = 2
 placeholder_text = "[es] text here..."
 caret_blink = true
 
-[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1462869536]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="AddTranslationButton" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="AddTranslationButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1395645395]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 4
 disabled = true
 text = "Add"
 

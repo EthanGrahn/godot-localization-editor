@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://cm2mjjc6lgmsc"]
+[gd_scene format=3 uid="uid://cm2mjjc6lgmsc"]
 
 [ext_resource type="Script" uid="uid://bhro2d70fw0s1" path="res://addons/localization_editor/scripts/preference_window.gd" id="1_q5kei"]
 
-[node name="Preferences" type="Popup" node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file", "_delete_confirmation")]
+[node name="Preferences" type="Popup" unique_id=2795202 node_paths=PackedStringArray("_first_cell", "_delimiter", "_ref_lang", "_reopen_file", "_delete_confirmation")]
+oversampling_override = 1.0
 title = "Preferences"
 initial_position = 2
 size = Vector2i(395, 252)
@@ -15,7 +16,7 @@ _ref_lang = NodePath("MarginContainer/VBoxContainer/RefLangItemList")
 _reopen_file = NodePath("MarginContainer/VBoxContainer/CheckBoxSettingReopenFile")
 _delete_confirmation = NodePath("MarginContainer/VBoxContainer/DeleteConfirmation")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=853132971]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -24,20 +25,21 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1732945120]
+layout_mode = 2
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1517903449]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1762479367]
 layout_mode = 2
 size_flags_horizontal = 3
 tooltip_text = "Value stored in cell A1 of the CSV"
 mouse_filter = 1
 text = "First Cell Name"
 
-[node name="TxtSettingFCell" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="TxtSettingFCell" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1104163028]
 custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -45,35 +47,35 @@ text = "keys"
 max_length = 20
 caret_blink = true
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=2135626008]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=727885880]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Delimiter"
 
-[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=790986183]
 custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
-item_count = 3
 selected = 0
-popup/item_0/text = "Comma"
+item_count = 3
+popup/item_0/text = "Comma (,)"
 popup/item_0/id = 0
-popup/item_1/text = "Semicolon"
+popup/item_1/text = "Semicolon (;)"
 popup/item_1/id = 1
-popup/item_2/text = "Tab"
+popup/item_2/text = "Tab (\\t)"
 popup/item_2/id = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=975222806]
 layout_mode = 2
 text = "Reference Language"
 
-[node name="RefLangItemList" type="OptionButton" parent="MarginContainer/VBoxContainer"]
+[node name="RefLangItemList" type="OptionButton" parent="MarginContainer/VBoxContainer" unique_id=1153009083]
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 364
 selected = 0
+item_count = 364
 popup/item_0/text = "Afar, aa"
 popup/item_0/id = 0
 popup/item_1/text = "Afar (Djibouti), aa_DJ"
@@ -803,16 +805,16 @@ popup/item_362/id = 362
 popup/item_363/text = "Zulu (South Africa), zu_ZA"
 popup/item_363/id = 363
 
-[node name="CheckBoxSettingReopenFile" type="CheckBox" parent="MarginContainer/VBoxContainer"]
+[node name="CheckBoxSettingReopenFile" type="CheckBox" parent="MarginContainer/VBoxContainer" unique_id=1042992568]
 layout_mode = 2
 button_pressed = true
-text = "Re-open last opened file on start"
+text = "Re-open previously opened file on start"
 
-[node name="DeleteConfirmation" type="CheckBox" parent="MarginContainer/VBoxContainer"]
+[node name="DeleteConfirmation" type="CheckBox" parent="MarginContainer/VBoxContainer" unique_id=930018407]
 layout_mode = 2
 text = "Skip translation delete confirmation"
 
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="Button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=676538852]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Save and Close"

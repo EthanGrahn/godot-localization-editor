@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://l1hdowu84hpr"]
+[gd_scene format=3 uid="uid://l1hdowu84hpr"]
 
 [ext_resource type="Script" uid="uid://cy56qtt8mnxl6" path="res://addons/localization_editor/scripts/open_file_popup.gd" id="1_odm6l"]
 
-[node name="OpenFilePopup" type="Popup"]
+[node name="OpenFilePopup" type="Popup" unique_id=1874292656]
+oversampling_override = 1.0
 title = "Open File"
 initial_position = 2
 size = Vector2i(400, 137)
@@ -10,16 +11,17 @@ visible = true
 borderless = false
 script = ExtResource("1_odm6l")
 
-[node name="FileDialog" type="FileDialog" parent="."]
+[node name="FileDialog" type="FileDialog" parent="." unique_id=146100217]
+oversampling_override = 1.0
 mode = 1
 title = "Open a File"
 initial_position = 2
-size = Vector2i(425, 300)
+size = Vector2i(700, 550)
 ok_button_text = "Open"
 file_mode = 0
 filters = PackedStringArray("*.csv;CSV Translation")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=117186880]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -30,35 +32,35 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1193743197]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=477391491]
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1678062491]
 layout_mode = 2
 size_flags_horizontal = 3
 editable = false
 
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1860056546]
 layout_mode = 2
 text = "Browse"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1660541069]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1633187048]
 layout_mode = 2
 text = "Delimiter"
 
-[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1587463882]
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 3
 selected = 0
+item_count = 3
 popup/item_0/text = "Comma (,)"
 popup/item_0/id = 0
 popup/item_1/text = "Semicolon (;)"
@@ -66,12 +68,14 @@ popup/item_1/id = 1
 popup/item_2/text = "Tab (\\t)"
 popup/item_2/id = 2
 
-[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1278566899]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="Button" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1665918916]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+size_flags_horizontal = 4
 text = "Open"
 
 [connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
