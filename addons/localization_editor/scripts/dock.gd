@@ -80,7 +80,13 @@ var _current_path_config := ConfigFile.new()
 var _file_states: Dictionary = {}  # path -> { data, ref_lang_idx, target_lang_idx, is_dirty }
 var _switching_tabs: bool = false
 var _google_translate: Node
-var _search_filters := {"need_translation": false, "need_revision": false, "search_key": true, "search_ref_text": true, "search_target_text": true}
+var _search_filters := {
+	"need_translation": false,
+	"need_revision": false,
+	"search_key": true,
+	"search_ref_text": true,
+	"search_target_text": true
+}
 
 
 func _ready() -> void:
@@ -752,19 +758,31 @@ func _on_filter_changed(index: int) -> void:
 			_search_filter_popup.set_item_checked(2, _search_filters["need_revision"])
 		4:
 			var new_val: bool = !_search_filters["search_key"]
-			if not new_val and not _search_filters["search_ref_text"] and not _search_filters["search_target_text"]:
+			if (
+				not new_val
+				and not _search_filters["search_ref_text"]
+				and not _search_filters["search_target_text"]
+			):
 				return
 			_search_filters["search_key"] = new_val
 			_search_filter_popup.set_item_checked(4, new_val)
 		5:
 			var new_val: bool = !_search_filters["search_ref_text"]
-			if not _search_filters["search_key"] and not new_val and not _search_filters["search_target_text"]:
+			if (
+				not _search_filters["search_key"]
+				and not new_val
+				and not _search_filters["search_target_text"]
+			):
 				return
 			_search_filters["search_ref_text"] = new_val
 			_search_filter_popup.set_item_checked(5, new_val)
 		6:
 			var new_val: bool = !_search_filters["search_target_text"]
-			if not _search_filters["search_key"] and not _search_filters["search_ref_text"] and not new_val:
+			if (
+				not _search_filters["search_key"]
+				and not _search_filters["search_ref_text"]
+				and not new_val
+			):
 				return
 			_search_filters["search_target_text"] = new_val
 			_search_filter_popup.set_item_checked(6, new_val)
