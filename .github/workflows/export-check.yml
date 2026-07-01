@@ -5,6 +5,13 @@ on:
     branches:
       - main
       - 'v[0-9]*'
+    paths:
+      - 'addons/**'
+      - 'project.godot'
+      - 'Main.tscn'
+      - 'export_presets.cfg'
+      - 'minimum_profile.gdbuild'
+      - '.github/workflows/export-check.yml'
   workflow_dispatch:
 
 jobs:
