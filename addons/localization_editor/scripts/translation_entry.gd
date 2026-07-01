@@ -35,7 +35,7 @@ signal jump_requested(target_data_idx: int)
 
 @onready var _edit_translation_popup: Popup = $EditEntryPopup
 @onready var _delete_popup: ConfirmationDialog = $Popup
-@onready var _default_translation_color: Color = _target_lang_line_edit.modulate
+var _default_translation_color: Color = Color.WHITE
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
 var key: String = "Translation Key":
@@ -52,17 +52,19 @@ var key: String = "Translation Key":
 var ref_text: String = "Reference Translation":
 	set(new_value):
 		ref_text = new_value
-		_ref_lang_label.text = ref_text
-		if ref_text.is_empty() == true:
+		if ref_text.is_empty():
 			ref_text = "[EMPTY]"
+		_ref_lang_label.text = ref_text
 
 		# TODO: add logic for text that doesn't fit in box
 
 var target_text: String = "Translated Text":
 	set(new_value):
 		target_text = new_value
-		if is_instance_valid(_target_lang_line_edit) and _target_lang_line_edit.text != new_value:
-			_target_lang_line_edit.text = new_value
+		if is_instance_valid(_target_lang_line_edit):
+			if _target_lang_line_edit.text != new_value:
+				_target_lang_line_edit.text = new_value
+			_target_lang_line_edit.modulate = _empty_translation_color if new_value.is_empty() else _default_translation_color
 
 var notes: String = "":
 	set(new_value):
@@ -159,6 +161,8 @@ func prepare_for_reuse() -> void:
 	_is_ready_for_emit_signals = false
 	_key_is_invalid = false
 	_revision_forced_by_key = false
+	if is_instance_valid(_target_lang_line_edit):
+		_target_lang_line_edit.modulate = _default_translation_color
 
 
 func get_translation_data() -> Dictionary:
