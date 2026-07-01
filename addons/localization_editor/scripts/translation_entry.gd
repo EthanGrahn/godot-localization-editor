@@ -51,10 +51,7 @@ var key: String = "Translation Key":
 
 var ref_text: String = "Reference Translation":
 	set(new_value):
-		ref_text = new_value
-		if ref_text.is_empty():
-			ref_text = "[EMPTY]"
-		_ref_lang_label.text = ref_text
+		_ref_lang_label.text = "[EMPTY]" if new_value.is_empty() else new_value
 
 var target_text: String = "Translated Text":
 	set(new_value):
