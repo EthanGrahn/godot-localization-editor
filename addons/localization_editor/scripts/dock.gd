@@ -678,6 +678,7 @@ func _on_btn_swap_lang_pressed() -> void:
 		"target_lang", _target_lang_option.get_item_text(_target_lang_option.selected)
 	)
 	_on_language_item_selected()
+	_start_search()
 
 
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
