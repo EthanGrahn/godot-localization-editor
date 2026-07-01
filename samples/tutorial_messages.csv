@@ -1,0 +1,21 @@
+keys,en,es,de
+TUT_WELCOME,Welcome to Echoes of the Realm!,¡Bienvenido a Ecos del Reino!,Willkommen in Echoes of the Realm!
+TUT_MOVE,Use [W][A][S][D] or the left joystick to move.,Usa [W][A][S][D] o el joystick izquierdo para moverte.,Benutze [W][A][S][D] oder den linken Joystick zum Bewegen.
+TUT_ATTACK,Press [Attack] to strike. Hold to charge a heavy blow.,Presiona [Ataque] para golpear. Mantén para un golpe cargado.,Drücke [Angriff] zum Schlagen. Halten für einen schweren Schlag.
+TUT_DODGE,Press [Dodge] to roll out of harm's way.,Presiona [Esquivar] para esquivar el peligro.,Drücke [Ausweichen] um dem Schaden zu entgehen.
+TUT_INTERACT,Press [Interact] near objects or NPCs to use them.,Presiona [Interactuar] cerca de objetos o NPCs para usarlos.,Drücke [Interagieren] in der Nähe von Objekten oder NPCs.
+TUT_COINS_COLLECTED,You collected %d coins!,¡Recogiste %d monedas!,Du hast %d Münzen gesammelt!
+TUT_ITEM_FOUND,New item found: %s,Objeto nuevo encontrado: %s,Neuer Gegenstand gefunden: %s
+TUT_ENEMY_WEAK,%s is weak against %s.,%s es débil contra %s.,%s ist schwach gegen %s.
+TUT_HEALTH_LOW,Warning: your health is critically low!\nFind a healing shrine or use a potion.,¡Advertencia: tu salud está muy baja!\nEncuentra un santuario curativo o usa una poción.,Warnung: Deine Gesundheit ist kritisch niedrig!\nFinde einen Heilungsschrein oder benutze einen Trank.
+TUT_OPEN_MAP,Open the map with [Map] to navigate the world.,Abre el mapa con [Mapa] para navegar por el mundo.,Öffne die Karte mit [Karte] zur Navigation.
+TUT_QUEST_UPDATED,Quest updated: %s,Misión actualizada: %s,Aufgabe aktualisiert: %s
+TUT_LEVEL_UP,Level up!\nYou gained +%d to all stats.,¡Subiste de nivel!\nGanaste +%d en todos los atributos.,Levelaufstieg!\nDu hast +%d auf alle Werte erhalten.
+TUT_CHECKPOINT,Checkpoint reached.\nProgress has been saved.,Punto de control alcanzado.\nEl progreso se ha guardado.,Checkpoint erreicht.\nFortschritt wurde gespeichert.
+TUT_BOSS_INTRO,A powerful enemy approaches!\nStudy its patterns before attacking.,¡Un enemigo poderoso se acerca!\nEstudia sus patrones antes de atacar.,Ein mächtiger Feind naht!\nStudiere seine Muster vor dem Angriff.
+TUT_HINT_CHEST,Chests may be locked. Look for keys hidden in the world.,Los cofres pueden estar cerrados. Busca llaves escondidas en el mundo.,Truhen können verschlossen sein. Suche nach versteckten Schlüsseln.
+TUT_HINT_SHORTCUT,Press [Sprint] + [Attack] for a quick dash strike.,Presiona [Correr] + [Ataque] para un golpe en carrera.,Drücke [Sprint] + [Angriff] für einen schnellen Ausfall.
+TUT_SHOP_INTRO,"Welcome to my shop, traveler!\nI have %d items available today.","¡Bienvenido a mi tienda, viajero!\nTengo %d artículos disponibles hoy.","Willkommen in meinem Laden, Reisender!\nIch habe heute %d Artikel verfügbar."
+TUT_COMPLETE,Tutorial complete!\nYour adventure begins now. Good luck!,¡Tutorial completo!\nTu aventura comienza ahora. ¡Buena suerte!,Tutorial abgeschlossen!\nDein Abenteuer beginnt jetzt. Viel Glück!
+TUT_GAME_OVER,Game Over.\nPress [Restart] to try again or [Menu] to return to the main menu.,Game Over.\nPresiona [Reiniciar] para intentarlo de nuevo o [Menú] para volver al menú principal.,Spiel vorbei.\nDrücke [Neustart] zum Wiederholen oder [Menü] für das Hauptmenü.
+TUT_PAUSE_TIP,Tip: Open the pause menu to manage your inventory and adjust settings.,Consejo: Abre el menú de pausa para gestionar el inventario y ajustar la configuración.,Tipp: Öffne das Pausenmenü zur Verwaltung des Inventars und der Einstellungen.

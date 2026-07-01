@@ -3,13 +3,20 @@ extends Popup
 
 signal file_selected(filename: String, delimiter: String)
 
-@export var _file_dialog: FileDialog
-@export var _line_edit: LineEdit
-@export var _open_button: Button
-@export var _delimiter_option: OptionButton
+@onready var _file_dialog: FileDialog = $FileDialog
+@onready var _line_edit: LineEdit = $MarginContainer/VBoxContainer/HBoxContainer/LineEdit
+@onready var _open_button: Button = $MarginContainer/VBoxContainer/Button
+@onready
+var _delimiter_option: OptionButton = $MarginContainer/VBoxContainer/HBoxContainer2/OptionButton
 
 var _selected_file: String
 var _delimiter := ","
+
+
+func _ready() -> void:
+	_file_dialog.access = (
+		FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
+	)
 
 
 func _on_file_dialog_file_selected(path: String) -> void:

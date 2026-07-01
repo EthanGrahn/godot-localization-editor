@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://cvkoh3dmerylx"]
+[gd_scene format=3 uid="uid://cvkoh3dmerylx"]
 
 [ext_resource type="Script" uid="uid://c84c6dipaaahi" path="res://addons/localization_editor/scripts/revision_button.gd" id="1_0kep8"]
-[ext_resource type="Texture2D" uid="uid://tuk0uwtoonfk" path="res://addons/localization_editor/icons/okay.svg" id="1_w5ccq"]
-[ext_resource type="Texture2D" uid="uid://8fnjr0y3mokc" path="res://addons/localization_editor/icons/alert.svg" id="3_2l2u5"]
+[ext_resource type="StyleBox" uid="uid://dl5htk5mi2ka4" path="res://addons/localization_editor/styles/revision_button_pressed.tres" id="1_dsyrm"]
+[ext_resource type="Texture2D" uid="uid://20dktqge5q2o" path="res://addons/localization_editor/icons/at-icons/checkmark_green.svg" id="2_c4wu1"]
+[ext_resource type="StyleBox" uid="uid://cm3uylsyvhiim" path="res://addons/localization_editor/styles/revision_button_hover_pressed.tres" id="2_og0or"]
+[ext_resource type="Texture2D" uid="uid://rqfmnofqeepw" path="res://addons/localization_editor/icons/at-icons/speech_bubble_exclamation_red.svg" id="3_og0or"]
 
-[node name="Button" type="Button" node_paths=PackedStringArray("_texture")]
+[node name="Button" type="Button" unique_id=1030568733]
 custom_minimum_size = Vector2(31, 31)
 anchors_preset = 8
 anchor_left = 0.5
@@ -19,15 +21,14 @@ grow_horizontal = 2
 grow_vertical = 2
 tooltip_text = "Toggle Needs Revision"
 focus_mode = 0
+theme_override_styles/pressed = ExtResource("1_dsyrm")
+theme_override_styles/hover_pressed = ExtResource("2_og0or")
 toggle_mode = true
 script = ExtResource("1_0kep8")
-_texture = NodePath("MarginContainer/TextureRect")
-_okay_texture = ExtResource("1_w5ccq")
-_okay_color = Color(0.145098, 0.729412, 0.145098, 1)
-_alert_texture = ExtResource("3_2l2u5")
-_alert_color = Color(0.878431, 0.133333, 0.133333, 1)
+_okay_texture = ExtResource("2_c4wu1")
+_alert_texture = ExtResource("3_og0or")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=991630053]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -39,10 +40,9 @@ theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 2
 theme_override_constants/margin_bottom = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer"]
-modulate = Color(0.145098, 0.729412, 0.145098, 1)
+[node name="TextureRect" type="TextureRect" parent="MarginContainer" unique_id=585837506]
 layout_mode = 2
-texture = ExtResource("1_w5ccq")
+texture = ExtResource("2_c4wu1")
 expand_mode = 3
 stretch_mode = 5
 

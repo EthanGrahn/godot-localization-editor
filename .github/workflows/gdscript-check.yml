@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - 'v[0-9]*'
+    paths:
+      - 'addons/**/*.gd'
+      - 'gdlintrc'
+      - '.github/workflows/gdscript-check.yml'
   workflow_dispatch:
 
 jobs:

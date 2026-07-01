@@ -21,8 +21,8 @@ signal translation_requested(
 )
 signal removed(key: String)
 signal reorder_requested(direction: int)
+signal jump_requested(target_data_idx: int)
 
-@export var _edit_translation_popup: Popup
 @export var _ref_lang_label: Label
 @export var _target_lang_line_edit: LineEdit
 @export var _key_label: Label
@@ -30,10 +30,12 @@ signal reorder_requested(direction: int)
 @export var _empty_translation_color: Color
 @export var _translate_button: Button
 @export var _index_line_edit: LineEdit
-@export var _dec_index_button: TextureButton
-@export var _inc_index_button: TextureButton
+@export var _dec_index_button: Button
+@export var _inc_index_button: Button
 
-@onready var _default_translation_color: Color = _target_lang_line_edit.modulate
+@onready var _edit_translation_popup: Popup = $EditEntryPopup
+@onready var _delete_popup: ConfirmationDialog = $Popup
+var _default_translation_color: Color = Color.WHITE
 @onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
 var key: String = "Translation Key":
@@ -49,18 +51,17 @@ var key: String = "Translation Key":
 
 var ref_text: String = "Reference Translation":
 	set(new_value):
-		ref_text = new_value
-		_ref_lang_label.text = ref_text
-		if ref_text.is_empty() == true:
-			ref_text = "[EMPTY]"
-
-		# TODO: add logic for text that doesn't fit in box
+		_ref_lang_label.text = "[EMPTY]" if new_value.is_empty() else new_value
 
 var target_text: String = "Translated Text":
 	set(new_value):
 		target_text = new_value
-		if is_instance_valid(_target_lang_line_edit) and _target_lang_line_edit.text != new_value:
-			_target_lang_line_edit.text = new_value
+		if is_instance_valid(_target_lang_line_edit):
+			if _target_lang_line_edit.text != new_value:
+				_target_lang_line_edit.text = new_value
+			_target_lang_line_edit.modulate = (
+				_empty_translation_color if new_value.is_empty() else _default_translation_color
+			)
 
 var notes: String = "":
 	set(new_value):
@@ -151,6 +152,14 @@ func set_translation_data(
 
 func set_init_complete() -> void:
 	_is_ready_for_emit_signals = true
+
+
+func prepare_for_reuse() -> void:
+	_is_ready_for_emit_signals = false
+	_key_is_invalid = false
+	_revision_forced_by_key = false
+	if is_instance_valid(_target_lang_line_edit):
+		_target_lang_line_edit.modulate = _default_translation_color
 
 
 func get_translation_data() -> Dictionary:
@@ -303,24 +312,23 @@ func _on_edit_button_pressed() -> void:
 	_edit_translation_popup.request_edit(key, ref_lang, target_lang, ref_text, target_text, notes)
 
 
+func _on_index_text_submitted(_line_edit: LineEdit, new_text: String) -> void:
+	if new_text.is_empty():
+		_index_line_edit.text = str(data_index)
+		return
+	var target: int = int(new_text)
+	if target == data_index:
+		return
+	jump_requested.emit(target)
+
+
 func _on_change_index_pressed(is_up: bool) -> void:
 	reorder_requested.emit(-1 if is_up else 1)
 
 
 func _update_arrows() -> void:
-	if filter_index == 0:
-		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
-		_dec_index_button.disabled = true
-	else:
-		_dec_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_dec_index_button.disabled = false
-
-	if filter_total == 0 or filter_index >= filter_total - 1:
-		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
-		_inc_index_button.disabled = true
-	else:
-		_inc_index_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		_inc_index_button.disabled = false
+	_dec_index_button.disabled = filter_index == 0
+	_inc_index_button.disabled = filter_total == 0 or filter_index >= filter_total - 1
 
 
 func _on_delete_confirmed(remember_choice: bool) -> void:
@@ -330,6 +338,6 @@ func _on_delete_confirmed(remember_choice: bool) -> void:
 
 func _on_delete_button_pressed():
 	if not _config_manager.get_settings_value("main", "no_confirm_delete", false):
-		get_node("Popup").popup_centered()
+		_delete_popup.popup_centered()
 	else:
 		remove()

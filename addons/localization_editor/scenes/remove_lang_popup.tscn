@@ -1,63 +1,59 @@
-[gd_scene load_steps=2 format=3 uid="uid://dbub070702fwd"]
+[gd_scene format=3 uid="uid://dbub070702fwd"]
 
 [ext_resource type="Script" uid="uid://b0r2ppjd65wnj" path="res://addons/localization_editor/scripts/remove_lang_popup.gd" id="1_b20kw"]
 
-[node name="RemoveLangPopup" type="Popup" node_paths=PackedStringArray("_option_button", "_confirmation")]
+[node name="RemoveLangPopup" type="Popup" unique_id=1429879164]
+oversampling_override = 1.0
 title = "Remove Language"
 initial_position = 2
-size = Vector2i(490, 231)
+size = Vector2i(500, 181)
 visible = true
 borderless = false
 script = ExtResource("1_b20kw")
-_option_button = NodePath("MarginContainer/VBoxContainer/HBoxContainer/LangsToRemove")
-_confirmation = NodePath("Confirmation")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1380858872]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 0
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1771854603]
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1191756032]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1752525180]
 layout_mode = 2
 text = "Language to remove:"
 
-[node name="LangsToRemove" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="LangsToRemove" type="OptionButton" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=815441567]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1351295160]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1289960164]
+custom_maximum_size = Vector2(484, -1)
 layout_mode = 2
 text = "CAUTION: This will erase all translations for the selected language. This action cannot be undone."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="BtnRemoveLang" type="Button" parent="MarginContainer/VBoxContainer"]
+[node name="BtnRemoveLang" type="Button" parent="MarginContainer/VBoxContainer" unique_id=979644757]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_hover_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
 text = "Remove"
 
-[node name="Confirmation" type="ConfirmationDialog" parent="."]
-initial_position = 2
-ok_button_text = "Yes"
-dialog_text = "Are you sure?"
-dialog_autowrap = true
-cancel_button_text = "No"
-
 [connection signal="pressed" from="MarginContainer/VBoxContainer/BtnRemoveLang" to="." method="_on_remove_button_pressed"]
-[connection signal="confirmed" from="Confirmation" to="." method="_on_remove_confirmed"]

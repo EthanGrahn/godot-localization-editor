@@ -1,9 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://cib125ol05x5u"]
+[gd_scene format=3 uid="uid://cib125ol05x5u"]
 
 [ext_resource type="Script" uid="uid://dc2ov25hhqoqv" path="res://addons/localization_editor/scripts/edit_entry_popup.gd" id="1_y0y58"]
 [ext_resource type="Texture2D" uid="uid://ddp4efbw85k3q" path="res://addons/localization_editor/progress_fill.png" id="2_hc47a"]
 
-[node name="EditEntryPopup" type="Popup" node_paths=PackedStringArray("_key_line_edit", "_source_lang_label", "_source_lang_text", "_target_lang_label", "_target_lang_text", "_note_text", "_difference_bar")]
+[node name="EditEntryPopup" type="Popup" unique_id=1476293636 node_paths=PackedStringArray("_key_line_edit", "_source_lang_label", "_source_lang_text", "_target_lang_label", "_target_lang_text", "_note_text", "_difference_bar")]
+oversampling_override = 1.0
 title = "Edit Translation"
 initial_position = 2
 size = Vector2i(600, 450)
@@ -18,7 +19,7 @@ _target_lang_text = NodePath("MarginContainer/VBoxContainer/HBoxContainer2/VBoxC
 _note_text = NodePath("MarginContainer/VBoxContainer/VBoxContainer/TxtAnnotations")
 _difference_bar = NodePath("MarginContainer/VBoxContainer/DifferenceBar")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1389179350]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -27,100 +28,100 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1355233961]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=826110972]
 layout_mode = 2
 
-[node name="CTCheckEditKey" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="CTCheckEditKey" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=2036388569]
 layout_mode = 2
 focus_mode = 0
 
-[node name="CTLineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="CTLineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=554120497]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "String Key"
 editable = false
 caret_blink = true
 
-[node name="CTBtnDeleteKey" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="CTBtnDeleteKey" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1897952393]
 visible = false
 modulate = Color(0.662745, 0.0823529, 0.0823529, 1)
 layout_mode = 2
 focus_mode = 0
 text = "Delete"
 
-[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1783062751]
 layout_mode = 2
 
-[node name="CTBtnSaveKey" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-modulate = Color(0.0862745, 1, 0.701961, 1)
+[node name="CTBtnSaveKey" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=290190998]
 layout_mode = 2
 text = "Confirm"
 
-[node name="VSeparator2" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="VSeparator2" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=281612487]
 visible = false
 layout_mode = 2
 
-[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=839574666]
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=2054480074]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBxRefText" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="VBxRefText" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=687391913]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText" unique_id=297718732]
+custom_maximum_size = Vector2(-1, 20)
 layout_mode = 2
 
-[node name="CTCheckEnableOriginalTxt" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText/HBoxContainer"]
+[node name="CTCheckEnableOriginalTxt" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText/HBoxContainer" unique_id=564107278]
 layout_mode = 2
 focus_mode = 0
 
-[node name="LblOriginalTxt" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText/HBoxContainer"]
+[node name="LblOriginalTxt" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText/HBoxContainer" unique_id=756558464]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "[EN] Original Text..."
 
-[node name="TxtOriginalTxt" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText"]
+[node name="TxtOriginalTxt" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBxRefText" unique_id=281542780]
 layout_mode = 2
 size_flags_vertical = 3
 editable = false
 caret_blink = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1207053513]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 3
 
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer"]
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer" unique_id=560640748]
 layout_mode = 2
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1238311064]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2" unique_id=89032755]
 layout_mode = 2
 
-[node name="LblTranslation" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2/HBoxContainer"]
+[node name="LblTranslation" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2/HBoxContainer" unique_id=1514458894]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "[ES] Translation..."
 
-[node name="TxtTranslation" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2"]
+[node name="TxtTranslation" type="TextEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2" unique_id=1267031055]
 layout_mode = 2
 size_flags_vertical = 3
 caret_blink = true
 
-[node name="DifferenceBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer"]
+[node name="DifferenceBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer" unique_id=998916644]
 modulate = Color(1, 1, 1, 0.498039)
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
@@ -133,19 +134,19 @@ stretch_margin_top = 4
 stretch_margin_right = 4
 texture_progress = ExtResource("2_hc47a")
 
-[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=65971257]
 visible = false
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=2047873396]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=1717859403]
 layout_mode = 2
 text = "Notes"
 
-[node name="TxtAnnotations" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer"]
+[node name="TxtAnnotations" type="TextEdit" parent="MarginContainer/VBoxContainer/VBoxContainer" unique_id=1608971223]
 layout_mode = 2
 size_flags_vertical = 3
 caret_blink = true

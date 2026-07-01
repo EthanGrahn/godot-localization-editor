@@ -1,6 +1,6 @@
 # List of locales for LocalizationEditor : MIT License
 # @author Vladimir Petrenko
-extends Object
+extends RefCounted
 
 const LOCALES := [
 	{"code": "aa", "name": "Afar"},

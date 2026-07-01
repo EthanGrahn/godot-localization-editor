@@ -32,6 +32,22 @@ jobs:
           unzip -q templates.tpz
           mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}/
 
+      - name: Install custom export templates
+        run: |
+          TEMPLATE_DIR=~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          TEMPLATE_TAG=$(gh api repos/${{ github.repository }}/releases \
+            --jq ".[] | select(.name == \"Custom Export Templates (Godot ${GODOT_VERSION})\") | .tag_name")
+          gh release download "$TEMPLATE_TAG" --repo ${{ github.repository }} \
+            --pattern "godot.windows.template_release.x86_64.exe" \
+            --pattern "godot.linuxbsd.template_release.x86_64" \
+            --dir /tmp/custom-templates
+          cp /tmp/custom-templates/godot.windows.template_release.x86_64.exe \
+            $TEMPLATE_DIR/windows_release_x86_64.exe
+          cp /tmp/custom-templates/godot.linuxbsd.template_release.x86_64 \
+            $TEMPLATE_DIR/linux_release_x86_64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Export Linux
         run: |
           mkdir -p build
@@ -46,6 +62,23 @@ jobs:
       - name: Export Windows (No Google)
         run: godot --headless --export-release "Windows Desktop (No Google)" build/GodotLocalizationEditor_NoGoogle.exe
 
+      - name: Package Plugin (Standard)
+        run: |
+          mkdir -p build/plugin_std/addons
+          cp -r addons/localization_editor build/plugin_std/addons/
+          cd build/plugin_std
+          zip -r ../GodotLocalizationEditor_Plugin.zip addons/
+
+      - name: Package Plugin (No Google)
+        run: |
+          mkdir -p build/plugin_nogoogle/addons
+          cp -r addons/localization_editor build/plugin_nogoogle/addons/
+          rm -rf build/plugin_nogoogle/addons/localization_editor/google_translate
+          rm -f build/plugin_nogoogle/addons/localization_editor/icons/at-icons/translate_white.svg
+          rm -f build/plugin_nogoogle/addons/localization_editor/icons/at-icons/translate_white.svg.import
+          cd build/plugin_nogoogle
+          zip -r ../GodotLocalizationEditor_Plugin_NoGoogle.zip addons/
+
       - name: Create release
         run: |
           gh release create "$GITHUB_REF_NAME" \
@@ -54,6 +87,8 @@ jobs:
             build/GodotLocalizationEditor.x86_64 \
             build/GodotLocalizationEditor_NoGoogle.x86_64 \
             build/GodotLocalizationEditor.exe \
-            build/GodotLocalizationEditor_NoGoogle.exe
+            build/GodotLocalizationEditor_NoGoogle.exe \
+            build/GodotLocalizationEditor_Plugin.zip \
+            build/GodotLocalizationEditor_Plugin_NoGoogle.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

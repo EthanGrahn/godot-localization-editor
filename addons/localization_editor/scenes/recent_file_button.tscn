@@ -1,47 +1,43 @@
-[gd_scene load_steps=5 format=3 uid="uid://cy0rk0nm1nwoi"]
+[gd_scene format=3 uid="uid://cy0rk0nm1nwoi"]
 
 [ext_resource type="Script" uid="uid://bog1ahaf002di" path="res://addons/localization_editor/scripts/recent_file_button.gd" id="1"]
-[ext_resource type="FontFile" uid="uid://bj0ystwxlq2je" path="res://addons/localization_editor/Ubuntu-Regular.ttf" id="2"]
-[ext_resource type="Texture2D" uid="uid://c3gtnt4hce7vq" path="res://addons/localization_editor/icons/trash-icon.svg" id="3_3r8y2"]
+[ext_resource type="Texture2D" uid="uid://47v3b2qspq78" path="res://addons/localization_editor/icons/at-icons/trash_can_white.svg" id="3_86qxe"]
+[ext_resource type="Script" uid="uid://c0j6t8leypavv" path="res://addons/localization_editor/scripts/hover_button.gd" id="3_tvdyr"]
 
-[sub_resource type="FontFile" id="1"]
-fallbacks = Array[Font]([ExtResource("2")])
-cache/0/16/0/ascent = 0.0
-cache/0/16/0/descent = 0.0
-cache/0/16/0/underline_position = 0.0
-cache/0/16/0/underline_thickness = 0.0
-cache/0/16/0/scale = 1.0
-cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
-
-[node name="LinkButton" type="HBoxContainer" node_paths=PackedStringArray("_link", "_delete_button")]
+[node name="LinkButton" type="HBoxContainer" unique_id=1607572580]
 offset_right = 114.0
 offset_bottom = 19.0
 size_flags_horizontal = 3
 size_flags_vertical = 2
 alignment = 2
 script = ExtResource("1")
-_link = NodePath("Lnk")
-_delete_button = NodePath("BtnRemove")
 
-[node name="Lnk" type="LinkButton" parent="."]
+[node name="Lnk" type="LinkButton" parent="." unique_id=754386915]
 modulate = Color(0.745098, 0.745098, 0.745098, 1)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 4
 tooltip_text = "[NOT FOUND] "
-theme_override_fonts/font = SubResource("1")
 disabled = true
 underline = 1
 
-[node name="BtnRemove" type="Button" parent="."]
+[node name="BtnRemove" type="Button" parent="." unique_id=793307542]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
+tooltip_text = "Remove from recent files list"
 focus_mode = 0
 mouse_default_cursor_shape = 2
-icon = ExtResource("3_3r8y2")
+theme_override_colors/icon_normal_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+theme_override_colors/icon_pressed_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
+theme_override_colors/icon_hover_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
+theme_override_colors/icon_disabled_color = Color(0.4117647, 0.4117647, 0.4117647, 1)
+icon = ExtResource("3_86qxe")
 flat = true
 vertical_icon_alignment = 0
 expand_icon = true
+script = ExtResource("3_tvdyr")
+icon_hover_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
+icon_pressed_color = Color(0.9882353, 0.49803922, 0.49803922, 1)
 
 [connection signal="pressed" from="Lnk" to="." method="_on_link_pressed"]
 [connection signal="pressed" from="BtnRemove" to="." method="_on_remove_pressed"]

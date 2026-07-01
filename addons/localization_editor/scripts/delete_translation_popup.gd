@@ -3,7 +3,7 @@ extends ConfirmationDialog
 
 signal delete_confirmed(remember_choice: bool)
 
-@export var _remember_checkbox: CheckButton
+@onready var _remember_checkbox: CheckBox = $VBoxContainer/HBoxContainer/CheckBox
 
 
 func _on_confirmed() -> void:
