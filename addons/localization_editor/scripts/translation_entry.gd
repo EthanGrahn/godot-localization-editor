@@ -59,7 +59,9 @@ var target_text: String = "Translated Text":
 		if is_instance_valid(_target_lang_line_edit):
 			if _target_lang_line_edit.text != new_value:
 				_target_lang_line_edit.text = new_value
-			_target_lang_line_edit.modulate = _empty_translation_color if new_value.is_empty() else _default_translation_color
+			_target_lang_line_edit.modulate = (
+				_empty_translation_color if new_value.is_empty() else _default_translation_color
+			)
 
 var notes: String = "":
 	set(new_value):

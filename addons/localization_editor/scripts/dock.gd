@@ -794,14 +794,22 @@ func _on_language_removed(selected_lang: String) -> void:
 		_target_lang_option.selected = 0
 	elif target_idx > i:
 		_target_lang_option.selected = target_idx - 1
-	
+
 	if _target_lang_option.selected == _ref_lang_option.selected and _langs.size() > 1:
 		_target_lang_option.selected += 1
 
-	_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(_ref_lang_option.selected))
-	_vbx_translations.update_target_language(_target_lang_option.get_item_text(_target_lang_option.selected))
-	_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected))
-	_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(_target_lang_option.selected))
+	_vbx_translations.update_reference_language(
+		_ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	_vbx_translations.update_target_language(
+		_target_lang_option.get_item_text(_target_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"target_lang", _target_lang_option.get_item_text(_target_lang_option.selected)
+	)
 	_on_language_item_selected()
 	_on_data_dirtied()
 
