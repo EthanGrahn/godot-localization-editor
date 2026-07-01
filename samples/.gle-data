@@ -1,21 +1,22 @@
-[dialogs_quick.csv/TESTSTRING]
-
-notes="some notes"
-needs_revision=false
-
-[localizations.csv/NO]
-
-notes=""
-needs_revision=false
-
-[dialogs_quick.csv]
+[intro_sample.csv]
 
 first_cell="keys"
+target_lang="es"
+ref_lang="en"
 
-[LocalizationsListLong.csv]
+[large_28_languages.csv]
 
 first_cell="keys"
+target_lang="Bosnian"
 
 [localizations.csv]
 
 first_cell="keys"
+
+[tutorial_messages.csv]
+
+first_cell="keys"
+
+[intro_sample.csv/OPTIONS]
+
+notes="We need to decide whether to use \"options\" or \"settings.\""
