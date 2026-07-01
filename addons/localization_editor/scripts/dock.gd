@@ -630,13 +630,31 @@ func _on_language_item_selected() -> void:
 	_clear_search()
 
 
-func _on_ref_lang_item_selected(index):
+func _on_ref_lang_item_selected(index: int) -> void:
+	# If the newly selected ref language matches the current target, move target to
+	# the first available language that isn't the one just selected for ref.
+	if _target_lang_option.selected == index:
+		for j in _target_lang_option.item_count:
+			if j != index:
+				_target_lang_option.select(j)
+				_vbx_translations.update_target_language(_target_lang_option.get_item_text(j))
+				_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(j))
+				break
 	_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(index))
 	_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(index))
 	_on_language_item_selected()
 
 
-func _on_target_lang_item_selected(index):
+func _on_target_lang_item_selected(index: int) -> void:
+	# If the newly selected target language matches the current ref, move ref to
+	# the first available language that isn't the one just selected for target.
+	if _ref_lang_option.selected == index:
+		for j in _ref_lang_option.item_count:
+			if j != index:
+				_ref_lang_option.select(j)
+				_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(j))
+				_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(j))
+				break
 	_vbx_translations.update_target_language(_target_lang_option.get_item_text(index))
 	_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(index))
 	_on_language_item_selected()
@@ -660,6 +678,7 @@ func _on_btn_swap_lang_pressed() -> void:
 		"target_lang", _target_lang_option.get_item_text(_target_lang_option.selected)
 	)
 	_on_language_item_selected()
+	_start_search()
 
 
 func _parse_updated_translation_config(updated_config: Dictionary) -> void:
@@ -748,6 +767,9 @@ func _on_language_removed(selected_lang: String) -> void:
 	for t in _translations:
 		_translations[t].erase(selected_lang)
 
+	var ref_idx: int = _ref_lang_option.selected
+	var target_idx: int = _target_lang_option.selected
+
 	var i: int = 0
 	for l in _langs:
 		if l == selected_lang:
@@ -756,12 +778,39 @@ func _on_language_removed(selected_lang: String) -> void:
 			break
 		i += 1
 
-	_langs.erase(selected_lang)
+	var updated_langs := _langs.duplicate()
+	updated_langs.erase(selected_lang)
+	_langs = updated_langs
 
-	_ref_lang_option.selected = 0
-	_target_lang_option.selected = 0
-	# TODO: call remove language
-	#_on_language_item_selected(0)
+	# If the dropdown was on the removed language, fall back to the first item.
+	# If it was on a language after the removed one, decrement to follow the shifted index.
+	# Otherwise the index is before the removed item and remains valid as-is.
+	if ref_idx == i:
+		_ref_lang_option.selected = 0
+	elif ref_idx > i:
+		_ref_lang_option.selected = ref_idx - 1
+
+	if target_idx == i:
+		_target_lang_option.selected = 0
+	elif target_idx > i:
+		_target_lang_option.selected = target_idx - 1
+
+	if _target_lang_option.selected == _ref_lang_option.selected and _langs.size() > 1:
+		_target_lang_option.selected += 1
+
+	_vbx_translations.update_reference_language(
+		_ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	_vbx_translations.update_target_language(
+		_target_lang_option.get_item_text(_target_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected)
+	)
+	_config_manager.set_file_value(
+		"target_lang", _target_lang_option.get_item_text(_target_lang_option.selected)
+	)
+	_on_language_item_selected()
 	_on_data_dirtied()
 
 
@@ -830,7 +879,9 @@ func _on_lang_add_requested(lang_to_add: String) -> void:
 		alert("The chosen language already exists in the file.")
 		return
 
-	_langs.append(lang_to_add)
+	var updated_langs := _langs.duplicate()
+	updated_langs.append(lang_to_add)
+	_langs = updated_langs
 
 	for t_entry in _translations:
 		if _translations[t_entry].keys().has(lang_to_add) == false:
@@ -860,11 +911,6 @@ func _on_translation_added(
 	for l in _langs:
 		if l != ref_lang and l != target_lang:
 			_translations[key][l] = ""
-
-	# if the languages are the same, copy ref to target
-	# TODO: disallow having the same value selected
-	if ref_lang == target_lang:
-		target_text = ref_text
 
 	_vbx_translations.add_entry(key, ref_text, target_text)
 

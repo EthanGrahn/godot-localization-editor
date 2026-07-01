@@ -16,6 +16,7 @@ func _ready():
 	_confirmation.dialog_autowrap = true
 	_confirmation.initial_position = Window.WINDOW_INITIAL_POSITION_CENTER_MAIN_WINDOW_SCREEN
 	add_child(_confirmation)
+	_confirmation.get_label().horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_confirmation.confirmed.connect(_on_remove_confirmed)
 
 

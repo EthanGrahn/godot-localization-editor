@@ -10,15 +10,24 @@ signal on_new_file_created(filename: String, first_cell: String, delimiter: Stri
 @export var _delimiter_option: OptionButton
 @onready var _folder_dialog: FileDialog = $FolderDialog
 @export var _create_new_file_button: Button
+@onready var _config_manager: Node = get_tree().root.find_child("ConfigManager", true, false)
 
 var _first_cell := "keys"
 var _delimiter := ","
+var _alert_dialog: AcceptDialog
 
 
 func _ready() -> void:
 	_folder_dialog.access = (
 		FileDialog.ACCESS_RESOURCES if Engine.is_editor_hint() else FileDialog.ACCESS_FILESYSTEM
 	)
+	_alert_dialog = AcceptDialog.new()
+	add_child(_alert_dialog)
+
+
+func _alert(text: String) -> void:
+	_alert_dialog.dialog_text = text
+	_alert_dialog.popup_centered()
 
 
 func request_popup(first_cell := "keys", delimiter := ",") -> void:
@@ -36,6 +45,7 @@ func request_popup(first_cell := "keys", delimiter := ",") -> void:
 
 func _on_about_to_popup() -> void:
 	_create_new_file_button.disabled = true
+	_added_langs.clear()
 	_filename_line_edit.grab_focus()
 
 
@@ -70,15 +80,15 @@ func _on_create_new_file_button_pressed():
 	var headers_list: Array = langs_txt.split(_delimiter, false)
 
 	if filepath.is_empty() == true:
-		OS.alert("Please choose a file path.")
+		_alert("Please choose a file path.")
 		return
 
 	if filename.is_empty() == true:
-		OS.alert("Please enter a file name.")
+		_alert("Please enter a file name.")
 		return
 
 	if headers_list.size() == 0:
-		headers_list.append("en")  # TODO: get reference lang instead
+		headers_list.append(_config_manager.get_settings_value("main", "user_ref_lang", "en"))
 
 	# add the first cell
 	headers_list.push_front(_first_cell)
@@ -98,7 +108,7 @@ func _on_create_new_file_button_pressed():
 		on_new_file_created.emit(full_path, _first_cell, _delimiter)
 		self.hide()
 	else:
-		OS.alert("Error creating file. Error #" + str(out_file.get_open_error()))
+		_alert("Error creating file. Error #" + str(out_file.get_open_error()))
 		out_file.close()
 
 
