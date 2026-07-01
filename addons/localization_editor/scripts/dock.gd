@@ -748,6 +748,9 @@ func _on_language_removed(selected_lang: String) -> void:
 	for t in _translations:
 		_translations[t].erase(selected_lang)
 
+	var ref_idx: int = _ref_lang_option.selected
+	var target_idx: int = _target_lang_option.selected
+
 	var i: int = 0
 	for l in _langs:
 		if l == selected_lang:
@@ -756,12 +759,31 @@ func _on_language_removed(selected_lang: String) -> void:
 			break
 		i += 1
 
-	_langs.erase(selected_lang)
+	var updated_langs := _langs.duplicate()
+	updated_langs.erase(selected_lang)
+	_langs = updated_langs
 
-	_ref_lang_option.selected = 0
-	_target_lang_option.selected = 0
-	# TODO: call remove language
-	#_on_language_item_selected(0)
+	# If the dropdown was on the removed language, fall back to the first item.
+	# If it was on a language after the removed one, decrement to follow the shifted index.
+	# Otherwise the index is before the removed item and remains valid as-is.
+	if ref_idx == i:
+		_ref_lang_option.selected = 0
+	elif ref_idx > i:
+		_ref_lang_option.selected = ref_idx - 1
+
+	if target_idx == i:
+		_target_lang_option.selected = 0
+	elif target_idx > i:
+		_target_lang_option.selected = target_idx - 1
+	
+	if _target_lang_option.selected == _ref_lang_option.selected and _langs.size() > 1:
+		_target_lang_option.selected += 1
+
+	_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(_ref_lang_option.selected))
+	_vbx_translations.update_target_language(_target_lang_option.get_item_text(_target_lang_option.selected))
+	_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(_ref_lang_option.selected))
+	_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(_target_lang_option.selected))
+	_on_language_item_selected()
 	_on_data_dirtied()
 
 
@@ -830,7 +852,9 @@ func _on_lang_add_requested(lang_to_add: String) -> void:
 		alert("The chosen language already exists in the file.")
 		return
 
-	_langs.append(lang_to_add)
+	var updated_langs := _langs.duplicate()
+	updated_langs.append(lang_to_add)
+	_langs = updated_langs
 
 	for t_entry in _translations:
 		if _translations[t_entry].keys().has(lang_to_add) == false:
