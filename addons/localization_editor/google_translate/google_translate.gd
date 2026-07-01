@@ -3,6 +3,8 @@ extends Node
 
 signal text_translated(id, from_lang, to_lang, original_text, translated_text)
 
+var _locale_list = null
+
 
 func translate(from_lang: String, to_lang: String, text: String, callback: Callable) -> void:
 	var url = _create_url(from_lang, to_lang, text)
@@ -25,15 +27,13 @@ func _create_url(from_lang: String, to_lang: String, text: String) -> String:
 func _resolve_lang_code(lang: String) -> String:
 	if ", " in lang:
 		return lang.split(", ")[-1]
-	var locale_list = (
-		load("res://addons/localization_editor/scripts/localization_locale_list.gd").new()
-	)
-	for entry in locale_list.LOCALES:
+	if _locale_list == null:
+		_locale_list = (
+			load("res://addons/localization_editor/scripts/localization_locale_list.gd").new()
+		)
+	for entry in _locale_list.LOCALES:
 		if entry["name"] == lang:
-			var code: String = entry["code"]
-			locale_list.free()
-			return code
-	locale_list.free()
+			return entry["code"]
 	return lang
 
 
