@@ -56,8 +56,6 @@ var ref_text: String = "Reference Translation":
 			ref_text = "[EMPTY]"
 		_ref_lang_label.text = ref_text
 
-		# TODO: add logic for text that doesn't fit in box
-
 var target_text: String = "Translated Text":
 	set(new_value):
 		target_text = new_value
