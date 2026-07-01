@@ -630,13 +630,31 @@ func _on_language_item_selected() -> void:
 	_clear_search()
 
 
-func _on_ref_lang_item_selected(index):
+func _on_ref_lang_item_selected(index: int) -> void:
+	# If the newly selected ref language matches the current target, move target to
+	# the first available language that isn't the one just selected for ref.
+	if _target_lang_option.selected == index:
+		for j in _target_lang_option.item_count:
+			if j != index:
+				_target_lang_option.select(j)
+				_vbx_translations.update_target_language(_target_lang_option.get_item_text(j))
+				_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(j))
+				break
 	_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(index))
 	_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(index))
 	_on_language_item_selected()
 
 
-func _on_target_lang_item_selected(index):
+func _on_target_lang_item_selected(index: int) -> void:
+	# If the newly selected target language matches the current ref, move ref to
+	# the first available language that isn't the one just selected for target.
+	if _ref_lang_option.selected == index:
+		for j in _ref_lang_option.item_count:
+			if j != index:
+				_ref_lang_option.select(j)
+				_vbx_translations.update_reference_language(_ref_lang_option.get_item_text(j))
+				_config_manager.set_file_value("ref_lang", _ref_lang_option.get_item_text(j))
+				break
 	_vbx_translations.update_target_language(_target_lang_option.get_item_text(index))
 	_config_manager.set_file_value("target_lang", _target_lang_option.get_item_text(index))
 	_on_language_item_selected()
@@ -884,11 +902,6 @@ func _on_translation_added(
 	for l in _langs:
 		if l != ref_lang and l != target_lang:
 			_translations[key][l] = ""
-
-	# if the languages are the same, copy ref to target
-	# TODO: disallow having the same value selected
-	if ref_lang == target_lang:
-		target_text = ref_text
 
 	_vbx_translations.add_entry(key, ref_text, target_text)
 
