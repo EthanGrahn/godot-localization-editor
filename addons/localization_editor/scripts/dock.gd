@@ -90,7 +90,10 @@ var _search_filters := {
 
 
 func _ready() -> void:
-	if Engine.is_editor_hint() and not EditorInterface.is_plugin_enabled("localization_editor"):
+	if (
+		Engine.is_editor_hint()
+		and not Engine.get_singleton("EditorInterface").is_plugin_enabled("localization_editor")
+	):
 		set_process(false)
 		return
 
