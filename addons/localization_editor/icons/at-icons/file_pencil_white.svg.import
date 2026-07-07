@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://doa205uvb8ssp"
-path="res://.godot/imported/paper_plus_white.svg-b5bbd702154e4d2afa102d0506252747.ctex"
+uid="uid://foxf1ftphte"
+path="res://.godot/imported/file_pencil_white.svg-63c570dba5d102eaef51a9ba59546a43.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/localization_editor/icons/paper_plus_white.svg"
-dest_files=["res://.godot/imported/paper_plus_white.svg-b5bbd702154e4d2afa102d0506252747.ctex"]
+source_file="res://addons/localization_editor/icons/at-icons/file_pencil_white.svg"
+dest_files=["res://.godot/imported/file_pencil_white.svg-63c570dba5d102eaef51a9ba59546a43.ctex"]
 
 [params]
 
@@ -38,6 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=4.0
+svg/scale=6.0
 editor/scale_with_editor_scale=false
 editor/convert_colors_with_editor_theme=false
